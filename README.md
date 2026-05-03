@@ -38,7 +38,7 @@ K-Law의 우위가 특정 데이터셋에 과적합된 것이 아니라
 
 ```bash
 # 1. 저장소 클론
-git clone https://github.com/team-jupeter/PLAS.git
+git clone https://github.com/nounweb/k-law.git  ← 새 주소
 cd PLAS
 
 # 2. 의존성 설치
