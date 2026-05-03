@@ -3,121 +3,19 @@
 **Park-Do PLAS** — OpenHash 기반 AI 자율 분쟁 예방·해결 시스템
 
 > Co-developed by Professor Yong-Chul Park and Developer Young-Min Do  
-> AI City Inc. · K-Law Research Group · Jeju, Republic of Korea  
-> ORCID: [0009-0004-4288-8746](https://orcid.org/0009-0004-4288-8746)
+> AI City Inc. · Park-Do PLAS Research Group · Jeju, Republic of Korea  
+> ORCID: [0009-0004-4288-8746](https://orcid.org/0009-0004-4288-8746)  
+> 버전: K-Law v13.2 · 기준일: 2026년 5월 2일
 
 ---
 
 ## 핵심 주장 (PD-TJM: Park-Do Tripartite Justice Model)
 
 ```
-전체 분쟁의 90% → Gopang AI 비서가 소통 시점에서 예방
-           9% → K-Law + 변호사 중재로 수분 내 해결
-           1% → 인간 법원 (판례 창출 + 입법 1단계)
+전체 분쟁의 90% → Gopang AI 비서가 소통 시점에서 예방  (IDDM)
+           9% → K-Law + 변호사 중재로 수분 내 해결       (K-Law)
+           1% → 인간 법원  (판례 창출 + 입법 1단계)
 ```
-
----
-
-## 🔴 실시간 검증 가능성 (Live Verifiability)
-
-본 연구의 가장 중요한 특징입니다.
-
-**심사관·독자·후속 연구자 누구나, 언제든지, 새로운 판례로 독립 검증할 수 있습니다.**
-
-대한민국 대법원은 법제처 Open API를 통해 판례를 지속적으로 공개합니다.
-본 논문 작성 시점(2026년 5월 2일)과 논문 심사·출판·구독 시점의 판례는 다릅니다.
-이것은 한계가 아니라 강점입니다.
-
-```
-서로 다른 시점의 새로운 판례로 동일한 결과가 재현된다면,
-K-Law의 우위가 특정 데이터셋에 과적합된 것이 아니라
-방법론의 구조적 우위임이 입증됩니다.
-```
-
-### 5분 내 재현 방법
-
-```bash
-# 1. 저장소 클론
-git clone https://github.com/nounweb/k-law.git  ← 새 주소
-cd PLAS
-
-# 2. 의존성 설치
-pip install -r requirements.txt
-
-# 3. 최신 판례 수집 (법제처 Open API)
-python data/collect_1008.py --count 100 --domains 민사,형사,행정
-
-# 4. 사건 요약 추출 (판결 결과 제거)
-python data/summary_batch.py --input ./cases --output ./summaries
-
-# 5. K-Law 가상 판결 생성
-python experiments/test_a.py --input ./summaries --output ./results
-
-# 6. 결과 분석
-python experiments/analyze.py --results ./results
-```
-
----
-
-## 저장소 구조
-
-```
-PLAS/
-├── data/                          # 데이터 수집 파이프라인
-│   ├── collect_1008.py            # 법제처 API 판례 수집
-│   ├── fetch_prec_texts.py        # 판결문 본문 수집
-│   ├── summary_batch.py           # gpt-4o-mini 요약 추출
-│   └── split_final.py             # 실험군 층화 분할 (seed=42)
-│
-├── klaw/                          # K-Law 핵심 방법론
-│   ├── prompts/                   # K-Law 시스템 프롬프트 전체
-│   │   ├── system_prompt.txt      # 15개 공리 + Axiom B
-│   │   ├── reverse_reasoning.txt  # 역방향 추론 프로토콜
-│   │   └── plain_llm_prompt.txt   # Plain LLM 비교용 공통 프롬프트
-│   ├── lcam/                      # LCAM 채점 방법론
-│   │   ├── LCAM_full.txt          # LCAM 전문 (Phase 0~8)
-│   │   ├── scoring_rubric.txt     # 채점 기준 상세
-│   │   └── error_types.txt        # 9개 논리 오류 유형 정의
-│   └── iddm/                      # IDDM 예방방법론
-│       ├── IDDM_full.txt          # Phase 0~6 전문
-│       ├── fast_path.txt          # FP-01~08 즉각 탐지 목록
-│       └── risk_indicators.txt    # CR/CV/LB/CC 위험 지표
-│
-├── experiments/                   # 실험 실행 스크립트
-│   ├── test_a.py                  # K-Law vs 법원 판결 비교
-│   ├── test_b.py                  # K-Law vs Plain LLM 3종
-│   ├── test_c.py                  # LCAM 평가자 간 κ 측정
-│   ├── test_d.py                  # 1·2심 vs K-Law vs 대법원
-│   ├── test_e.py                  # AI 비서 탐지 시뮬레이션
-│   └── analyze.py                 # 통계 분석 (t검정·Cohen's d·κ)
-│
-├── results/                       # 실험 결과 원본 데이터
-│   ├── test_a_results.csv
-│   ├── test_b_results.csv
-│   ├── test_c_kappa.csv
-│   ├── test_d_results.csv
-│   └── test_e_simulation.csv
-│
-├── papers/                        # 논문 초안
-│   ├── paper1_theory.txt
-│   ├── paper2_empirical.txt
-│   └── paper3_system.txt
-│
-├── requirements.txt               # Python 의존성
-├── .env.example                   # API 키 템플릿
-└── README.md                      # 본 문서
-```
-
----
-
-## 방법론 명명 체계
-
-| 약어 | 전체 이름 | 설명 |
-|------|-----------|------|
-| PLAS | Preventive Legal Autonomy System | 통합 시스템 |
-| LCAM | Legal Completeness Assessment Methodology | 판결 품질 평가 |
-| IDDM | Illegality Detection & Deterrence Methodology | 예방방법론 |
-| PD-TJM | Park-Do Tripartite Justice Model | 90-9-1 분쟁 배분 |
 
 ---
 
@@ -126,8 +24,288 @@ PLAS/
 ```
 PLAS
 ├── OpenHash    위변조 불가 소통 기록 보전 (신뢰 기반)
-├── K-Law       공리 기반 AI 가상 판결 생성 (판결 엔진)
-└── Gopang      실시간 위법성 감지 소통 플랫폼 (예방 채널)
+│               특허출원 제10-2026-0018910호
+│               특허출원 제10-2025-0183149호
+├── K-Law       공리 기반 AI 가상 판결 생성 (판결 엔진)   ← 논문 1·2
+└── Gopang      실시간 위법성 감지 소통 플랫폼 (예방 채널) ← 논문 3
+```
+
+---
+
+## 방법론 명명 체계
+
+| 약어 | 전체 이름 | 역할 |
+|------|-----------|------|
+| PLAS | Preventive Legal Autonomy System | 통합 시스템 |
+| PD-TJM | Park-Do Tripartite Justice Model | 90-9-1 분쟁 배분 모델 |
+| K-Law | Korean Law Axiomatic Reasoning | 15공리 기반 추론 엔진 |
+| LCAM | Legal Completeness Assessment Methodology | 판결 품질 정량 평가 |
+| IDDM | Illegality Detection & Deterrence Methodology | 소통 위법성 자동 감지 |
+
+---
+
+## K-Law: 15개 공리 4계층 구조
+
+K-Law는 확증 편향을 절차적으로 차단하는 역방향 추론(Axiom B)을
+핵심으로 하는 공리 기반 법리 추론 시스템입니다.
+
+```
+제1계층   원칙 공리 (A~G) — 변경 불가, 모든 추론에 우선
+제1.5계층 의미 해석 공리 (S) — 5단계 의미 해석
+제2계층   해석 공리 (H~L) — 원칙 공리에 종속
+제3계층   집행 규칙 (M, O) — 상위 계층에 종속
+```
+
+### 역방향 추론 (Axiom B) — 핵심 절차
+
+판결 생성 전 피고 최강 논거를 먼저 완전하게 구성합니다.
+
+| 요소 | 최소 기준 |
+|------|-----------|
+| 피고 최강 논거 분량 | 300자 이상 |
+| 법원칙 | 1건 이상 |
+| 대법원 반대 판례 | 1건 이상 (없으면 유사 법리) |
+| 반대 논거 | 3개 이상 |
+| 원고 대응 논거 | 피고 논거와 동등한 분량 |
+
+### 확신도 이원화 (Axiom G)
+
+```
+법리 확신도 [0~10]  ×  사실 확신도 [0~10]
+종합 확신도 = min(법리, 사실)
+
+확정적:     사실 ≥ 7  AND  법리 ≥ 7
+조건부:     사실 4~6  AND  법리 ≥ 4
+판단유보:   사실 < 4  OR   법리 < 4      → Hard Case
+절차적 환송: 법리 ≥ 5, 사실 ≥ 4, 재심리 필요
+```
+
+---
+
+## LCAM: 판결 법리 완전성 평가 방법론
+
+LCAM은 판결문의 법리적 완전성을 정량화하는 범용 방법론입니다.
+민사·형사·행정·노동·가사·지식재산·헌법 전 분야에 적용됩니다.
+
+### 설계 원칙
+
+1. **보편성** — 전 법 분야 적용
+2. **정밀성** — 9개 논리 오류 유형, 13개 감산 규정 알고리즘화
+3. **재량 최소화** — Phase 0 자동 연동, Phase 1.5 자동 설정
+4. **재현 가능성** — 모든 판정 근거를 판결문 쪽수·문장 단위로 명시
+
+### 전체 구조 (Phase 0~8)
+
+```
+Phase 0    사건 기본 정보 자동 연동 (Q0.1~Q0.13)
+Phase 1    논리 오류 탐지 (9개 유형)
+Phase 1.5  자동 연동 규칙 (은유적 오류 → 법률 없는 권리 창설)
+Phase 2    5대 영역 평가 (31개 항목)
+Phase 3    13개 공통 감산 규정 적용
+Phase 4    중복 방지 검토 (6개)
+Phase 5    심급별 차등 가중치 적용
+Phase 6    최종 점수 산출
+Phase 7    분야별 필수 모듈 (A~G)
+Phase 8    최종 보고서 및 평가자 고지
+```
+
+### 5대 평가 영역
+
+| 영역 | 내용 | 국제 기준 |
+|------|------|-----------|
+| Ⅰ 공정성 | 무기대등·석명의무·취약자 보호 | WJP Factor 7, CEPEJ |
+| Ⅱ 객관성 | 편향 없는 사실 인정 | WJP Factor 7 |
+| Ⅲ 합리성 | 삼단논법 완결성·논리 오류 부재 | WJP Factor 1·3 |
+| Ⅳ 사실정확성 | 증거 기반 사실 인정 | CEPEJ |
+| Ⅴ 법적정당성 | 규범 위계 준수·법원칙 적용 | WJP Factor 4, OECD |
+
+### 9개 논리 오류 유형 및 감산 배점
+
+| 유형 | 감산 |
+|------|------|
+| ① 순환 논증 | -5점 |
+| ② 자기실현적 예언 | -5점 |
+| ③ 인과관계 역전 | -4점 |
+| ④ **법률 없는 권리 창설** | **-10점** (최고 감산, 법률유보 위반) |
+| ⑤ 허위 딜레마 | -3점 |
+| ⑥ 구성주의 오류 | -3점 |
+| ⑦ 형식적 오류 | -4점 |
+| ⑧ 귀납적 오류 | -3점 |
+| ⑨ 은유적 오류 | -2점 (Phase 1.5 연동 트리거) |
+
+### 심급별 차등 가중치
+
+| | 영역Ⅰ | 영역Ⅱ | 영역Ⅲ | 영역Ⅳ | 영역Ⅴ |
+|--|--------|--------|--------|--------|--------|
+| 1심 | 20% | 25% | 20% | 25% | 10% |
+| 항소심 | 20% | 20% | 25% | 20% | 15% |
+| 대법원 | 10% | 5% | 30% | N/A | 55% |
+| 헌법재판소 | 20% | 10% | 25% | N/A | 45% |
+
+> LCAM Phase 0~8 전체 상세 명세는 논문 게재 후 공개됩니다.
+
+---
+
+## IDDM: 소통 위법성 자동 감지 방법론
+
+IDDM은 Gopang 플랫폼을 통해 오가는 소통의 위법성 가능성을
+실시간으로 평가하는 자기 방어적 증거 보전 수단입니다.
+
+> IDDM은 타인의 유죄를 발각하는 수단이 아닙니다.  
+> 당사자가 자신의 정당성을 스스로 입증하는 도구입니다.
+
+### Fast-Path 즉각 탐지 (≤ 0.8mS)
+
+| 코드 | 탐지 유형 | 판정 |
+|------|-----------|------|
+| FP-01 | 금융기관·검찰·경찰 사칭 | score=1.0, S3 |
+| FP-02 | 계좌번호·OTP·비밀번호 즉시 요구 | score=0.95, S3 |
+| FP-03 | 긴급 송금 요구 + 금액 명시 | score=0.90, S3 |
+| FP-04 | 불법 도박·유사수신 권유 | score=0.85, S2 |
+| FP-05 | 직장 내 괴롭힘·성희롱 | score=0.80, S2 |
+| FP-06 | 협박·공갈 | score=0.90, S3 |
+| **FP-07** | **아동·청소년 대상 위험** | **score=1.0, S3 + 경찰청 112** |
+| **FP-08** | **자해·자살 위기** | **score=1.0, S3 + 1393** |
+
+### 위험 등급 판정
+
+```
+S0 정상  (score < 0.3)   → 정상 전송
+S1 경고  (0.3~0.6)       → 경고 표시, 사용자 선택
+S2 위험  (0.6~0.9)       → 3초 지연 + 강력 경고 + 법률 상담
+S3 긴급  (≥ 0.9)        → 즉시 차단 + 관련 기관 안내
+```
+
+### 성능 목표
+
+| 지표 | 목표 |
+|------|------|
+| 단문 텍스트 처리 | ≤ 1mS |
+| 보이스피싱 탐지율 (Fast-Path) | ≥ 99.7% |
+| 임대차 위법 탐지율 | ≥ 93.3% |
+| 오탐율 | ≤ 0.5% |
+| S3 긴급 차단 정확도 | 100% |
+
+---
+
+## 실험 설계
+
+### 데이터셋: 법제처 공개 판례 1,008건
+
+| 분야 | 건수 | 주요 검색어 |
+|------|------|-------------|
+| 민사 | 350 | 손해배상·임대차·계약·부당이득 등 |
+| 형사 | 200 | 사기·횡령·폭행·마약 등 |
+| 행정 | 150 | 행정처분·조세·국가배상 등 |
+| 노동 | 150 | 해고·임금·산재·부당노동행위 등 |
+| 가사 | 60 | 이혼·상속·친권·재산분할 등 |
+| 지식재산 | 50 | 특허·상표·저작권·영업비밀 등 |
+| 회사 | 48 | 주주총회·합병·이사·신주발행 등 |
+
+### 실험군 분할 (seed=42)
+
+| 폴더 | 건수 | 용도 |
+|------|------|------|
+| `1_이론방법론` | 60 | 논문 1 (전원합의체 우선) |
+| `2_KLaw_실험` | 200 | 논문 2 K-Law 가상 판결 |
+| `2_Anchor_Set` | 100 | 논문 2 LCAM 기준점 |
+| `2_법원비교_추가` | 40 | 논문 2 법원 판결 비교 |
+| `3_시스템응용` | 250 | 논문 3 IDDM 시뮬레이션 |
+| `0_예비` | ~158 | 여유분 |
+
+### 측정 지표
+
+| 실험 | 지표 | 방법 |
+|------|------|------|
+| Test A | LCAM 점수 차이, OA | 대응 표본 t검정, Cohen's d |
+| Test B | ΔOA (K-Law vs Plain LLM 3종) | Claude·DeepSeek·Gemini 비교 |
+| Test C | 평가자 간 신뢰도 | Cohen's κ (목표 ≥ 0.61) |
+
+---
+
+## 🔴 실시간 검증 가능성 (Live Verifiability)
+
+**심사관·독자·후속 연구자 누구나, 언제든지, 새로운 판례로 독립 검증할 수 있습니다.**
+
+대한민국 대법원은 법제처 Open API를 통해 판례를 지속적으로 공개합니다.
+본 논문 작성 시점(2026년 5월 2일)과 심사·출판·구독 시점의 판례는 다릅니다.
+이것은 한계가 아니라 강점입니다.
+
+> 서로 다른 시점의 새로운 판례로 동일한 결과가 재현된다면,  
+> K-Law의 우위가 특정 데이터셋에 과적합된 것이 아니라  
+> **방법론의 구조적 우위**임이 입증됩니다.
+
+### 5분 내 재현 방법
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/nounweb/k-law.git
+cd k-law
+
+# 2. 의존성 설치
+pip install -r requirements.txt
+
+# 3. API 키 설정
+cp .env.example .env
+# .env 파일에 OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY 입력
+
+# 4. 최신 판례 수집 (법제처 Open API)
+python data/collect_1008.py
+
+# 5. 판결문 본문 수집
+python data/fetch_prec_texts.py
+
+# 6. 사건 요약 추출 (판결 결과 제거, gpt-4o-mini)
+python data/summary_1008.py
+
+# 7. 실험군 층화 분할
+python data/split_final.py
+
+# 8. K-Law 가상 판결 생성 (Test A)
+python experiments/test_a.py
+
+# 9. Plain LLM 비교 (Test B)
+python experiments/test_b.py
+
+# 10. 통계 분석
+python experiments/analyze.py --results ./results
+```
+
+---
+
+## 저장소 구조
+
+```
+k-law/
+├── data/                          # 데이터 수집 파이프라인
+│   ├── collect_1008.py            # 법제처 API 판례 목록 수집 (분야별 배분)
+│   ├── fetch_prec_texts.py        # 판결문 본문 XML 수집
+│   ├── summary_1008.py            # gpt-4o-mini 6항목 요약 (판결 결과 제거)
+│   └── split_final.py             # 실험군 층화 분할 (seed=42)
+│
+├── klaw/                          # K-Law 핵심 방법론
+│   └── prompts/
+│       ├── system_prompt.txt      # 15개 공리 전문 (v13.2)
+│       ├── reverse_reasoning.txt  # Axiom B 역방향 추론 프로토콜
+│       └── plain_llm_prompt.txt   # Test B 비교용 공통 프롬프트
+│
+├── lcam/                          # LCAM 채점 방법론
+│   └── LCAM_overview.txt          # Phase 0~8 개요 (전문은 논문 게재 후 공개)
+│
+├── iddm/                          # IDDM 예방방법론
+│   ├── IDDM_full.txt              # Phase 0~6 전문
+│   └── fast_path.txt              # FP-01~08 즉각 탐지 목록
+│
+├── experiments/                   # 실험 실행 스크립트
+│   ├── test_a.py                  # K-Law vs 법원 판결 비교 (LCAM 점수·OA)
+│   ├── test_b.py                  # K-Law vs Plain LLM 3종 (ΔOA)
+│   └── analyze.py                 # 통계 분석 (t검정·Cohen's d·κ)
+│
+├── results/                       # 실험 결과 원본 데이터
+│
+├── requirements.txt               # Python 의존성
+├── .env.example                   # API 키 템플릿
+└── README.md                      # 본 문서
 ```
 
 ---
@@ -136,9 +314,9 @@ PLAS
 
 | 논문 | 제목 | 투고 목표 |
 |------|------|-----------|
-| 논문 1 | 이론 및 방법론 | AI & Law (Springer) |
-| 논문 2 | 실증적 검증 | Journal of Empirical Legal Studies |
-| 논문 3 | 시스템 및 응용 | Computers & Security |
+| 논문 1 | 이론 및 방법론 (K-Law·LCAM·IDDM) | AI & Law (Springer) |
+| 논문 2 | 실증적 검증 (1,008건 대법원 판례) | Journal of Empirical Legal Studies |
+| 논문 3 | 시스템 및 응용 (Gopang·IDDM) | Computers & Security |
 
 ---
 
@@ -147,40 +325,87 @@ PLAS
 | 버전 | 주요 변경 | 비고 |
 |------|-----------|------|
 | v1.0 | 초기 공리 체계 | 내부 실험 |
-| ... | 반복 개선 | 수백 건 실험 |
-| v13.2 | 논문 작성 기준 버전 | 2026년 5월 2일 |
+| … | 반복 개선 | 수백 건 실험 |
+| **v13.2** | **논문 작성 기준 버전** | **2026년 5월 2일** |
 | v14.0+ | 지속 갱신 중 | OSF 등록 후 본 실험용 버전 고정 |
 
-> K-Law 방법론은 거의 매일 버전 업데이트가 진행됩니다.
+> K-Law 방법론은 지속적으로 버전 업데이트가 진행됩니다.  
 > 본 실험에 사용된 버전은 OSF 사전등록 시 고정됩니다.
 
 ---
 
 ## OpenHash 특허
 
-- 특허출원 제10-2026-0018910호
+- 특허출원 제10-2026-0018910호  
 - 특허출원 제10-2025-0183149호
+
+---
+
+## 글로벌 사법 체계에 대한 예상 임팩트
+
+본 연구가 세계적 권위지에 실증 발표될 경우, 각국 사법 체제에 다음과 같은 구조적 변화가 예상됩니다.
+
+### 1. 사법 접근성(Access to Justice)의 민주화
+
+현재의 법률 서비스는 비용·시간·정보 비대칭이라는 세 가지 장벽으로 인해 경제적 약자가 사법 보호를 포기하는 구조입니다. PLAS는 이 장벽을 동시에 해소합니다.
+
+- **비용·시간의 획기적 단축**: 기존 법원 프로세스보다 빠르고 저렴한 법률 분석을 제공하여, 경제적 이유로 소송을 포기하던 잠재적 당사자들이 사법 체계의 보호를 받을 수 있게 됩니다.
+- **법률 정보 비대칭 해소**: 기부채납·신탁법 분쟁 등 복잡한 판례에 대한 고도 분석을 AI가 보조함으로써 일반 시민도 전문가 수준의 법리적 위치를 파악할 수 있게 됩니다.
+
+### 2. 사법 절차의 신뢰성과 투명성 증대 (OpenHash)
+
+블록체인 기술을 사법 체계에 이식하여 기록의 무결성을 구조적으로 보장합니다.
+
+- **증거·기록의 변조 방지**: 판결문·기부채납 확약서 등 중요 공문서가 OpenHash상에서 관리되면 사후 조작 가능성이 원천 차단되어 사법 시스템에 대한 국민적 신뢰가 높아집니다.
+- **스마트 계약을 통한 판결 이행**: 특정 조건 충족 시 권리 관계가 자동 변동되도록 설계하여 승소 후 집행 지연 문제를 해결합니다.
+
+### 3. 법관·법률 전문가의 업무 패러다임 전환
+
+기술이 인간을 대체하는 것이 아니라, 전문가의 판단을 고도화하는 방향으로 진화합니다.
+
+- **법률 분석 지원 자동화(IAA: Intelligent Analysis Assistance)**: 법관·변호사가 수천 건의 유사 판례를 검토하는 단순 반복 업무에서 벗어나 사건의 실체와 법리적 쟁점에 집중할 수 있는 환경을 제공합니다.
+- **정교한 법리 가이드라인 실시간 제공**: 최신 판례·법령 변화를 즉시 반영한 분석 보고서를 생성하여 법적 판단의 일관성과 정확도를 높입니다.
+
+### 4. 글로벌 사법 표준의 선점
+
+K-Law 모델이 Harvard Law Review 등을 통해 검증될 경우, 이는 글로벌 사법 가이드라인이 될 수 있습니다.
+
+- **리걸테크 규제 샌드박스의 모델화**: "사법 자동화" 대신 "법률 분석 지원 자동화(IAA)"라는 법적으로 안전한 접근법은 각국 정부가 AI를 사법부에 도입할 때 참고할 최적의 규제 모델이 됩니다.
+- **디지털 사법 주권 확보**: 이 기술을 선도하는 국가는 미래 디지털 사법 체계의 표준 프로토콜을 점유하여 학술적·비즈니스적 주도권을 행사하게 됩니다.
+
+### 5. 국가별 체제에 따른 구체적 영향
+
+| 체제 구분 | 예상되는 주요 변화 |
+|-----------|-------------------|
+| **대륙법 체계** (한국, 독일 등) | 성문법령·판례 분석의 정교화로 재판의 예측 가능성 극대화 |
+| **영미법 체계** (미국, 영국 등) | 방대한 판례법(Case Law) 검색·분석의 비약적 속도 향상 |
+| **개발도상국** | 사법 관료 개입 가능성을 줄이고 투명한 시스템 즉시 도입 가능 |
+
+> 본 연구는 단순한 기술적 제안을 넘어 "인공지능과 블록체인이 사법 정의(Justice)를 어떻게 실현할 것인가"에 대한 전 세계적 해답을 제시하는 이정표를 목표로 합니다.
 
 ---
 
 ## 재현 가능성 선언
 
-본 연구의 모든 데이터·코드·프롬프트는 공개됩니다.
-심사관·독자·후속 연구자는 법제처 공개 판례를 이용하여
+본 연구의 모든 데이터·코드·프롬프트는 공개됩니다.  
+심사관·독자·후속 연구자는 법제처 공개 판례를 이용하여  
 언제든지 독립적으로 본 연구를 재현하고 확장할 수 있습니다.
 
-```
-"This is not a static paper. It is a living, continuously
- verifiable empirical claim."
-```
+> "This is not a static paper. It is a living, continuously verifiable empirical claim."
 
 ---
 
 ## 라이선스
 
-MIT License — 자유롭게 사용·수정·배포 가능
+AGPL-3.0 License (GNU Affero General Public License v3.0)
+
+본 소프트웨어는 AGPL-3.0 라이선스 하에 배포됩니다.
+네트워크를 통해 본 소프트웨어를 서비스로 제공하는 경우에도
+소스 코드 공개 의무가 적용됩니다.
+상업적 이용·수정·배포 시 동일 라이선스(AGPL-3.0)를 유지해야 합니다.
+라이선스 전문: https://www.gnu.org/licenses/agpl-3.0.html
 
 ## 연락처
 
 tensor.city@gmail.com  
-www.openhash.kr
+[www.openhash.kr](http://www.openhash.kr)
