@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Law 시대의 사법혁신 | AI City Inc.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --ink: #1a1814;
+  --ink2: #3d3a35;
+  --muted: #7a7570;
+  --rule: #e0dbd5;
+  --bg: #faf8f4;
+  --bg2: #f2ede6;
+  --bg3: #e8e2d8;
+  --accent: #c8391a;
+  --accent2: #1a4c8c;
+  --accent3: #1a7a50;
+  --gold: #b8860b;
+  --purple: #5c3a8c;
+  --w: 860px;
+  --serif: 'Noto Serif KR', serif;
+  --sans: 'Noto Sans KR', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.8;
+  font-size: 15px;
+}
+
+/* ── NAV ── */
+.toc-nav {
+  position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+  background: var(--ink);
+  color: #c8c4bc;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 1.5rem 0;
+  font-size: 12px;
+}
+.toc-nav .logo {
+  font-family: var(--serif); font-size: 13px; font-weight: 700;
+  color: #fff; padding: 0 1.25rem 1.25rem; border-bottom: 1px solid #333;
+  margin-bottom: 1rem; line-height: 1.4;
+}
+.toc-nav a {
+  display: block; padding: 0.35rem 1.25rem;
+  color: #9a9590; text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+  border-left: 3px solid transparent;
+}
+.toc-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.toc-nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(200,57,26,0.08); }
+.toc-nav .sec { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #555; padding: 1rem 1.25rem 0.3rem; }
+
+/* ── MAIN ── */
+.main { margin-left: 220px; }
+
+/* ── COVER ── */
+.cover {
+  min-height: 100vh;
+  background: var(--ink);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 5rem 5rem 5rem;
+  position: relative; overflow: hidden;
+}
+.cover-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(200,57,26,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,57,26,0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.cover-year {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em;
+  color: var(--accent); margin-bottom: 3rem;
+}
+.cover h1 {
+  font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900; color: #fff; line-height: 1.15; margin-bottom: 1rem;
+}
+.cover h1 em { color: var(--accent); font-style: normal; }
+.cover-sub {
+  font-size: 16px; color: #9a9590; max-width: 560px;
+  line-height: 1.7; margin-bottom: 3rem;
+}
+.cover-meta {
+  display: flex; gap: 2rem; align-items: center;
+  border-top: 1px solid #333; padding-top: 2rem;
+}
+.cover-meta .pub { font-family: var(--mono); font-size: 11px; color: #666; }
+.cover-tag {
+  display: inline-block; border: 1px solid var(--accent);
+  color: var(--accent); font-size: 10px; letter-spacing: 0.15em;
+  padding: 3px 10px; font-family: var(--mono);
+}
+.cover-orbs {
+  position: absolute; top: 10%; right: 5%;
+  width: 340px; height: 340px; opacity: 0.15;
+}
+
+/* ── SECTIONS ── */
+.chapter {
+  max-width: var(--w);
+  margin: 0 auto;
+  padding: 5rem 3rem;
+  border-bottom: 1px solid var(--rule);
+}
+.chapter-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem;
+}
+.chapter h2 {
+  font-family: var(--serif); font-size: 2rem; font-weight: 900;
+  line-height: 1.2; margin-bottom: 0.5rem; color: var(--ink);
+}
+.chapter h2 .sub { display: block; font-size: 1.1rem; font-weight: 400; color: var(--muted); margin-top: 0.25rem; }
+.chapter h3 {
+  font-family: var(--serif); font-size: 1.15rem; font-weight: 700;
+  margin: 2.5rem 0 0.75rem; color: var(--ink);
+  border-left: 3px solid var(--accent); padding-left: 0.75rem;
+}
+.chapter p { margin-bottom: 1rem; color: var(--ink2); max-width: 700px; }
+.chapter-intro {
+  font-size: 1.05rem; border-left: 3px solid var(--rule);
+  padding-left: 1.25rem; margin: 1.5rem 0 2.5rem;
+  color: var(--ink2); max-width: 640px; line-height: 1.9;
+}
+
+/* ── ANALOGY BOX ── */
+.analogy {
+  background: var(--bg2);
+  border: 1px solid var(--bg3);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0;
+  position: relative;
+}
+.analogy::before {
+  content: '비유';
+  position: absolute; top: -10px; left: 16px;
+  background: var(--accent); color: #fff;
+  font-size: 9px; letter-spacing: 0.15em; padding: 2px 8px;
+  font-family: var(--mono);
+}
+.analogy-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.analogy strong { color: var(--accent); }
+.analogy p { color: var(--ink2); margin: 0; max-width: 100%; }
+
+/* ── VIZ CONTAINERS ── */
+.viz-box {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.viz-box .viz-title {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.viz-box .viz-title::before {
+  content: ''; display: block; width: 12px; height: 2px; background: var(--accent);
+}
+
+/* ── TIMELINE COMPARISON ── */
+.timeline-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+}
+.tl-col { position: relative; }
+.tl-head {
+  font-weight: 700; font-size: 13px; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.tl-head .badge {
+  font-family: var(--mono); font-size: 9px; padding: 2px 7px; border-radius: 3px;
+}
+.badge-now { background: #fee; color: var(--accent); }
+.badge-klaw { background: #e8f5ee; color: var(--accent3); }
+.tl-step {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  margin-bottom: 0.75rem; position: relative;
+}
+.tl-step::before {
+  content: ''; position: absolute; left: 15px; top: 30px;
+  width: 1px; height: calc(100% + 6px); background: var(--rule);
+}
+.tl-step:last-child::before { display: none; }
+.tl-dot {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0; font-family: var(--mono); font-weight: 700;
+}
+.dot-now { background: #fee; color: var(--accent); border: 2px solid var(--accent); }
+.dot-klaw { background: #e8f5ee; color: var(--accent3); border: 2px solid var(--accent3); }
+.tl-info { padding-top: 4px; }
+.tl-info .name { font-size: 13px; font-weight: 600; }
+.tl-info .dur { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+/* ── STAT CARDS ── */
+.stat-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0;
+}
+.stat-card {
+  background: var(--bg2); border-radius: 8px; padding: 1.25rem;
+  border-top: 3px solid var(--accent);
+}
+.stat-card.blue { border-top-color: var(--accent2); }
+.stat-card.green { border-top-color: var(--accent3); }
+.stat-card .num {
+  font-family: var(--serif); font-size: 2.5rem; font-weight: 900;
+  color: var(--ink); line-height: 1;
+}
+.stat-card .unit { font-size: 14px; color: var(--muted); margin-top: 0.25rem; }
+.stat-card .label { font-size: 11px; color: var(--muted); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--mono); }
+
+/* ── PIE / DONUT CHART ── */
+.chart-wrap { position: relative; height: 280px; margin: 1rem 0; }
+.chart-center-label {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center; pointer-events: none;
+}
+.chart-center-label .big { font-family: var(--serif); font-size: 2rem; font-weight: 900; }
+.chart-center-label .sm { font-size: 11px; color: var(--muted); }
+
+/* ── COMPARE TABLE ── */
+.compare-tbl {
+  width: 100%; border-collapse: collapse; margin: 1.5rem 0;
+  font-size: 13px;
+}
+.compare-tbl th {
+  background: var(--ink); color: #fff;
+  padding: 0.6rem 1rem; font-weight: 500; text-align: left;
+  font-family: var(--sans);
+}
+.compare-tbl th:first-child { border-radius: 6px 0 0 0; }
+.compare-tbl th:last-child { border-radius: 0 6px 0 0; }
+.compare-tbl td {
+  padding: 0.6rem 1rem; border-bottom: 1px solid var(--rule);
+  color: var(--ink2); vertical-align: top;
+}
+.compare-tbl tr:hover td { background: var(--bg2); }
+.compare-tbl .col-now { color: var(--accent); }
+.compare-tbl .col-klaw { color: var(--accent3); }
+.compare-tbl .row-head { font-weight: 600; color: var(--ink); font-size: 12px; }
+
+/* ── PYRAMID ── */
+.pyramid-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 1rem 0; }
+.pyr-row {
+  display: flex; align-items: center; justify-content: space-between;
+  border-radius: 6px; padding: 0.6rem 1.25rem;
+  font-size: 13px; color: #fff; font-weight: 600;
+  transition: transform 0.2s;
+}
+.pyr-row:hover { transform: scaleX(1.02); }
+.pyr-row .pct { font-family: var(--mono); font-size: 11px; opacity: 0.8; }
+.pyr-row .desc { font-size: 11px; opacity: 0.75; font-weight: 400; }
+
+/* ── GAUGE ── */
+.gauge-row { display: flex; gap: 1.5rem; margin: 1rem 0; }
+.gauge-item { flex: 1; }
+.gauge-label { font-size: 12px; font-weight: 600; margin-bottom: 0.5rem; }
+.gauge-bar-bg {
+  height: 12px; background: var(--bg3); border-radius: 6px; overflow: hidden; margin-bottom: 4px;
+}
+.gauge-bar-fill {
+  height: 100%; border-radius: 6px;
+  transition: width 1s ease;
+}
+.gauge-val { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+
+/* ── LIBRARY VIZ ── */
+.library-grid {
+  display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px;
+  padding: 1rem;
+}
+.lib-item {
+  aspect-ratio: 1; background: var(--accent2);
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: rgba(255,255,255,0.6);
+  cursor: pointer; transition: all 0.3s;
+}
+.lib-item:hover { transform: scale(1.1); }
+.lib-item.hacked { background: var(--accent); animation: blink 0.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.lib-item.alert { background: #f0ad00; }
+
+/* ── PDV DRAWERS ── */
+.pdv-wrap {
+  display: flex; gap: 1rem; align-items: flex-start;
+  flex-wrap: wrap; margin: 1rem 0;
+}
+.pdv-safe {
+  width: 200px; height: 280px;
+  background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+  border-radius: 12px; border: 3px solid #444;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1rem; position: relative; flex-shrink: 0;
+}
+.pdv-safe::before {
+  content: '🔒'; font-size: 1.5rem;
+  position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+}
+.pdv-safe-label { color: #c8c4bc; font-size: 11px; font-family: var(--mono); text-align: center; margin-top: 0.5rem; }
+.pdv-drawers { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pdv-drawer {
+  background: var(--bg2); border: 1px solid var(--bg3);
+  border-radius: 6px; padding: 0.6rem 0.8rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  cursor: pointer; transition: all 0.2s;
+  border-left: 4px solid transparent;
+}
+.pdv-drawer:hover { transform: translateX(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.pdv-drawer.finance { border-left-color: var(--gold); }
+.pdv-drawer.medical { border-left-color: var(--accent); }
+.pdv-drawer.edu { border-left-color: var(--accent2); }
+.pdv-drawer.admin { border-left-color: var(--purple); }
+.pdv-drawer.transport { border-left-color: var(--accent3); }
+.pdv-drawer.general { border-left-color: var(--muted); }
+.pdv-drawer .icon { font-size: 1.1rem; }
+.pdv-drawer .name { font-size: 12px; font-weight: 600; }
+
+/* ── SCENARIO CARDS ── */
+.scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+.scenario-card { border-radius: 10px; overflow: hidden; }
+.scenario-head {
+  padding: 0.75rem 1rem;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.sc-now .scenario-head { background: #fee; color: var(--accent); }
+.sc-klaw .scenario-head { background: #e8f5ee; color: var(--accent3); }
+.scenario-body {
+  padding: 1rem;
+  background: var(--bg2); font-size: 13px; line-height: 1.7;
+  border: 1px solid var(--rule); border-top: none;
+  border-radius: 0 0 10px 10px; color: var(--ink2);
+}
+
+/* ── TRAFFIC LIGHT ── */
+.traffic-row { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+.traffic-item {
+  flex: 1; min-width: 120px;
+  border-radius: 10px; padding: 1rem 0.75rem;
+  text-align: center; border: 1px solid var(--rule);
+}
+.traffic-dot {
+  width: 40px; height: 40px; border-radius: 50%;
+  margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.t-s0 { background: #27ae60; }
+.t-s1 { background: #f0ad00; }
+.t-s2 { background: #e67e22; }
+.t-s3 { background: var(--accent); }
+.traffic-item .tl-grade { font-family: var(--mono); font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+.traffic-item .tl-name { font-size: 11px; color: var(--muted); }
+.traffic-item .tl-action { font-size: 11px; color: var(--ink2); margin-top: 4px; }
+
+/* ── CHART BARS (custom) ── */
+.hbar-wrap { margin: 1rem 0; }
+.hbar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+.hbar-label { font-size: 12px; min-width: 160px; color: var(--ink2); flex-shrink: 0; }
+.hbar-track { flex: 1; height: 22px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.hbar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; }
+.hbar-fill span { font-family: var(--mono); font-size: 11px; color: #fff; font-weight: 700; white-space: nowrap; }
+
+/* ── ROADMAP ── */
+.roadmap { position: relative; margin: 2rem 0; }
+.roadmap-track {
+  position: absolute; left: 30px; top: 20px; bottom: 20px;
+  width: 2px; background: var(--bg3);
+}
+.rm-step { display: flex; gap: 1.25rem; align-items: flex-start; margin-bottom: 2rem; position: relative; }
+.rm-dot {
+  width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 3px solid;
+  background: #fff; font-family: var(--mono); font-size: 9px; text-align: center; z-index: 1;
+}
+.rm-dot .phase { font-size: 7px; text-transform: uppercase; letter-spacing: 0.1em; }
+.rm-dot .yr { font-size: 11px; font-weight: 700; }
+.rm1 { border-color: var(--accent); color: var(--accent); }
+.rm2 { border-color: var(--gold); color: var(--gold); }
+.rm3 { border-color: var(--accent2); color: var(--accent2); }
+.rm4 { border-color: var(--accent3); color: var(--accent3); }
+.rm-content { padding-top: 0.75rem; }
+.rm-title { font-weight: 700; font-size: 14px; margin-bottom: 0.25rem; }
+.rm-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.rm-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 0.4rem; }
+.rm-tag {
+  font-size: 10px; padding: 1px 7px; border-radius: 3px;
+  background: var(--bg2); color: var(--muted); font-family: var(--mono);
+}
+
+/* ── ECOSYSTEM MAP ── */
+.eco-wrap { position: relative; }
+.eco-center {
+  background: var(--ink); color: #fff;
+  border-radius: 10px; padding: 1rem 1.5rem;
+  text-align: center; margin: 1rem auto;
+  max-width: 300px;
+  font-weight: 700; font-size: 14px;
+}
+.eco-center .sub { font-size: 11px; opacity: 0.6; font-family: var(--mono); margin-top: 3px; }
+.eco-agencies {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem;
+}
+.eco-agency {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 0.75rem;
+  text-align: center; font-size: 12px; font-weight: 600;
+  border-top: 3px solid var(--rule);
+  transition: border-top-color 0.2s, transform 0.2s;
+}
+.eco-agency:hover { transform: translateY(-3px); }
+.eco-agency.court { border-top-color: var(--accent); }
+.eco-agency.prosecutor { border-top-color: var(--accent2); }
+.eco-agency.police { border-top-color: var(--accent3); }
+.eco-agency.anti-corruption { border-top-color: var(--purple); }
+.eco-agency.audit { border-top-color: var(--gold); }
+.eco-agency.ftc { border-top-color: #e67e22; }
+.eco-agency .icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+.eco-agency .role { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 400; }
+
+/* ── GLOSSARY ── */
+.glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.glossary-card {
+  background: var(--bg2); border-radius: 8px; padding: 1rem;
+  border: 1px solid var(--rule);
+}
+.glossary-card .term { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+.glossary-card .meaning { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.glossary-card .analogy-hint { font-size: 11px; color: var(--muted); margin-top: 0.4rem; font-style: italic; }
+
+/* ── PRINT / SCROLL ── */
+@media print {
+  .toc-nav { display: none; }
+  .main { margin-left: 0; }
+  .chapter { page-break-inside: avoid; }
+}
+
+/* ── ANIMATION ── */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: none; }
+
+/* ── SPRINKLER VIZ ── */
+.sprinkler-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+}
+.sp-panel {
+  border-radius: 10px; padding: 1.5rem;
+  text-align: center; border: 1px solid var(--rule);
+}
+.sp-panel.fire { background: linear-gradient(180deg, #fff5f3 0%, #ffe8e3 100%); }
+.sp-panel.safe { background: linear-gradient(180deg, #f0faf4 0%, #e2f5ea 100%); }
+.sp-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+.sp-title { font-weight: 700; font-size: 14px; margin-bottom: 0.4rem; }
+.sp-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* ── MOURGLASS ── */
+.hourglass-viz {
+  display: flex; align-items: center; gap: 2rem;
+}
+.hourglass-svg { flex-shrink: 0; }
+
+/* ── SECTION DIVIDER ── */
+.sec-divider {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 4rem 0 3rem;
+}
+.sec-divider::before, .sec-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--rule);
+}
+.sec-divider span {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+  color: var(--muted); text-transform: uppercase;
+}
+
+/* ── ROLE SHIFT CARD ── */
+.role-shift {
+  display: flex; align-items: stretch; gap: 0; margin: 1.5rem 0;
+  border-radius: 10px; overflow: hidden; border: 1px solid var(--rule);
+}
+.role-now, .role-future {
+  flex: 1; padding: 1.25rem;
+}
+.role-now { background: #fff8f7; }
+.role-future { background: #f0faf4; }
+.role-arrow {
+  display: flex; align-items: center; justify-content: center;
+  width: 50px; background: var(--bg2); font-size: 1.2rem;
+  color: var(--muted);
+}
+.role-title { font-size: 10px; font-family: var(--mono); letter-spacing: 0.12em; margin-bottom: 0.5rem; }
+.role-now .role-title { color: var(--accent); }
+.role-future .role-title { color: var(--accent3); }
+.role-main { font-weight: 700; font-size: 14px; }
+.role-bullets { margin-top: 0.5rem; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+/* ── GOPANG MOCKUP ── */
+.phone-frame {
+  width: 280px; flex-shrink: 0;
+  background: #1a1a1a; border-radius: 36px;
+  padding: 12px; border: 6px solid #333;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+.phone-screen {
+  background: #f5f5f5; border-radius: 26px; overflow: hidden;
+  min-height: 460px; display: flex; flex-direction: column;
+}
+.phone-status {
+  background: #fff; padding: 8px 16px 4px;
+  font-size: 10px; color: #666; display: flex; justify-content: space-between;
+  font-family: var(--mono);
+}
+.phone-header {
+  background: var(--accent2); color: #fff;
+  padding: 8px 16px; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.phone-body { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.msg { max-width: 80%; border-radius: 12px; padding: 8px 12px; font-size: 11px; line-height: 1.5; }
+.msg-in { background: #fff; align-self: flex-start; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.msg-out { background: var(--accent2); color: #fff; align-self: flex-end; }
+.msg-warning {
+  background: #fee; border: 1px solid var(--accent);
+  border-radius: 8px; padding: 8px 12px; font-size: 10px;
+  color: var(--accent); font-weight: 600; line-height: 1.5;
+}
+.msg-time { font-size: 9px; color: #aaa; text-align: right; margin-top: 2px; font-family: var(--mono); }
+
+/* ── FRAUD STEPS ── */
+.fraud-steps {
+  display: flex; align-items: center; gap: 0; margin: 1.5rem 0; flex-wrap: wrap;
+}
+.fraud-step {
+  flex: 1; min-width: 120px;
+  padding: 1rem; text-align: center;
+  position: relative;
+}
+.fraud-step::after {
+  content: '▶'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+  color: var(--rule); font-size: 14px; z-index: 1;
+}
+.fraud-step:last-child::after { display: none; }
+.fs-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-weight: 700; font-size: 12px;
+  margin: 0 auto 0.4rem; color: #fff;
+}
+.fs-name { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.fs-sub { font-size: 10px; color: var(--muted); }
+.fs-block {
+  background: var(--accent); color: #fff; font-size: 10px;
+  padding: 2px 8px; border-radius: 10px; margin-top: 4px;
+  display: inline-block;
+}
+.fs-1 .fs-num { background: #888; }
+.fs-2 .fs-num { background: var(--accent); }
+.fs-3 .fs-num { background: #ccc; }
+.fs-4 .fs-num { background: #ccc; }
+.fs-2 { background: #fff5f3; border-radius: 8px; border: 2px dashed var(--accent); }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--ink); color: #666;
+  text-align: center; padding: 2rem;
+  font-size: 11px; font-family: var(--mono);
+  letter-spacing: 0.05em; margin-left: 220px;
+}
+.site-footer a { color: #888; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="toc-nav" id="toc">
+  <div class="logo">K-Law<br>사법혁신<br>소책자</div>
+  <span class="sec">도입</span>
+  <a href="#cover">표지</a>
+  <a href="#intro">서론</a>
+  <span class="sec">본문</span>
+  <a href="#ch1">1장 현행 체계의 비효율</a>
+  <a href="#ch2">2장 K-Law의 두 축</a>
+  <a href="#ch3">3장 법원의 변혁</a>
+  <a href="#ch4">4장 검찰의 변혁</a>
+  <a href="#ch5">5장 경찰의 변혁</a>
+  <a href="#ch6">6장 특수 기관 변혁</a>
+  <a href="#ch7">7장 Openhash 기술</a>
+  <a href="#ch8">8장 고팡 플랫폼</a>
+  <a href="#ch9">9장 통합 비전</a>
+  <span class="sec">부록</span>
+  <a href="#appendix">용어 해설</a>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- ── COVER ── -->
+<section id="cover" style="min-height:100vh; background:var(--ink); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; padding:4rem 4rem 4rem 4rem;">
+  <div class="cover-grid"></div>
+  <!-- SVG decorative orbs -->
+  <svg class="cover-orbs" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="170" cy="170" r="160" stroke="#c8391a" stroke-width="1" fill="none" opacity="0.5"/>
+    <circle cx="170" cy="170" r="120" stroke="#c8391a" stroke-width="1" fill="none" opacity="0.4"/>
+    <circle cx="170" cy="170" r="80" stroke="#c8391a" stroke-width="1" fill="none" opacity="0.3"/>
+    <circle cx="170" cy="170" r="40" fill="#c8391a" opacity="0.2"/>
+    <!-- scales icon -->
+    <line x1="80" y1="120" x2="260" y2="120" stroke="#c8391a" stroke-width="2" opacity="0.6"/>
+    <circle cx="170" cy="108" r="8" fill="#c8391a" opacity="0.8"/>
+    <path d="M110 120 L80 160 L140 160 Z" stroke="#c8391a" stroke-width="1.5" fill="none" opacity="0.7"/>
+    <path d="M230 120 L200 170 L260 170 Z" stroke="#1a4c8c" stroke-width="1.5" fill="none" opacity="0.7"/>
+    <line x1="170" y1="108" x2="170" y2="220" stroke="#c8391a" stroke-width="1.5" opacity="0.5"/>
+  </svg>
+
+  <div style="position:relative; z-index:2;">
+    <div class="cover-year">AI CITY INC. — APRIL 2026</div>
+    <h1 style="font-family:var(--serif); font-size:clamp(2.2rem,4vw,3.5rem); font-weight:900; color:#fff; line-height:1.15; margin-bottom:1rem;">
+      <em style="color:var(--accent)">K-Law</em> 시대의<br>사법 혁신
+    </h1>
+    <p style="font-size:15px; color:#9a9590; max-width:500px; line-height:1.8; margin-bottom:2.5rem;">
+      예방법학과 신속 분쟁 해결이 바꿀<br>
+      법원·검찰·경찰·감사원·공정위의 미래
+    </p>
+    <div style="display:flex; gap:1.5rem; align-items:center; border-top:1px solid #333; padding-top:2rem; flex-wrap:wrap;">
+      <span style="font-family:var(--mono); font-size:10px; letter-spacing:0.15em; color:#555;">AI CITY INC.</span>
+      <span style="border:1px solid var(--accent); color:var(--accent); font-size:10px; letter-spacing:0.15em; padding:3px 10px; font-family:var(--mono);">PREVENTIVE LAW</span>
+      <span style="border:1px solid #1a4c8c; color:#5a8cd4; font-size:10px; letter-spacing:0.15em; padding:3px 10px; font-family:var(--mono);">OPENHASH</span>
+      <span style="border:1px solid #1a7a50; color:#5aaa80; font-size:10px; letter-spacing:0.15em; padding:3px 10px; font-family:var(--mono);">GOPANG</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── 서론 ── -->
+<section id="intro" class="chapter fade-in">
+  <div class="chapter-label">INTRODUCTION</div>
+  <h2>서론
+    <span class="sub">K-Law가 가져올 사법 패러다임의 전환</span>
+  </h2>
+
+  <p class="chapter-intro">
+    현행 사법 체계는 분쟁이 발생한 뒤 해결하는 <strong>사후적(reactive) 모델</strong>에 기초합니다.
+    원고가 소장을 제출하면 법원이 증거를 조사하고, 검찰이 범죄를 인지하면 수사를 개시하며,
+    감사원은 이미 집행된 예산을 사후에 감사합니다.
+    K-Law는 이 패러다임을 근본적으로 전환할 가능성을 가지고 있습니다.
+  </p>
+
+  <!-- 비유: 소방서 vs 스프링클러 -->
+  <div class="analogy">
+    <div class="analogy-icon">🚒 vs 💧</div>
+    <p><strong>소방서 vs 스프링클러</strong> — 현재 사법 체계는 불이 난 뒤 출동하는 소방서입니다. K-Law는 불씨가 생기는 순간 자동으로 꺼버리는 스프링클러입니다. 소방서가 없어지는 것이 아닙니다 — 단지 불이 나는 일 자체가 훨씬 줄어드는 것입니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 1 — 사법 프로세스의 시간적 변혁</div>
+    <!-- 스프링클러 vs 소방서 패널 -->
+    <div class="sprinkler-compare">
+      <div class="sp-panel fire">
+        <div class="sp-icon">🔥</div>
+        <div class="sp-title">현행 체계 (사후 대응)</div>
+        <div class="sp-desc">분쟁 발생 → 소장 접수 → 증거 조사 → 심리 → 판결까지 평균 <strong style="color:var(--accent)">18~24개월</strong></div>
+      </div>
+      <div class="sp-panel safe">
+        <div class="sp-icon">✅</div>
+        <div class="sp-title">K-Law + Openhash (사전 예방)</div>
+        <div class="sp-desc">Openhash 기록 조회(수 초) + 법리 분석으로 전체 프로세스 <strong style="color:var(--accent3)">1분 미만</strong></div>
+      </div>
+    </div>
+
+    <!-- 타임라인 비교 -->
+    <div style="margin-top:2rem;">
+      <div class="timeline-compare">
+        <div class="tl-col">
+          <div class="tl-head"><span class="badge badge-now">현재</span> 소송 진행 단계</div>
+          <div class="tl-step"><div class="tl-dot dot-now">1</div><div class="tl-info"><div class="name">소장 접수</div><div class="dur">즉시</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-now">2</div><div class="tl-info"><div class="name">증거 조사·심문</div><div class="dur">2~6개월</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-now">3</div><div class="tl-info"><div class="name">변론·심리</div><div class="dur">3~6개월</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-now">4</div><div class="tl-info"><div class="name">판결 선고</div><div class="dur">1~3개월</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-now">5</div><div class="tl-info"><div class="name">항소·상고 (선택)</div><div class="dur">추가 6~18개월</div></div></div>
+        </div>
+        <div class="tl-col">
+          <div class="tl-head"><span class="badge badge-klaw">K-Law</span> 진행 단계</div>
+          <div class="tl-step"><div class="tl-dot dot-klaw">1</div><div class="tl-info"><div class="name">Openhash 볼트 조회</div><div class="dur">수 초</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-klaw">2</div><div class="tl-info"><div class="name">사실관계 자동 확정</div><div class="dur">수 초</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-klaw">3</div><div class="tl-info"><div class="name">K-Law 법리 분석</div><div class="dur">약 5분</div></div></div>
+          <div class="tl-step"><div class="tl-dot dot-klaw">4</div><div class="tl-info"><div class="name">법관 검토·확인</div><div class="dur">수분~수시간</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 1장 ── -->
+<section id="ch1" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 01</div>
+  <h2>현행 사법·수사 체계의<br>구조와 비효율</h2>
+
+  <p class="chapter-intro">
+    법원이든 검찰이든 경찰이든, 가장 많은 시간과 비용이 투입되는 단계는 단 하나입니다.
+    <strong>"무슨 일이 있었는가"를 확인하는 과정 — 사실 확인(fact-finding)</strong>이 전체 프로세스의 70~80%를 차지합니다.
+  </p>
+
+  <!-- 비유: 모래시계 병목 -->
+  <div class="analogy">
+    <div class="analogy-icon">⏳</div>
+    <p><strong>모래시계의 병목</strong> — 사법 시스템을 모래시계로 상상해 보세요. 위쪽(분쟁 발생)에서 아래쪽(판결)으로 내려가야 하는데, 중간 허리 부분(사실 확인)이 너무 좁아서 모래가 제대로 흐르지 못합니다. K-Law는 이 허리를 넓혀 모래가 자유롭게 흐르게 합니다.</p>
+  </div>
+
+  <!-- 모래시계 SVG -->
+  <div class="viz-box">
+    <div class="viz-title">그림 2 — 사법 프로세스의 시간 배분</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center;">
+      <div>
+        <svg viewBox="0 0 280 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <!-- Hourglass shape -->
+          <path d="M40,20 L240,20 L160,160 L240,300 L40,300 L120,160 Z" fill="#f0ede8" stroke="#ddd" stroke-width="1.5"/>
+          <!-- Top half - law dispute -->
+          <path d="M40,20 L240,20 L160,160 L120,160 Z" fill="#fee5e0" opacity="0.9"/>
+          <!-- Bottleneck label -->
+          <rect x="100" y="148" width="80" height="24" rx="4" fill="var(--accent)"/>
+          <text x="140" y="163" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff" font-weight="700">사실 확인 70%</text>
+          <!-- Bottom half - verdict -->
+          <path d="M120,160 L160,160 L240,300 L40,300 Z" fill="#e5f4ec" opacity="0.9"/>
+          <!-- Labels top -->
+          <text x="140" y="80" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#c8391a" font-weight="700">분쟁 발생</text>
+          <text x="140" y="100" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">증거·증인·감정</text>
+          <!-- Labels bottom -->
+          <text x="140" y="240" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#1a7a50" font-weight="700">판결</text>
+          <text x="140" y="260" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">법리 적용 20~30%</text>
+        </svg>
+      </div>
+      <div>
+        <div style="margin-bottom:1rem;">
+          <canvas id="timeChart" style="max-height:200px;"></canvas>
+        </div>
+        <div style="font-size:12px; color:var(--muted); line-height:1.7;">
+          1심 법원에서 법관이 투입하는 시간 중 <strong style="color:var(--accent)">70~80%</strong>가 사실 확인(증거 조사, 증인 심문, 감정)에 쓰입니다. 법리 적용은 고작 20~30%입니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>사법 접근성의 사각지대</h3>
+
+  <div class="analogy">
+    <div class="analogy-icon">💸</div>
+    <p><strong>지폐 10장을 찾으러 100장을 쓰는 역설</strong> — 5,000만 원 이하 소액 분쟁에서 소송 비용과 시간 손실이 분쟁 금액을 초과하는 경우가 빈번합니다. 10만 원짜리 물건을 되찾으려고 변호사 비용 50만 원을 써야 한다면 누가 소송을 낼까요? 이것이 "사법 사각지대"의 실체입니다.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="num">200<span style="font-size:1.5rem">만+</span></div>
+      <div class="unit">건</div>
+      <div class="label">2024년 기준 전국 미제 사건</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="num">500<span style="font-size:1.5rem">건</span></div>
+      <div class="unit">연간</div>
+      <div class="label">판사 1인당 처리 사건 수</div>
+    </div>
+    <div class="stat-card green">
+      <div class="num">70<span style="font-size:1.5rem">%</span></div>
+      <div class="unit"></div>
+      <div class="label">사실 확인에 쓰이는 심리 시간</div>
+    </div>
+  </div>
+
+  <!-- 소액 분쟁 사각지대 -->
+  <div class="viz-box">
+    <div class="viz-title">그림 3 — 소액 분쟁의 사각지대 (분쟁금액 vs 소송비용)</div>
+    <div class="chart-wrap" style="height:220px;">
+      <canvas id="deadzoneChart"></canvas>
+    </div>
+    <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:0.5rem;">분쟁금액이 일정 수준 이하면 소송비용이 더 커지는 역전 현상 발생 → 사실상 소송 포기</div>
+  </div>
+</section>
+
+<!-- ── 2장 ── -->
+<section id="ch2" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 02</div>
+  <h2>K-Law의 두 축
+    <span class="sub">예방법학과 분쟁의 신속 해결</span>
+  </h2>
+
+  <!-- 비유: 백신 vs 치료제 -->
+  <div class="analogy">
+    <div class="analogy-icon">💉</div>
+    <p><strong>백신 vs 치료제</strong> — 예방법학은 분쟁 백신입니다. 치료제(사후 해결)가 없어지는 게 아니라, 백신을 맞으면 치료제를 쓸 일 자체가 줄어듭니다. 분쟁이 발생한 뒤 해결(치료제)하는 것보다, 애초에 발생하지 않게(백신) 하는 것이 훨씬 효율적입니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 4 — 예방법학의 두 가지 억제 메커니즘</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+      <div style="background:var(--bg2); border-radius:8px; padding:1.25rem;">
+        <div style="font-size:1.5rem; margin-bottom:0.5rem;">📹</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:0.5rem; color:var(--accent2)">① 투명성에 의한 억제</div>
+        <div style="font-size:12px; color:var(--ink2); line-height:1.7;">
+          CCTV 없는 편의점에서 절도가 더 많이 일어납니다. Openhash는 <strong>모든 디지털 거래의 CCTV</strong>입니다. 모든 자금 흐름이 암호학적으로 추적 가능하다면, 부정행위 의도 자체가 억제됩니다.
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:8px; align-items:center;">
+          <div style="flex:1; text-align:center; background:#fee; border-radius:6px; padding:0.5rem; font-size:11px;">
+            <div style="font-weight:700; color:var(--accent)">CCTV 없음</div>
+            <div style="color:var(--muted)">절도율 높음</div>
+          </div>
+          <div style="color:var(--muted)">→</div>
+          <div style="flex:1; text-align:center; background:#e8f5ee; border-radius:6px; padding:0.5rem; font-size:11px;">
+            <div style="font-weight:700; color:var(--accent3)">CCTV 있음</div>
+            <div style="color:var(--muted)">절도율 대폭 감소</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--bg2); border-radius:8px; padding:1.25rem;">
+        <div style="font-size:1.5rem; margin-bottom:0.5rem;">⚡</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:0.5rem; color:var(--accent)">② 즉시 해결로 분쟁 동기 제거</div>
+        <div style="font-size:12px; color:var(--ink2); line-height:1.7;">
+          "소송이 어려울 것"이라는 기대가 부당 이익의 동기가 됩니다. 분쟁 해결이 <strong>수 분 이내, 거의 무비용</strong>으로 가능해지면 부당 이익을 취할 이유 자체가 사라집니다.
+        </div>
+        <div style="margin-top:1rem; background:#fff; border-radius:6px; padding:0.75rem; font-size:11px; border:1px solid var(--rule);">
+          <div style="color:var(--muted)">현재: 소송비용 >> 분쟁금액 → 포기</div>
+          <div style="color:var(--muted)">K-Law: 해결비용 ≈ 0 → 권리 행사 용이</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>K-Law 정확도 — 단계별 합의 구조</h3>
+  <div class="analogy">
+    <div class="analogy-icon">⚖️</div>
+    <p><strong>단독판사 → 합의부 → 전원합의체</strong> — K-Law의 심의 구조는 현행 법원의 단계적 구조와 정확히 같습니다. 소액 사건은 단독 AI로, 복잡한 사건은 여러 AI의 합의로 결정합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 5 — K-Law 정확도 게이지</div>
+    <div class="gauge-row">
+      <div class="gauge-item">
+        <div class="gauge-label">단독심 (AI 1개)</div>
+        <div class="gauge-bar-bg">
+          <div class="gauge-bar-fill" style="width:80%; background:var(--accent);"></div>
+        </div>
+        <div class="gauge-val" style="color:var(--accent)">~80%</div>
+        <div style="font-size:11px; color:var(--muted)">대법원 일치율 목표</div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-label">합의심 (AI 3개)</div>
+        <div class="gauge-bar-bg">
+          <div class="gauge-bar-fill" style="width:90%; background:var(--gold);"></div>
+        </div>
+        <div class="gauge-val" style="color:var(--gold)">~90%</div>
+        <div style="font-size:11px; color:var(--muted)">토론·합의 후 결정</div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-label">전원합의심 (AI 12개+)</div>
+        <div class="gauge-bar-bg">
+          <div class="gauge-bar-fill" style="width:99%; background:var(--accent3);"></div>
+        </div>
+        <div class="gauge-val" style="color:var(--accent3)">~99%</div>
+        <div style="font-size:11px; color:var(--muted)">다수결 합의</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3장 ── -->
+<section id="ch3" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 03</div>
+  <h2>법원의 변혁
+    <span class="sub">사실심에서 법리심으로</span>
+  </h2>
+
+  <!-- 비유: AI X-ray 의사 -->
+  <div class="analogy">
+    <div class="analogy-icon">🩺</div>
+    <p><strong>AI X-ray 판독 의사</strong> — AI가 X-ray를 먼저 보고 이상 소견에 붉은 동그라미를 표시합니다. 의사는 AI가 플래그한 부분에만 집중합니다. 의사가 사라지는 게 아닙니다 — 의사의 시간이 <strong>가장 중요한 판단에만 집중</strong>되는 것입니다. K-Law 시대 법관의 역할 변화가 정확히 이와 같습니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 6 — 법관의 역할 전환</div>
+    <div class="role-shift">
+      <div class="role-now">
+        <div class="role-title">현행 법관</div>
+        <div class="role-main">🔍 처음부터 전부 검토</div>
+        <div class="role-bullets">
+          · 수백 페이지 기록 직접 검토<br>
+          · 증거 조사·증인 심문<br>
+          · 사실 확인 + 법리 적용<br>
+          · 판결문 전부 직접 작성
+        </div>
+      </div>
+      <div class="role-arrow">→</div>
+      <div class="role-future">
+        <div class="role-title">K-Law 시대 법관</div>
+        <div class="role-main">✅ 핵심에만 집중</div>
+        <div class="role-bullets">
+          · K-Law 가상판결 검토·확인<br>
+          · 복잡·신규 법리 사건에 집중<br>
+          · 가치 판단·사회적 영향 결정<br>
+          · 처리 사건 수 5배+ 향상
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 7 — 현행 법원 vs K-Law 시대 법원 비교</div>
+    <table class="compare-tbl">
+      <thead><tr><th>구분</th><th>현행</th><th>K-Law 시대</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">사실 확인</td><td class="col-now">법관·서기관이 수개월간 증거 조사</td><td class="col-klaw">Openhash 볼트 조회 (수 초)</td></tr>
+        <tr><td class="row-head">일상 사건 법리 적용</td><td class="col-now">법관이 직접 판결문 작성</td><td class="col-klaw">K-Law 가상판결 → 법관 검토·확인</td></tr>
+        <tr><td class="row-head">복잡 사건</td><td class="col-now">법관이 직접 심리·판결</td><td class="col-klaw">K-Law 초안 + 법관 독자 판단</td></tr>
+        <tr><td class="row-head">판사 1인당 사건</td><td class="col-now">연간 400~600건</td><td class="col-klaw">연간 2,000건 이상 (검토 중심)</td></tr>
+        <tr><td class="row-head">소액 사건</td><td class="col-now">소송비용 > 분쟁이익 (사실상 포기)</td><td class="col-klaw">K-Law 즉시 해결 (사각지대 해소)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 8 — 판사 1인당 사건 처리량 비교</div>
+    <div class="hbar-wrap">
+      <div class="hbar-row">
+        <div class="hbar-label">현행 (연간 처리)</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:25%; background:var(--accent);"><span>400~600건</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">K-Law 시대 (예상)</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:100%; background:var(--accent3);"><span>2,000건 이상</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 4장 ── -->
+<section id="ch4" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 04</div>
+  <h2>검찰의 변혁
+    <span class="sub">검찰청에서 공소청으로</span>
+  </h2>
+
+  <div class="analogy">
+    <div class="analogy-icon">🕵️</div>
+    <p><strong>탐정 + 검사 → 검사만</strong> — 지금 검찰은 탐정(증거 직접 수집)과 검사(기소·공소 유지)의 두 역할을 동시에 맡고 있습니다. K-Law 시대에는 탐정 역할을 AI와 Openhash가 맡고, 검사는 기소 결정이라는 본연의 역할에만 집중합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 9 — 검찰 역할 변화 (수사 자동화)</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start;">
+      <div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:0.75rem; font-family:var(--mono); letter-spacing:0.08em;">CURRENT — 검찰청</div>
+        <div style="background:#fff8f7; border:1px solid #fdddd8; border-radius:8px; padding:1rem; font-size:12px; line-height:1.8;">
+          <div>📋 수사 지휘 <span style="color:var(--muted)">(수개월)</span></div>
+          <div>🔍 증거 수집·계좌 추적 <span style="color:var(--muted)">(수개월)</span></div>
+          <div>📞 참고인 진술 확보 <span style="color:var(--muted)">(수주)</span></div>
+          <div>📄 공소 제기 <span style="color:var(--muted)">(수일)</span></div>
+          <div>⚖️ 재판 출석·공소 유지 <span style="color:var(--muted)">(수개월)</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px; font-weight:700; color:var(--accent3); margin-bottom:0.75rem; font-family:var(--mono); letter-spacing:0.08em;">K-LAW — 공소청</div>
+        <div style="background:#f0faf4; border:1px solid #c8ecd8; border-radius:8px; padding:1rem; font-size:12px; line-height:1.8;">
+          <div>🤖 AI 이상 탐지 <span style="color:var(--muted)">(실시간 자동)</span></div>
+          <div>⚡ Openhash 사실 조회 <span style="color:var(--muted)">(수 초)</span></div>
+          <div>📊 K-Law 기소 분석 <span style="color:var(--muted)">(수분)</span></div>
+          <div>✅ 검사 최종 기소 결정 <span style="color:var(--muted)">(핵심)</span></div>
+          <div>⚖️ 재판 출석·공소 유지 <span style="color:var(--muted)">(유지)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 10 — 횡령 수사 시간 비교</div>
+    <div class="hbar-wrap">
+      <div class="hbar-row">
+        <div class="hbar-label">현재: 계좌 추적·수사</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:90%; background:var(--accent);"><span>수개월 소요</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">K-Law: Openhash 조회</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:3%; background:var(--accent3);"><span></span></div>
+        <span style="font-family:var(--mono); font-size:11px; color:var(--accent3); margin-left:8px; font-weight:700;">수 초</span></div>
+      </div>
+    </div>
+  </div>
+
+  <table class="compare-tbl">
+    <thead><tr><th>구분</th><th>현행 검찰</th><th>K-Law 시대 공소청</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">핵심 기능</td><td class="col-now">수사 지휘 + 공소 제기</td><td class="col-klaw">공소 제기·유지에 집중</td></tr>
+      <tr><td class="row-head">사실 확인</td><td class="col-now">수사관 투입, 수개월 조사</td><td class="col-klaw">Openhash 데이터 자동 조회</td></tr>
+      <tr><td class="row-head">기소 결정</td><td class="col-now">검사의 전적인 재량</td><td class="col-klaw">K-Law 기소 분석 → 검사 최종 결정</td></tr>
+      <tr><td class="row-head">투명성</td><td class="col-now">밀행주의 (논란 지속)</td><td class="col-klaw">데이터 기반 공개 검증 가능</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 5장 ── -->
+<section id="ch5" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 05</div>
+  <h2>경찰의 변혁
+    <span class="sub">수사에서 예방으로</span>
+  </h2>
+
+  <div class="analogy">
+    <div class="analogy-icon">🚦</div>
+    <p><strong>사고 후 출동 vs 실시간 카메라</strong> — 지금 경찰은 교통사고가 난 뒤 현장에 달려오는 방식입니다. K-Law 시대의 경찰은 신호 위반 순간을 자동 감지하는 카메라처럼 <strong>범죄가 발생하기 전에 이상 징후를 포착</strong>합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 11 — 경찰 인력 배분 역전</div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="policeChart"></canvas>
+    </div>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 12 — 범죄 예방 선순환 구조</div>
+    <div style="display:flex; justify-content:center;">
+      <svg viewBox="0 0 500 220" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <!-- center circle -->
+        <circle cx="250" cy="110" r="35" fill="#1a7a50" opacity="0.1" stroke="#1a7a50" stroke-width="1.5"/>
+        <text x="250" y="106" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1a7a50" font-weight="700">선순환</text>
+        <text x="250" y="120" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1a7a50">구조</text>
+        <!-- nodes -->
+        <!-- top -->
+        <rect x="180" y="14" width="140" height="34" rx="6" fill="#e8f5ee" stroke="#1a7a50" stroke-width="1"/>
+        <text x="250" y="33" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1a4a30" font-weight="600">Openhash 이상 탐지</text>
+        <!-- right -->
+        <rect x="360" y="88" width="120" height="34" rx="6" fill="#e8eef8" stroke="#1a4c8c" stroke-width="1"/>
+        <text x="420" y="107" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1a3060" font-weight="600">경찰 개입</text>
+        <!-- bottom -->
+        <rect x="180" y="172" width="140" height="34" rx="6" fill="#fef5e0" stroke="#b8860b" stroke-width="1"/>
+        <text x="250" y="191" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#705200" font-weight="600">범죄율 감소</text>
+        <!-- left -->
+        <rect x="20" y="88" width="120" height="34" rx="6" fill="#fff5f3" stroke="#c8391a" stroke-width="1"/>
+        <text x="80" y="107" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#8c2010" font-weight="600">예방 자원 확대</text>
+        <!-- arrows -->
+        <line x1="290" y1="38" x2="360" y2="93" stroke="#888" stroke-width="1.2" marker-end="url(#arr)" fill="none"/>
+        <line x1="390" y1="122" x2="320" y2="172" stroke="#888" stroke-width="1.2" marker-end="url(#arr)" fill="none"/>
+        <line x1="210" y1="172" x2="140" y2="122" stroke="#888" stroke-width="1.2" marker-end="url(#arr)" fill="none"/>
+        <line x1="110" y1="93" x2="210" y2="38" stroke="#888" stroke-width="1.2" marker-end="url(#arr)" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <table class="compare-tbl">
+    <thead><tr><th>구분</th><th>현행 경찰</th><th>K-Law 시대 경찰</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">핵심 기능</td><td class="col-now">범죄 수사 + 치안 유지</td><td class="col-klaw">범죄 예방 + 치안 유지</td></tr>
+      <tr><td class="row-head">범죄 인지</td><td class="col-now">신고·고소 접수 후 인지</td><td class="col-klaw">Openhash 이상 탐지 → 사전 인지</td></tr>
+      <tr><td class="row-head">증거 수집</td><td class="col-now">수사관 현장 방문, 수주~수개월</td><td class="col-klaw">Openhash 볼트 자동 조회 (수 초)</td></tr>
+      <tr><td class="row-head">인력 배분</td><td class="col-now">수사 70% / 예방 30%</td><td class="col-klaw">예방 70% / 수사 30% (비율 역전)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 6장 ── -->
+<section id="ch6" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 06</div>
+  <h2>특수 기관의 변혁
+    <span class="sub">공수처 · 감사원 · 공정거래위원회</span>
+  </h2>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 13 — 3개 특수 기관 변화 요약</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+      <div style="border-radius:8px; overflow:hidden; border:1px solid var(--rule);">
+        <div style="background:var(--purple); color:#fff; padding:0.75rem; font-size:12px; font-weight:700; text-align:center;">⚖️ 공수처</div>
+        <div style="padding:0.75rem; font-size:11px; line-height:1.7; color:var(--ink2);">
+          <div style="color:var(--accent); font-weight:600; margin-bottom:4px;">현재</div>
+          제보·고발 의존 → 증거 확보 어려움
+          <div style="color:var(--accent3); font-weight:600; margin:8px 0 4px;">K-Law</div>
+          고위공직자 재산·결재·접촉 실시간 기록 → AI 이상 탐지로 자동 플래그
+        </div>
+      </div>
+      <div style="border-radius:8px; overflow:hidden; border:1px solid var(--rule);">
+        <div style="background:var(--gold); color:#fff; padding:0.75rem; font-size:12px; font-weight:700; text-align:center;">🏛️ 감사원</div>
+        <div style="padding:0.75rem; font-size:11px; line-height:1.7; color:var(--ink2);">
+          <div style="color:var(--accent); font-weight:600; margin-bottom:4px;">현재</div>
+          사후 감사(이미 집행된 예산 장부 검토)
+          <div style="color:var(--accent3); font-weight:600; margin:8px 0 4px;">K-Law</div>
+          모든 재정 집행 실시간 AI 모니터링 → 예방적 감사로 전환
+        </div>
+      </div>
+      <div style="border-radius:8px; overflow:hidden; border:1px solid var(--rule);">
+        <div style="background:#e67e22; color:#fff; padding:0.75rem; font-size:12px; font-weight:700; text-align:center;">📊 공정거래위원회</div>
+        <div style="padding:0.75rem; font-size:11px; line-height:1.7; color:var(--ink2);">
+          <div style="color:var(--accent); font-weight:600; margin-bottom:4px;">현재</div>
+          신고·제보 의존, 시장 전체 감시 불가
+          <div style="color:var(--accent3); font-weight:600; margin:8px 0 4px;">K-Law</div>
+          담합 패턴(동시 가격 인상, 입찰 규칙성) AI 실시간 탐지
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <div class="analogy-icon">📊</div>
+    <p><strong>담합 탐지 비유</strong> — 세 경쟁사가 아무런 협의 없이 같은 날, 같은 금액으로 가격을 올렸다고 가정해 보세요. 우연의 일치로 보이지만, AI는 이 패턴을 즉시 플래그합니다. 세금 신고 데이터를 분석해 탈세 패턴을 잡는 것과 같은 원리입니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 14 — 담합 탐지 패턴 예시 (3개 경쟁사 가격 추이)</div>
+    <div class="chart-wrap" style="height:220px;">
+      <canvas id="collusionChart"></canvas>
+    </div>
+    <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:0.5rem;">붉은 원 구간: AI가 동시 가격 인상 패턴을 자동 탐지하여 공정위에 보고</div>
+  </div>
+</section>
+
+<!-- ── 7장 ── -->
+<section id="ch7" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 07</div>
+  <h2>Openhash
+    <span class="sub">블록체인을 넘어서는 분산원장 기술</span>
+  </h2>
+
+  <!-- 공증 비유 -->
+  <div class="analogy">
+    <div class="analogy-icon">📜</div>
+    <p><strong>전국 자동 공증 사무소</strong> — Openhash는 "전국 어디서나 즉시, 무료로, 위조 불가능하게 공증해주는 시스템"입니다. 공증인에게 갈 필요가 없고, 비용도 없으며, 수학적으로 위변조가 불가능합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 15 — 기존 공증 vs Openhash 비교</div>
+    <table class="compare-tbl">
+      <thead><tr><th>항목</th><th>기존 공증</th><th>Openhash</th></tr></thead>
+      <tbody>
+        <tr><td class="row-head">처리 시간</td><td class="col-now">공증인 방문, 수일~수주</td><td class="col-klaw">실시간 자동 (0초)</td></tr>
+        <tr><td class="row-head">비용</td><td class="col-now">건당 수만 원</td><td class="col-klaw">사실상 무료 (HTTPS 수준)</td></tr>
+        <tr><td class="row-head">위변조</td><td class="col-now">물리적 위조 가능</td><td class="col-klaw">수학적으로 불가능</td></tr>
+        <tr><td class="row-head">범위</td><td class="col-now">중요 문서에만 적용</td><td class="col-klaw">모든 디지털 거래에 자동 적용</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Openhash vs 비트코인 블록체인</h3>
+  <div class="analogy">
+    <div class="analogy-icon">⚡</div>
+    <p><strong>대법원 전원합의체 vs 단독판사</strong> — 비트코인은 편의점 결제 한 건에도 대법원 전원합의체 심리를 거치는 것과 같습니다. Openhash는 소액 사건은 단독판사, 중대 사건은 합의부로 자동 배분합니다. 에너지는 1/10,000 수준이고 속도는 628배 빠릅니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 16 — 비트코인 vs Openhash 성능 비교</div>
+    <div class="hbar-wrap">
+      <div style="font-size:12px; font-weight:600; margin-bottom:0.75rem; color:var(--muted);">처리 속도 (초당 거래 건수)</div>
+      <div class="hbar-row">
+        <div class="hbar-label">비트코인 (PoW)</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.16%; background:var(--accent);"></div>
+        <span style="font-family:var(--mono); font-size:11px; color:var(--accent); margin-left:8px; font-weight:700;">7건/초</span></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">Openhash</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:100%; background:var(--accent3);"><span>4,399건/초</span></div></div>
+      </div>
+      <div style="font-size:12px; font-weight:600; margin:1rem 0 0.75rem; color:var(--muted);">에너지 소비 (연간 TWh)</div>
+      <div class="hbar-row">
+        <div class="hbar-label">비트코인 (PoW)</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:100%; background:var(--accent);"><span>121 TWh (아르헨티나 수준)</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">Openhash</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:0.01%; background:var(--accent3);"></div>
+        <span style="font-family:var(--mono); font-size:11px; color:var(--accent3); margin-left:8px; font-weight:700;">≈ 0.01% 수준</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>5계층 구조 — 행정구역 비유</h3>
+  <div class="analogy">
+    <div class="analogy-icon">🏙️</div>
+    <p><strong>동사무소 → 시청 → 중앙정부</strong> — Openhash의 5계층은 한국의 행정구역과 정확히 대응합니다. 일상적인 거래는 "동사무소"(L2)에서 처리하고, 중요한 거래는 "중앙정부"(L4)까지 올라갑니다. 이 덕분에 네트워크 부하를 최소화하면서 보안을 유지합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 17 — Openhash 5계층 피라미드</div>
+    <div class="pyramid-wrap">
+      <div class="pyr-row" style="width:25%; background:var(--accent); font-size:11px;">
+        <span>L5 글로벌<br><span class="desc">국제기구</span></span><span class="pct">1%</span>
+      </div>
+      <div class="pyr-row" style="width:40%; background:#8c2c60;">
+        <span>L4 국가<br><span class="desc">중앙정부</span></span><span class="pct">9%</span>
+      </div>
+      <div class="pyr-row" style="width:58%; background:var(--accent2);">
+        <span>L3 도시·지역<br><span class="desc">시·군·구청</span></span><span class="pct">30%</span>
+      </div>
+      <div class="pyr-row" style="width:76%; background:#2a6098;">
+        <span>L2 구역·건물<br><span class="desc">읍·면·동사무소</span></span><span class="pct">60%</span>
+      </div>
+      <div class="pyr-row" style="width:95%; background:var(--muted);">
+        <span>L1 개별 기기<br><span class="desc">스마트폰·PC (각 가정)</span></span><span class="pct">거래 발생</span>
+      </div>
+    </div>
+    <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:0.5rem;">일상 거래의 60%는 L2에서만 처리 → 네트워크 부하 최소화</div>
+  </div>
+
+  <h3>위변조 불가능의 원리 — 1,000개 도서관</h3>
+  <div class="analogy">
+    <div class="analogy-icon">📚</div>
+    <p><strong>1,000개 도서관의 동일한 책</strong> — 전국 1,000개 도서관에 동일한 책이 비치되어 있습니다. 내용을 바꾸려면 1,000개를 동시에 교체해야 합니다. 한 곳이라도 실패하면 "이 책은 위조됐다"는 사실이 즉시 드러납니다. Openhash가 바로 이 원리입니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 18 — 분산 저장 위변조 불가 원리 (클릭하여 해킹 시도)</div>
+    <div id="libraryGrid" class="library-grid"></div>
+    <div style="text-align:center; margin-top:0.75rem;">
+      <button onclick="hackLibrary()" style="background:var(--accent); color:#fff; border:none; padding:0.5rem 1.5rem; border-radius:6px; font-family:var(--mono); font-size:12px; cursor:pointer;">🔓 한 곳 해킹 시도</button>
+      <button onclick="resetLibrary()" style="background:var(--bg2); color:var(--ink); border:1px solid var(--rule); padding:0.5rem 1.5rem; border-radius:6px; font-family:var(--mono); font-size:12px; cursor:pointer; margin-left:8px;">↺ 초기화</button>
+    </div>
+    <div id="libraryMsg" style="text-align:center; margin-top:0.75rem; font-size:12px; color:var(--muted); min-height:20px;"></div>
+  </div>
+
+  <h3>Private Data Vault (PDV) — 나만의 금고</h3>
+  <div class="analogy">
+    <div class="analogy-icon">🔐</div>
+    <p><strong>6개 서랍 달린 개인 금고</strong> — PDV는 본인만 열 수 있는 법률 사무소의 금고입니다. 금융·의료·교육·행정·교통·일반의 6개 서랍으로 자동 분류되며, 분쟁 시 필요한 서랍에서만 선택적으로 증거를 꺼낼 수 있습니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 19 — Private Data Vault 구조</div>
+    <div style="display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
+      <div class="pdv-safe">
+        <div style="font-size:2rem;">🗄️</div>
+        <div class="pdv-safe-label">PDV<br>Private Data Vault<br><br>본인 + AI 비서만<br>접근 가능</div>
+      </div>
+      <div class="pdv-drawers">
+        <div class="pdv-drawer finance"><div class="icon">💰</div><div><div class="name">금융</div><div style="font-size:10px; color:var(--muted);">거래·이체 기록</div></div></div>
+        <div class="pdv-drawer medical"><div class="icon">🏥</div><div><div class="name">의료</div><div style="font-size:10px; color:var(--muted);">진료·처방 기록</div></div></div>
+        <div class="pdv-drawer edu"><div class="icon">🎓</div><div><div class="name">교육</div><div style="font-size:10px; color:var(--muted);">학력·자격 기록</div></div></div>
+        <div class="pdv-drawer admin"><div class="icon">🏛️</div><div><div class="name">행정</div><div style="font-size:10px; color:var(--muted);">공문·민원 기록</div></div></div>
+        <div class="pdv-drawer transport"><div class="icon">🚗</div><div><div class="name">교통</div><div style="font-size:10px; color:var(--muted);">이동·위치 기록</div></div></div>
+        <div class="pdv-drawer general"><div class="icon">📁</div><div><div class="name">일반</div><div style="font-size:10px; color:var(--muted);">기타 소통 기록</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 8장 ── -->
+<section id="ch8" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 08</div>
+  <h2>고팡 (Gopang)
+    <span class="sub">AI 비서 기반 예방법학 플랫폼</span>
+  </h2>
+
+  <div class="analogy">
+    <div class="analogy-icon">⚖️</div>
+    <p><strong>24시간 무료 개인 변호사</strong> — 모든 메시지를 0.8초 안에 법적으로 검토해주는 변호사가 내 폰에 항상 대기 중입니다. 쉬지 않고, 비용도 없으며, 0.8초 만에 판단을 내립니다. 카카오톡과 같은 채팅 앱인데, 법률 전문가가 모든 대화를 실시간으로 검토하는 것과 같습니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 20 — 고팡 UI 목업 (보이스피싱 차단 시나리오)</div>
+    <div style="display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+          <div class="phone-header">⚖️ 고팡 (Gopang)</div>
+          <div class="phone-body">
+            <div class="msg msg-in">안녕하세요. 서울중앙지검입니다. 귀하의 계좌가 범죄에 사용되었습니다.</div>
+            <div class="msg-time">오전 10:23</div>
+            <div class="msg-warning">
+              🚨 S3 긴급차단<br>
+              보이스피싱 의심 메시지입니다. 검찰은 전화·문자로 계좌 이체를 요구하지 않습니다.<br>
+              → 112 신고
+            </div>
+            <div class="msg msg-in" style="opacity:0.5; text-decoration:line-through; font-size:10px;">계좌번호와 비밀번호를 알려주세요...</div>
+            <div class="msg-warning" style="margin-top:4px;">⛔ 이 메시지는 전송 차단되었습니다.</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <h3 style="margin-top:0;">삼권분립 구조</h3>
+        <table class="compare-tbl" style="font-size:12px;">
+          <thead><tr><th>고팡 계층</th><th>삼권분립 비유</th></tr></thead>
+          <tbody>
+            <tr><td class="row-head">AI 비서</td><td>사법부 — 적법/위법 판단</td></tr>
+            <tr><td class="row-head">PDV (금고)</td><td>입법부 — 기록·투명성 보장</td></tr>
+            <tr><td class="row-head">Openhash</td><td>행정부 — 규칙의 물리적 집행</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h3>범죄의 4단계와 고팡의 개입 지점</h3>
+  <div class="viz-box">
+    <div class="viz-title">그림 21 — 범죄 진행 단계와 고팡 차단 지점</div>
+    <div class="fraud-steps">
+      <div class="fraud-step fs-1">
+        <div class="fs-num">1</div>
+        <div class="fs-name">의도</div>
+        <div class="fs-sub">내면 계획</div>
+      </div>
+      <div class="fraud-step fs-2">
+        <div class="fs-num">2</div>
+        <div class="fs-name">소통</div>
+        <div class="fs-sub">대화·계약</div>
+        <div class="fs-block">🛡️ 고팡 차단</div>
+      </div>
+      <div class="fraud-step fs-3">
+        <div class="fs-num">3</div>
+        <div class="fs-name">실행</div>
+        <div class="fs-sub">거래·이동</div>
+      </div>
+      <div class="fraud-step fs-4">
+        <div class="fs-num">4</div>
+        <div class="fs-name">증거인멸</div>
+        <div class="fs-sub">삭제·조작</div>
+      </div>
+    </div>
+    <div style="font-size:12px; color:var(--muted); text-align:center; margin-top:0.5rem;">
+      범죄·분쟁의 약 99%가 2단계(소통)를 거칩니다. 고팡이 이 지점에서 차단하면 3·4단계에 도달하지 않습니다.
+    </div>
+  </div>
+
+  <h3>S0~S3 위험 등급 — 신호등 체계</h3>
+  <div class="analogy">
+    <div class="analogy-icon">🚦</div>
+    <p><strong>카드사 이상 결제 감지</strong> — 해외 이상 결제가 감지되면 카드사가 즉시 카드를 정지시키는 것과 같습니다. 단, 고팡은 돈이 아니라 <strong>대화를 지킵니다</strong>. S0(초록)~S3(빨강)의 4단계로 위험도를 구분합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 22 — 고팡 위험 등급 체계</div>
+    <div class="traffic-row">
+      <div class="traffic-item">
+        <div class="traffic-dot t-s0">✅</div>
+        <div class="tl-grade" style="color:#27ae60;">S0</div>
+        <div class="tl-name">안전</div>
+        <div class="tl-action">정상 전송</div>
+      </div>
+      <div class="traffic-item">
+        <div class="traffic-dot t-s1">⚠️</div>
+        <div class="tl-grade" style="color:#f0ad00;">S1</div>
+        <div class="tl-name">주의</div>
+        <div class="tl-action">소프트 알림 후 전송</div>
+      </div>
+      <div class="traffic-item">
+        <div class="traffic-dot t-s2">🔶</div>
+        <div class="tl-grade" style="color:#e67e22;">S2</div>
+        <div class="tl-name">경고</div>
+        <div class="tl-action">전송 보류 + 확인 요구</div>
+      </div>
+      <div class="traffic-item">
+        <div class="traffic-dot t-s3">🚨</div>
+        <div class="tl-grade" style="color:var(--accent);">S3</div>
+        <div class="tl-name">긴급차단</div>
+        <div class="tl-action">차단 + 관련기관 연결</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>3가지 예방 시나리오</h3>
+  <div class="scenario-grid">
+    <div class="scenario-card">
+      <div class="sc-now">
+        <div class="scenario-head">🔥 현재 — 보이스피싱</div>
+        <div class="scenario-body">피해자가 "검찰입니다"라는 전화를 받고 돈을 이체한 뒤 신고. 피해액 회복률 <strong style="color:var(--accent)">7% 미만</strong>.</div>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <div class="sc-klaw">
+        <div class="scenario-head">✅ 고팡 — 보이스피싱</div>
+        <div class="scenario-body">동일 메시지에 0.8초 내 S3 경고 표시. 이체 기능 일시 차단. 112 연결. <strong style="color:var(--accent3)">예방 가능률 99.7%.</strong></div>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <div class="sc-now">
+        <div class="scenario-head">🔥 현재 — 불공정 임대차</div>
+        <div class="scenario-body">"보증금 반환 시 수리비 30% 공제" 특약에 서명 후 퇴거 시 분쟁. 소송 6개월~1년.</div>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <div class="sc-klaw">
+        <div class="scenario-head">✅ 고팡 — 불공정 임대차</div>
+        <div class="scenario-body">계약서 교환 시 S2 경고: "임대차보호법 제6조의3에 따라 이 특약은 무효 가능." 계약 전 조항 수정 요구 가능.</div>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <div class="sc-now">
+        <div class="scenario-head">🔥 현재 — 투자 사기</div>
+        <div class="scenario-body">"원금 보장·월 10% 수익" 문자에 속아 투자. 사기 인지 시점엔 이미 소멸.</div>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <div class="sc-klaw">
+        <div class="scenario-head">✅ 고팡 — 투자 사기</div>
+        <div class="scenario-body">S2 경고: "유사수신행위 전형적 패턴(규제법 제3조)." 대화 기록 PDV 자동 저장 → 완벽한 증거 확보.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 23 — 범죄·분쟁 유형별 고팡 예방 가능률</div>
+    <div class="hbar-wrap">
+      <div class="hbar-row">
+        <div class="hbar-label">보이스피싱·전화금융사기</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:99.7%; background:var(--accent3);"><span>99.7%</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">온라인 사기 (전자상거래)</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:97.3%; background:var(--accent3);"><span>97.3%</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">임대차·부동산 분쟁</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:94.1%; background:var(--accent2);"><span>94.1%</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">개인 간 금전 분쟁</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:91.4%; background:var(--accent2);"><span>91.4%</span></div></div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label">직장 내 괴롭힘·성희롱</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:85%; background:var(--gold);"><span>85%+</span></div></div>
+      </div>
+    </div>
+    <div style="font-size:11px; color:var(--muted); margin-top:0.5rem;">잔여 1%: 소통 없이 즉각 발생하는 순수 오프라인 범죄(즉흥 폭행 등)</div>
+  </div>
+</section>
+
+<!-- ── 9장 ── -->
+<section id="ch9" class="chapter fade-in">
+  <div class="chapter-label">CHAPTER 09</div>
+  <h2>통합 비전
+    <span class="sub">Openhash + K-Law 차세대 사법 인프라</span>
+  </h2>
+
+  <div class="analogy">
+    <div class="analogy-icon">🚄</div>
+    <p><strong>철도망 단계적 개통</strong> — 제주 노선 시범 운행(1단계) → 전국 민사 노선 확장(2단계) → 형사 노선 도입(3단계) → KTX 전국 통합 개통(4단계). 처음부터 전국 노선을 까는 것이 아니라, 검증된 노선을 단계적으로 확장합니다.</p>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 24 — K-Law 생태계 — 6대 기관 통합 인프라</div>
+    <div class="eco-wrap">
+      <div class="eco-center">
+        🔗 Openhash 분산원장
+        <div class="sub">공통 사법 인프라</div>
+      </div>
+      <div style="font-size:11px; color:var(--muted); text-align:center; margin:-0.5rem 0 0.5rem;">↕ 모든 기관이 동일 데이터 체인 위에서 실시간 공유</div>
+      <div class="eco-agencies">
+        <div class="eco-agency court"><span class="icon">⚖️</span>법원<span class="role">사실심→법리심</span></div>
+        <div class="eco-agency prosecutor"><span class="icon">📋</span>공소청<span class="role">수사→기소 집중</span></div>
+        <div class="eco-agency police"><span class="icon">🚓</span>경찰<span class="role">수사→예방 전환</span></div>
+        <div class="eco-agency anti-corruption"><span class="icon">🔍</span>공수처<span class="role">제보→AI 탐지</span></div>
+        <div class="eco-agency audit"><span class="icon">🏛️</span>감사원<span class="role">사후→실시간 감사</span></div>
+        <div class="eco-agency ftc"><span class="icon">📊</span>공정위<span class="role">신고→자동 탐지</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">그림 25 — 단계별 구현 로드맵 (2026~2035)</div>
+    <div class="roadmap">
+      <div class="roadmap-track"></div>
+      <div class="rm-step">
+        <div class="rm-dot rm1"><span class="phase">1단계</span><span class="yr">2026~<br>2027</span></div>
+        <div class="rm-content">
+          <div class="rm-title">실증 단계</div>
+          <div class="rm-desc">제주도 특정 분쟁 유형(임대차, 배송)에 Openhash+K-Law 시범 적용</div>
+          <div class="rm-tags"><span class="rm-tag">지방법원</span><span class="rm-tag">소규모 실증</span></div>
+        </div>
+      </div>
+      <div class="rm-step">
+        <div class="rm-dot rm2"><span class="phase">2단계</span><span class="yr">2027~<br>2029</span></div>
+        <div class="rm-content">
+          <div class="rm-title">민사 확대</div>
+          <div class="rm-desc">소액 민사 사건 전체에 K-Law 단독심 적용, 법원 검토·확인 절차 도입</div>
+          <div class="rm-tags"><span class="rm-tag">법원</span><span class="rm-tag">공정위</span></div>
+        </div>
+      </div>
+      <div class="rm-step">
+        <div class="rm-dot rm3"><span class="phase">3단계</span><span class="yr">2029~<br>2031</span></div>
+        <div class="rm-content">
+          <div class="rm-title">형사 도입</div>
+          <div class="rm-desc">경찰·검찰의 수사 보조에 K-Law 형사 버전 도입, Openhash 범죄 탐지</div>
+          <div class="rm-tags"><span class="rm-tag">경찰</span><span class="rm-tag">공소청</span></div>
+        </div>
+      </div>
+      <div class="rm-step">
+        <div class="rm-dot rm4"><span class="phase">4단계</span><span class="yr">2031~<br>2035</span></div>
+        <div class="rm-content">
+          <div class="rm-title">전면 통합</div>
+          <div class="rm-desc">전 기관 Openhash 기반 통합 인프라 구축, K-Law 전원합의심 운영</div>
+          <div class="rm-tags"><span class="rm-tag">전체 기관</span><span class="rm-tag">완전 통합</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-box">
+    <div class="viz-title">법률 개정 핵심 과제</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+      <div style="background:var(--bg2); border-radius:8px; padding:1rem; border-left:4px solid var(--accent);">
+        <div style="font-weight:700; font-size:13px; margin-bottom:0.3rem;">📄 전자증거 증거능력</div>
+        <div style="font-size:12px; color:var(--muted);">Openhash 데이터를 일응의 증거(prima facie)로 인정하기 위한 전자서명법 확장</div>
+      </div>
+      <div style="background:var(--bg2); border-radius:8px; padding:1rem; border-left:4px solid var(--accent2);">
+        <div style="font-weight:700; font-size:13px; margin-bottom:0.3rem;">⚖️ AI 판결의 법적 지위</div>
+        <div style="font-size:12px; color:var(--muted);">K-Law 가상판결에 조정·중재 또는 확인 판결 효력 부여 방안 입법</div>
+      </div>
+      <div style="background:var(--bg2); border-radius:8px; padding:1rem; border-left:4px solid var(--purple);">
+        <div style="font-weight:700; font-size:13px; margin-bottom:0.3rem;">🔒 개인정보 보호 프레임워크</div>
+        <div style="font-size:12px; color:var(--muted);">EU GDPR "잊힐 권리" vs 분산원장 불변성 간 조화 — 법적 기준 정립</div>
+      </div>
+      <div style="background:var(--bg2); border-radius:8px; padding:1rem; border-left:4px solid var(--accent3);">
+        <div style="font-weight:700; font-size:13px; margin-bottom:0.3rem;">🔄 수사권 재조정</div>
+        <div style="font-size:12px; color:var(--muted);">검찰→공소청, 경찰 예방 중심 재편에 따른 형사소송법 개정</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 부록 ── -->
+<section id="appendix" class="chapter fade-in">
+  <div class="chapter-label">APPENDIX</div>
+  <h2>용어 해설</h2>
+
+  <div class="glossary-grid">
+    <div class="glossary-card">
+      <div class="term">예방법학 (Preventive Law)</div>
+      <div class="meaning">분쟁 발생 후 해결이 아닌, 발생 자체를 원천적으로 차단하는 법학적 접근</div>
+      <div class="analogy-hint">💡 백신과 같습니다 — 아프기 전에 맞는 것</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">공소청</div>
+      <div class="meaning">수사 기능을 분리하고 공소 제기·유지에만 집중하는 검찰의 미래 모델</div>
+      <div class="analogy-hint">💡 탐정 역할은 AI에게, 검사 역할만 남기는 것</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">Openhash</div>
+      <div class="meaning">개인 데이터 주권 보장을 위한 분산원장 기술. 모든 거래를 암호학적으로 기록</div>
+      <div class="analogy-hint">💡 1,000개 도서관에 분산 보관 — 위조 불가</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">Private Data Vault (PDV)</div>
+      <div class="meaning">Openhash 기반 개인 데이터 저장소. 변조 불가, 권한자만 접근</div>
+      <div class="analogy-hint">💡 6개 서랍 달린 나만의 법률 금고</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">K-Law 단독심</div>
+      <div class="meaning">AI 모델 1개가 판결 생성. 대법원 일치율 약 80%</div>
+      <div class="analogy-hint">💡 단독판사와 같은 개념</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">K-Law 합의심</div>
+      <div class="meaning">AI 모델 3개가 토론·합의하여 판결 도출. 일치율 약 90%</div>
+      <div class="analogy-hint">💡 3인 합의부와 같은 개념</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">K-Law 전원합의심</div>
+      <div class="meaning">AI 모델 12개+ 다수결 합의. 일치율 약 99%</div>
+      <div class="analogy-hint">💡 대법원 전원합의체와 같은 개념</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">이상 탐지 (Anomaly Detection)</div>
+      <div class="meaning">정상 패턴에서 벗어나는 데이터를 AI가 자동으로 식별하는 기법</div>
+      <div class="analogy-hint">💡 카드사 이상 결제 자동 감지와 동일 원리</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">고팡 (Gopang)</div>
+      <div class="meaning">AI 비서 + PDV + Openhash를 결합한 실시간 예방법학 채팅 플랫폼. 0.8초 내 위법성 검증</div>
+      <div class="analogy-hint">💡 법률 변호사가 내장된 채팅 앱</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">S0~S3 위험 등급</div>
+      <div class="meaning">S0(안전)→S1(주의)→S2(경고, 전송 보류)→S3(긴급차단)</div>
+      <div class="analogy-hint">💡 신호등 체계 — 초록·노랑·주황·빨강</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">PLSM (확률적 계층 선택)</div>
+      <div class="meaning">거래를 5계층 중 어디에 기록할지 자동 결정하는 Openhash 핵심 모듈</div>
+      <div class="analogy-hint">💡 중요도에 따라 동사무소/시청/중앙정부로 자동 배분</div>
+    </div>
+    <div class="glossary-card">
+      <div class="term">ILMV (양방향 계층 검증)</div>
+      <div class="meaning">상위→하위 감사 + 하위→상위 모니터링을 결합한 무결성 보장 구조</div>
+      <div class="analogy-hint">💡 대법원이 하급심을 감시하고, 동시에 시민이 대법원을 감시하는 구조</div>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem; padding:1.5rem; background:var(--bg2); border-radius:8px; border:1px solid var(--rule);">
+    <div style="font-family:var(--mono); font-size:11px; color:var(--muted); margin-bottom:0.5rem;">REFERENCES</div>
+    <div style="font-size:13px; color:var(--ink2); line-height:2;">
+      K-Law 시뮬레이션: <a href="https://jejuro.github.io/k-law" style="color:var(--accent2);">https://jejuro.github.io/k-law</a><br>
+      K-Law GitHub: <a href="https://github.com/jejuro/k-law" style="color:var(--accent2);">https://github.com/jejuro/k-law</a><br>
+      대법원 종합법률정보: <a href="https://glaw.scourt.go.kr" style="color:var(--accent2);">https://glaw.scourt.go.kr</a>
+    </div>
+  </div>
+</section>
+
+</div><!-- .main -->
+
+<footer class="site-footer">
+  © 2026 AI City Inc. All rights reserved. | 제주시 한림읍 금능남로 | tensor.city@gmail.com
+</footer>
+
+<script>
+// ── NAV ACTIVE STATE ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.toc-nav a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.toc-nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => observer.observe(s));
+
+// ── FADE IN ──
+const fadeObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => fadeObs.observe(el));
+
+// ── CHART 1: 사실확인 시간 배분 ──
+new Chart(document.getElementById('timeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['사실 확인 (증거·증인)', '법리 적용 (판결)'],
+    datasets: [{
+      data: [75, 25],
+      backgroundColor: ['#c8391a', '#1a7a50'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
+    }
+  }
+});
+
+// ── CHART 2: 소송비용 vs 분쟁금액 ──
+new Chart(document.getElementById('deadzoneChart'), {
+  type: 'line',
+  data: {
+    labels: ['100만', '500만', '1000만', '2000만', '3000만', '5000만', '1억'],
+    datasets: [
+      {
+        label: '소송 비용 (현행)',
+        data: [80, 90, 100, 130, 180, 250, 400],
+        borderColor: '#c8391a', backgroundColor: 'rgba(200,57,26,0.08)',
+        fill: true, tension: 0.3, borderWidth: 2
+      },
+      {
+        label: '분쟁 금액',
+        data: [100, 500, 1000, 2000, 3000, 5000, 10000],
+        borderColor: '#1a7a50', backgroundColor: 'rgba(26,122,80,0.05)',
+        fill: true, tension: 0.3, borderWidth: 2
+      },
+      {
+        label: 'K-Law 해결 비용 (거의 0)',
+        data: [5, 5, 5, 5, 5, 5, 5],
+        borderColor: '#1a4c8c', borderDash: [4, 4],
+        fill: false, tension: 0, borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      y: { title: { display: true, text: '비용 (만 원)', font: { size: 11 } } },
+      x: { title: { display: true, text: '분쟁 금액', font: { size: 11 } } }
+    },
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
+    }
+  }
+});
+
+// ── CHART 3: 경찰 인력 배분 ──
+new Chart(document.getElementById('policeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['수사', '예방'],
+    datasets: [
+      { label: '현행', data: [70, 30], backgroundColor: ['#c8391a', '#e8b0a0'] },
+      { label: 'K-Law 시대', data: [30, 70], backgroundColor: ['#a0c8b0', '#1a7a50'] }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      y: { max: 100, title: { display: true, text: '인력 비율 (%)', font: { size: 11 } } }
+    },
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      title: { display: true, text: '인력 배분 역전: 수사 70%→30%, 예방 30%→70%', font: { size: 12 } }
+    }
+  }
+});
+
+// ── CHART 4: 담합 탐지 ──
+const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월'];
+new Chart(document.getElementById('collusionChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'A사', data: [100,102,101,103,115,115,116,117,118], borderColor:'#c8391a', tension:0.3, borderWidth:2 },
+      { label: 'B사', data: [98,100,99,101,115,114,116,115,117], borderColor:'#1a4c8c', tension:0.3, borderWidth:2 },
+      { label: 'C사', data: [101,99,102,100,114,115,115,116,118], borderColor:'#1a7a50', tension:0.3, borderWidth:2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { title: { display: true, text: '가격 지수', font: { size: 11 } } } },
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      annotation: {}
+    }
+  }
+});
+
+// ── LIBRARY GRID ──
+function buildLibrary() {
+  const grid = document.getElementById('libraryGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 100; i++) {
+    const d = document.createElement('div');
+    d.className = 'lib-item';
+    d.textContent = '📚';
+    d.title = `도서관 #${i+1}`;
+    grid.appendChild(d);
+  }
+}
+buildLibrary();
+
+function hackLibrary() {
+  const items = document.querySelectorAll('.lib-item');
+  const idx = Math.floor(Math.random() * 100);
+  items[idx].classList.add('hacked');
+  items[idx].textContent = '🔴';
+  const msg = document.getElementById('libraryMsg');
+  msg.style.color = 'var(--accent)';
+  msg.textContent = `⚠️ 도서관 #${idx+1} 해킹 시도! 나머지 99개 도서관이 즉시 불일치를 감지 → 위조 시도 자동 무효화`;
+  setTimeout(() => {
+    items[idx].classList.remove('hacked');
+    items[idx].classList.add('alert');
+    items[idx].textContent = '⚠️';
+    setTimeout(() => {
+      items[idx].classList.remove('alert');
+      items[idx].textContent = '📚';
+      msg.textContent = '✅ 네트워크가 위조 시도를 차단했습니다. 데이터 무결성 유지됨.';
+      msg.style.color = 'var(--accent3)';
+    }, 2000);
+  }, 1500);
+}
+
+function resetLibrary() {
+  buildLibrary();
+  document.getElementById('libraryMsg').textContent = '';
+}
+</script>
+</body>
+</html>

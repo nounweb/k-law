@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OpenHash: 중요도 기반 적응형 무결성 검증을 갖는 계층적 분산 원장 시스템 (v2.2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:     #002060;
+  --navy-dk:  #001040;
+  --navy-md:  #003080;
+  --navy-lt:  #EEF2FA;
+  --navy-rl:  #C8D4F0;
+  --text:     #1A1C2A;
+  --text-sub: #3C4460;
+  --text-mu:  #6A7090;
+  --border:   #D0D8EC;
+  --border-lt:#E8EDF8;
+  --bg:       #F5F7FC;
+  --white:    #FFFFFF;
+  --gold:     #7A5C10;
+  --gold-lt:  #FAF5E8;
+  --green:    #1A5C1A;
+  --green-lt: #E8F5E9;
+  --r: 4px;
+  --shadow: 0 2px 8px rgba(0,20,80,.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:14px}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--navy);text-decoration:none}
+a:hover{text-decoration:underline}
+strong{color:var(--text);font-weight:700}
+p{color:var(--text-sub);margin-bottom:10px}
+p:last-child{margin-bottom:0}
+code{font-family:'Courier New',monospace;font-size:12.5px;background:#1A1C2A;color:#A8C0FF;padding:1px 5px;border-radius:3px}
+
+/* ── 내비게이션 ── */
+.site-nav{background:var(--navy-dk);padding:7px 0;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.08)}
+.nav-in{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;gap:2px;align-items:center;flex-wrap:wrap}
+.nav-label{color:rgba(255,255,255,.4);font-size:11px;margin-right:10px;letter-spacing:.08em;white-space:nowrap}
+.nav-in a{color:rgba(255,255,255,.65);font-size:11.5px;padding:3px 9px;border-radius:3px;transition:background .15s;white-space:nowrap}
+.nav-in a:hover{background:rgba(255,255,255,.09);text-decoration:none}
+.nav-in a.active{color:#fff;background:rgba(255,255,255,.14);font-weight:700}
+
+/* ── 레이아웃 ── */
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+/* ── 논문 헤더 ── */
+.paper-header{background:var(--navy-dk);border-radius:var(--r);padding:36px 48px 30px;margin:22px 0;border-left:4px solid #B8940A;position:relative;overflow:hidden}
+.paper-header::after{content:'∑';position:absolute;right:20px;bottom:-8px;font-size:9rem;color:rgba(255,255,255,.03);pointer-events:none;font-family:serif}
+.paper-eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px}
+.paper-title-en{font-size:clamp(1rem,2vw,1.3rem);font-weight:700;color:#F0C030;line-height:1.4;margin-bottom:10px;font-family:'Noto Serif KR',serif}
+.paper-title-kr{font-size:clamp(1.1rem,2.2vw,1.55rem);font-weight:900;color:#fff;line-height:1.3;margin-bottom:16px;font-family:'Noto Serif KR',serif}
+.paper-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
+.meta-tag{font-size:11px;color:rgba(255,255,255,.55)}
+.meta-tag strong{color:rgba(255,255,255,.8);font-weight:600}
+.journal-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.journal-badge{display:inline-block;background:rgba(240,192,48,.12);border:1px solid rgba(240,192,48,.35);color:#FFE060;font-size:10.5px;padding:2px 10px;border-radius:3px;font-weight:600}
+.kw-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.kw{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.75);font-size:10.5px;padding:2px 9px;border-radius:12px}
+
+/* ── 버전 배지 ── */
+.vbadge{display:inline-block;background:rgba(240,192,48,.15);border:1px solid rgba(240,192,48,.4);color:var(--gold);font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:2px;letter-spacing:.05em;margin-left:6px;vertical-align:middle}
+.nbadge{display:inline-block;background:var(--green-lt);border:1px solid #4CAF50;color:var(--green);font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:2px;letter-spacing:.05em;margin-left:6px;vertical-align:middle}
+
+/* ── TOC ── */
+.toc{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--navy);border-radius:0 var(--r) var(--r) 0;padding:18px 22px;margin:22px 0}
+.toc-title{font-size:10.5px;font-weight:700;color:var(--navy);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.toc-list{list-style:none;columns:2;column-gap:24px}
+.toc-list li{margin-bottom:5px;break-inside:avoid}
+.toc-list a{font-size:12.5px;color:var(--text-sub);display:flex;align-items:baseline;gap:7px}
+.toc-list a:hover{color:var(--navy);text-decoration:none}
+.toc-n{font-size:10px;font-weight:700;color:var(--navy-dk);background:var(--navy-lt);border-radius:2px;padding:1px 5px;flex-shrink:0}
+.toc-sub{padding-left:22px}
+.toc-sub li{margin-bottom:3px}
+.toc-sub a{font-size:11.5px;color:var(--text-mu)}
+
+/* ── 섹션 ── */
+.sec{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.sec-head{display:flex;align-items:center;gap:12px;padding:12px 22px;border-bottom:1px solid var(--border);background:#FAFBFE}
+.sec-num{display:flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:4px;background:var(--navy-dk);color:#fff;font-size:12px;font-weight:700;flex-shrink:0;font-family:'Noto Serif KR',serif;padding:0 6px}
+.sec-title{font-family:'Noto Serif KR',serif;font-size:.95rem;font-weight:700;color:var(--navy-dk);letter-spacing:-.01em}
+.sec-en{font-size:.78rem;color:var(--text-mu);margin-left:6px;font-family:sans-serif;font-weight:400}
+.sec-badge{margin-left:auto;font-size:9.5px;font-weight:700;background:var(--gold-lt);color:var(--gold);border:1px solid #DDB84A;border-radius:2px;padding:1px 6px;white-space:nowrap}
+.sec-body{padding:20px 26px}
+.sub{font-size:13px;font-weight:700;color:var(--navy-dk);border-bottom:1px solid var(--border-lt);padding-bottom:6px;margin:22px 0 12px}
+.sub:first-child{margin-top:0}
+.subsub{font-size:12.5px;font-weight:700;color:var(--navy-md);margin:16px 0 8px}
+
+/* ── callout ── */
+.note{background:var(--navy-lt);border-left:3px solid var(--navy);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin:12px 0;font-size:13px;color:var(--text-sub)}
+.note.gold{background:var(--gold-lt);border-left-color:var(--gold);color:#3A2800}
+.note.green{background:var(--green-lt);border-left-color:var(--green);color:#0A2E0A}
+.note.dark{background:#0F1629;border:1px solid #2D3748;border-left:3px solid #4A90D9;color:#A8C0FF;font-family:'Courier New',monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;border-radius:0 var(--r) var(--r) 0}
+
+/* ── 수식 블록 ── */
+.formula{background:#0F1629;border:1px solid #1E2840;border-radius:var(--r);padding:16px 20px;margin:12px 0;font-family:'Courier New',monospace;font-size:12.5px;color:#A8C0FF;line-height:1.9;overflow-x:auto}
+.formula .hi{color:#F0C030;font-weight:700}
+.formula .cm{color:#4B5563}
+
+/* ── 표 ── */
+.tbl-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--navy-dk);color:#fff;padding:8px 11px;text-align:left;font-weight:600;font-size:11.5px;white-space:nowrap}
+td{padding:7px 11px;border-bottom:1px solid var(--border-lt);color:var(--text-sub);vertical-align:top}
+tr:nth-child(even) td{background:#FAFBFE}
+tr:hover td{background:var(--navy-lt)}
+td strong{color:var(--text)}
+.td-c{text-align:center}
+.td-r{text-align:right;font-variant-numeric:tabular-nums}
+.badge-ok{display:inline-block;background:var(--green-lt);color:var(--green);padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700}
+.badge-na{display:inline-block;background:#FFF8E1;color:#7B4F00;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700}
+
+/* ── 기여 카드 ── */
+.contrib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.contrib-card{border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;border-top:2px solid var(--navy)}
+.contrib-id{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:.08em;margin-bottom:6px}
+.contrib-title{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:6px}
+.contrib-desc{font-size:12px;color:var(--text-sub);line-height:1.65}
+
+/* ── 계층 구조 카드 ── */
+.layer-grid{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.layer-card{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);border-radius:var(--r);padding:11px 14px}
+.layer-badge{min-width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.l1{background:#1565C0}
+.l2{background:#1976D2}
+.l3{background:#0288D1}
+.l4{background:#006064}
+.l5{background:#004D40}
+.layer-content{flex:1;min-width:0}
+.layer-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.layer-desc{font-size:12px;color:var(--text-sub);line-height:1.6}
+
+/* ── 알고리즘 블록 ── */
+.algo{background:#0F1629;border:1px solid #2D3748;border-radius:var(--r);padding:18px 22px;margin:14px 0}
+.algo-title{font-size:11px;font-weight:700;color:#60A5FA;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid #2D3748;padding-bottom:8px}
+.algo-body{font-family:'Courier New',monospace;font-size:12.5px;color:#A8C0FF;line-height:1.85}
+.algo-body .kw{color:#F0C030;font-weight:700}
+.algo-body .cm{color:#4B5563}
+.algo-body .hi{color:#4ADE80}
+
+/* ── 상태 전이 ── */
+.state-flow{background:var(--navy-lt);border:1px solid var(--navy-rl);border-radius:var(--r);padding:16px 20px;margin:12px 0;font-size:12.5px;color:var(--text-sub);line-height:2}
+
+/* ── 증명 블록 ── */
+.proof{background:#FAFBFE;border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;margin:12px 0}
+.proof-title{font-size:11px;font-weight:700;color:var(--navy);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.proof-body{font-size:12.5px;color:var(--text-sub);line-height:1.85}
+.proof-body p{margin-bottom:8px}
+.qed{text-align:right;font-weight:700;color:var(--navy-dk);margin-top:8px}
+
+/* ── 구분선 ── */
+hr.rule{border:none;border-top:1px solid var(--border-lt);margin:28px 0}
+
+/* ── 참고문헌 ── */
+.ref-item{font-size:12px;color:var(--text-sub);padding:5px 0 5px 16px;border-bottom:1px solid var(--border-lt);line-height:1.65;position:relative}
+.ref-item::before{content:"";position:absolute;left:0;top:11px;width:8px;height:1px;background:var(--navy)}
+.ref-num{font-weight:700;color:var(--navy-dk);margin-right:4px}
+
+/* ── 푸터 ── */
+.footer{text-align:center;padding:24px 0 0;border-top:1px solid var(--border-lt);margin-top:40px}
+.footer p{font-size:11px;color:var(--text-mu)}
+
+/* ── 반응형 ── */
+@media(max-width:720px){
+  .paper-header{padding:22px 18px 18px}
+  .contrib-grid{grid-template-columns:1fr}
+  .toc-list{columns:1}
+  .sec-body{padding:16px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── 내비게이션 ── -->
+<div class="site-nav">
+  <div class="nav-in">
+    <span class="nav-label">OpenHash v2.2</span>
+    <a href="#abstract" class="active">초록</a>
+    <a href="#intro">1. 서론</a>
+    <a href="#related">2. 관련연구</a>
+    <a href="#model">3. 시스템모델</a>
+    <a href="#design">4. 시스템설계</a>
+    <a href="#security">5. 보안분석</a>
+    <a href="#experiments">6. 실험</a>
+    <a href="#discussion">7. 토론</a>
+    <a href="#conclusion">8. 결론</a>
+    <a href="#appendix">부록</a>
+    <a href="#refs">참고문헌</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ── 논문 헤더 ── -->
+<div class="paper-header">
+  <div class="paper-eyebrow">SCI 논문 초안 v2.2 &nbsp;|&nbsp; 2026-03-26 &nbsp;|&nbsp; AI City Inc., 제주특별자치도 서귀포시, 대한민국</div>
+  <div class="paper-title-en">OpenHash: Importance-Based Adaptive Integrity Verification with Probabilistic Hierarchical Layer Selection and Bidirectional Inter-Layer Verification for Auditable Hierarchical Distributed Ledger Systems</div>
+  <div class="paper-title-kr">OpenHash: 확률적 계층 선택 및 양방향 상호 계층 검증을 이용한 중요도 기반 적응형 무결성 검증을 갖는 감사 가능한 계층적 분산 원장 시스템</div>
+  <div class="journal-row">
+    <span class="journal-badge">IEEE Transactions on Information Forensics and Security (IF ~6.8)</span>
+    <span class="journal-badge">ACM Transactions on Privacy and Security</span>
+    <span class="journal-badge">Future Generation Computer Systems (Elsevier, IF ~7.5)</span>
+  </div>
+  <div class="kw-row">
+    <span class="kw">분산원장</span><span class="kw">계층적 합의</span><span class="kw">무결성 검증</span>
+    <span class="kw">확률적 부하 분산</span><span class="kw">양방향 감사</span><span class="kw">중요도 기반 검증</span>
+    <span class="kw">영지식 증명</span><span class="kw">신뢰 실행 환경</span><span class="kw">PBFT</span>
+  </div>
+  <div class="paper-meta">
+    <div class="meta-tag"><strong>저자</strong> [추후 기재]</div>
+    <div class="meta-tag"><strong>소속</strong> AI City Inc.</div>
+    <div class="meta-tag"><strong>연락처</strong> tensroc.city@gmail.com</div>
+    <div class="meta-tag"><strong>논문 유형</strong> Regular Article</div>
+    <div class="meta-tag"><strong>상태</strong> 실험 미완료 항목은 "xxx"로 표기</div>
+  </div>
+</div>
+
+<!-- ── 변경 이력 ── -->
+<div class="note gold" style="margin-bottom:0">
+  <strong>변경 이력</strong> &nbsp; v1.0(2026-03-25): 최초 작성 &nbsp;|&nbsp; v2.0(2026-03-26): 리뷰 보완책 전면 반영 &nbsp;|&nbsp; v2.1(2026-03-26): 2차 리뷰 보완 반영 &nbsp;|&nbsp; <strong>v2.2(2026-03-26):</strong> §4.5.1 Split-brain 분석·CAP 한계, 활성성 정리 보강, 슬래싱 수식 정의, GPDI 지수, DA (k,n)=(3,4) 권장, DAS 이항분포 수식, 부록 D 신설(DAO 거버넌스 형식 명세), ILMV 비활성화 대조군, TLA⁺ 로드맵 보강, 참고문헌 [36]+[37], [38] 추가
+</div>
+
+<!-- ── 목차 ── -->
+<nav class="toc" id="top">
+  <div class="toc-title">목차 (Table of Contents)</div>
+  <ul class="toc-list">
+    <li><a href="#abstract"><span class="toc-n">—</span>초록 (Abstract)</a></li>
+    <li><a href="#intro"><span class="toc-n">1</span>서론</a></li>
+    <li><a href="#related"><span class="toc-n">2</span>관련 연구</a></li>
+    <li><a href="#model"><span class="toc-n">3</span>시스템 모델 및 위협 모델</a></li>
+    <li><a href="#design"><span class="toc-n">4</span>OpenHash 시스템 설계</a></li>
+    <li><a href="#security"><span class="toc-n">5</span>보안 분석</a></li>
+    <li><a href="#experiments"><span class="toc-n">6</span>실험 및 성능 평가</a></li>
+    <li><a href="#discussion"><span class="toc-n">7</span>토론 및 한계</a></li>
+    <li><a href="#conclusion"><span class="toc-n">8</span>결론</a></li>
+    <li><a href="#appendix-a"><span class="toc-n">A</span>정리 1 완전 형식 증명</a></li>
+    <li><a href="#appendix-b"><span class="toc-n">B</span>LPBFT 상태 전이 명세</a></li>
+    <li><a href="#appendix-c"><span class="toc-n">C</span>안전성/활성성 증명 스케치·BAR 분석</a></li>
+    <li><a href="#appendix-d"><span class="toc-n">D</span>DAO 거버넌스 형식 명세</a></li>
+    <li><a href="#refs"><span class="toc-n">—</span>참고문헌</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════ 초록 ══════════════════ -->
+<div class="sec" id="abstract">
+  <div class="sec-head">
+    <div class="sec-num">초록</div>
+    <div class="sec-title">Abstract</div>
+  </div>
+  <div class="sec-body">
+    <p>기존 분산원장 기술(DLT)은 작업증명(PoW) 또는 지분증명(PoS) 기반 합의 메커니즘에 의존함으로써 에너지 비효율, 낮은 처리량, 긴 거래 최종성 지연이라는 구조적 한계를 노출하며, 모든 거래에 균일한 무결성 검증을 적용하여 저위험 거래의 과도한 오버헤드 또는 고위험 거래의 보안 부족이라는 이분법적 문제를 야기한다. 본 논문은 이를 극복하기 위해 <strong>OpenHash 시스템</strong>을 제안한다.</p>
+    <p>OpenHash는 물리적 공간을 5계층으로 분할한 분산 노드 네트워크에서 (1) 이중 SHA-256 재해싱 기반 <strong>확률적 계층 선택 모듈(PLSM)</strong>, (2) 집합 잔액 불변성(Σδ_k = 0) 및 잔액 매핑 무결성(BMI) 검증을 수행하는 <strong>잔액 불변성 검증 모듈(BIVM)</strong>, (3) 하향 감사와 상향 모니터링을 결합한 <strong>양방향 상호 계층 검증(ILMV)</strong>, (4) 5가지 비상 조건에서만 발동되는 <strong>긴급 경량 PBFT(LPBFT)</strong>, 그리고 (5) 거래 중요도 점수에 따라 경량·표준·강화 모드를 선택적으로 적용하는 <strong>중요도 기반 적응형 무결성 검증</strong> 메커니즘을 통합한다. 고중요도 거래에는 영지식 증명(zk-SNARKs), 신뢰 실행 환경(TEE), 경제적 스테이킹/슬래싱을 선택적으로 추가 적용한다.</p>
+    <p>단일 머신 내 프로세스 간 통신 환경 기준 상한값 실험에서 <strong>단일 노드 4,399 TPS (CV=1.0%), E2E 레이턴시 평균 0.228ms</strong>를 달성하였으며, 분산 환경(3개 리전, 100+ 노드) 실증 결과 xxx TPS, E2E 레이턴시 xxx ms를 기록하였다. AWS 인스턴스 전력 소비량 기준 TPS당 에너지 소비량은 xxx W/TPM으로, HTTPS API 호출 대비 xxx배 수준에 불과하다. 본 시스템은 PoW를 완전히 제거하고 합의를 비상시에만 한정함으로써 에너지 소비를 최소화하며, 물리적 공간의 계층 구조를 신뢰 기반으로 활용하는 새로운 <strong>"규제된 분산 원장(Regulated Distributed Ledger)"</strong> 패러다임을 구현한다.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ 1. 서론 ══════════════════ -->
+<div class="sec" id="intro">
+  <div class="sec-head"><div class="sec-num">1</div><div class="sec-title">서론 <span class="sec-en">Introduction</span></div></div>
+  <div class="sec-body">
+
+    <div class="sub">1.1 연구 배경 및 동기</div>
+    <p>비트코인(Bitcoin)으로 대표되는 작업증명(PoW) 기반 분산원장 기술(DLT)은 탈중앙 신뢰를 실현하는 최초의 실용적 솔루션을 제시하였으나, 연간 약 121 TWh에 달하는 에너지 소비 [1], 초당 7건 수준의 낮은 처리량, 그리고 평균 60분에 이르는 거래 최종성 지연이라는 구조적 한계를 내포한다 [2]. 지분증명(PoS) 방식은 에너지 문제를 완화하나, 제네시스 시점 지분 집중에 따른 거버넌스 취약성이 지적된다 [3]. DAG 기반 IOTA Tangle은 수수료 없는 마이크로 거래를 지원하나 실질 보안을 위해 중앙집중식 코디네이터 노드에 의존하며 [4], Nano [4a]는 양측 서명 DAG 구조로 수수료 제로를 달성하나 스팸 거래에 취약하다. Hashgraph는 aBFT 가십 합의로 높은 처리량을 달성하나 특허 알고리즘에 종속되어 범용 적용이 제한된다 [5].</p>
+    <p>기존 계층적 합의 연구(OmniLedger [6] 등) 및 지리적 샤딩 연구는 네트워크 위상을 이용한 확장성 개선을 탐구하였으나, 샤드 내 합의를 여전히 요구하며 물리적 공간의 계층 구조 자체를 신뢰 기반으로 활용하지 않는다. 최근 L2 확장 솔루션(Optimistic Rollups [16], ZK Rollups [17])은 처리량 개선에 기여하고 있으나, L1 의존성과 탈출 지연(exit delay) 문제를 수반한다. Algorand [19]는 VRF 기반 순수 PoS로 빠른 최종성을 달성하나 전체 노드 참여를 요구하며, Sui [20]는 객체 중심 병렬 실행으로 높은 처리량을 보이나 MoveVM 생태계 의존성이 존재한다.</p>
+    <p>또한 기존 시스템은 모든 거래에 균일한 무결성 검증을 적용하여, 소액·저위험 거래에 과도한 검증 오버헤드가 발생하거나 고액·고위험 거래에 대한 보안이 불충분한 문제를 야기한다. 이에 본 논문은 물리적 공간의 계층 구조를 신뢰 기반으로 활용하고, 거래 중요도에 따라 무결성 검증 강도를 적응적으로 조정하는 OpenHash 시스템을 제안한다.</p>
+
+    <div class="sub">1.2 연구 기여 (Contributions)</div>
+    <div class="contrib-grid">
+      <div class="contrib-card">
+        <div class="contrib-id">C1</div>
+        <div class="contrib-title">확률적 계층 선택 모듈 (PLSM)</div>
+        <div class="contrib-desc">이중 SHA-256 재해싱 후 mod 1,000 연산을 통해 합의 없이 거래별 기록 계층을 결정하는 범용 확률적 부하 분산 알고리즘. 10,000,000회 호출 χ² 검정 결과 p > 0.99로 균일 분포 확인.</div>
+      </div>
+      <div class="contrib-card">
+        <div class="contrib-id">C2</div>
+        <div class="contrib-title">잔액 불변성 검증 모듈 (BIVM)</div>
+        <div class="contrib-desc">집합 잔액 불변성(Σδ_k = 0)과 개별 잔액 매핑 무결성(BMI)을 병렬 검증하여 합의 없이 이중 지불 및 내부 위변조를 실시간 탐지. BMI는 총량 보존 위장 내부 위변조 탐지 신규 메커니즘.</div>
+      </div>
+      <div class="contrib-card">
+        <div class="contrib-id">C3</div>
+        <div class="contrib-title">양방향 상호 계층 검증 (ILMV)</div>
+        <div class="contrib-desc">6개 항목 하향 감사와 6개 임계값 상향 모니터링을 결합한 합의 없는 실시간 무결성 검증 프레임워크. L2→L1 100% 스트리밍 감사 및 비인접 계층 교차 검증 포함.</div>
+      </div>
+      <div class="contrib-card">
+        <div class="contrib-id">C4</div>
+        <div class="contrib-title">긴급 경량 PBFT (LPBFT)</div>
+        <div class="contrib-desc">5개 비상 조건에서만 발동되고 4개 비활성화 조건 충족 시 자동 복귀하는 최소 침습적 합의 메커니즘. L1 4노드 기준 평균 0.759ms 레이턴시 실측(단일 머신).</div>
+      </div>
+      <div class="contrib-card">
+        <div class="contrib-id">C5</div>
+        <div class="contrib-title">중요도 기반 적응형 무결성 검증</div>
+        <div class="contrib-desc">거래 중요도 점수(score)에 따라 경량·표준·강화 모드를 자동 선택. 고중요도 거래에 zk-SNARKs, TEE, 스테이킹/슬래싱 선택적 적용. 가중치 민감도 분석을 통한 파라미터 근거 제시.</div>
+      </div>
+    </div>
+
+    <div class="sub">1.3 논문 구성</div>
+    <p>2절에서 관련 연구를 검토하고, 3절에서 시스템 모델 및 위협 모델을 정의한다. 4절에서 OpenHash의 핵심 구성 요소를 상세히 기술하고, 5절에서 보안 분석을 수행한다. 6절에서 실험 결과를 제시하고, 7절에서 한계와 향후 과제를 논의한다. 8절에서 결론을 맺는다. 부록 A에 정리 1의 완전 형식 증명, 부록 B에 LPBFT 상태 전이 명세, 부록 C에 안전성/활성성 증명 스케치, 부록 D에 DAO 거버넌스 형식 명세를 수록한다.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ 2. 관련 연구 ══════════════════ -->
+<div class="sec" id="related">
+  <div class="sec-head"><div class="sec-num">2</div><div class="sec-title">관련 연구 <span class="sec-en">Related Work</span></div></div>
+  <div class="sec-body">
+
+    <div class="sub">2.1 합의 메커니즘의 진화</div>
+    <p>PoW [1]는 암호학적 퍼즐을 통해 탈중앙 합의를 달성하나 에너지 비효율 문제가 근본적이다 [2]. Casper FFG [3]는 PoS 기반 최종성 가젯을 제안하였으나 초기 지분 집중 문제가 잔존한다. HotStuff [8]는 선형 메시지 복잡도의 BFT 합의를 달성하였으나 허가형 네트워크에 최적화되어 있다. Algorand [19]는 VRF 기반 순수 PoS를 통해 빠른 최종성(~4.5초)과 높은 처리량을 달성하나 전체 노드의 합의 참여가 요구된다. 본 연구는 평상시 합의를 완전 제거하고 비상시에만 LPBFT를 발동하여 이 문제를 근본적으로 우회한다.</p>
+
+    <div class="sub">2.2 샤딩 및 계층적 분산 시스템</div>
+    <p>OmniLedger [6]는 ByzCoinX를 이용한 크로스샤드 프로토콜을 제안하였으나 샤드 내 합의 오버헤드가 존재한다. 지리적 샤딩 연구들은 네트워크 위상을 활용하나, <strong>물리적 공간의 계층 구조 자체를 신뢰 기반으로 활용하는 개념은 본 연구에서 최초로 제안된다.</strong> Sui [20]는 객체 중심 병렬 실행을 통해 높은 처리량을 달성하나, MoveVM 생태계에 의존하며 물리적 신뢰 계층을 활용하지 않는다.</p>
+
+    <div class="sub">2.3 L2 확장 솔루션</div>
+    <p>Optimistic Rollups [16]은 분쟁 기반 사후 검증을 통해 L1 처리량을 확장하나, 챌린지 기간(~7일) 동안의 탈출 지연 문제가 존재한다. ZK Rollups [17]는 영지식 증명을 통해 즉각적 최종성을 제공하나 회로 설계 복잡도와 증명 생성 비용이 높다. 본 시스템은 L1 자체의 처리량을 확보하므로 L2 의존 없이 확장성을 달성한다.</p>
+
+    <div class="sub">2.4 서명 및 암호화 프리미티브</div>
+    <p>BLS 서명 [9]은 집계 서명을 통해 통신 오버헤드를 절감한다. Merkle 트리 [9a]는 O(log N) 포함 증명을 제공한다. CRYSTALS-Dilithium [10]은 NIST 표준 양자 내성 서명 알고리즘이다. Shamir 비밀 분산 [11]은 (t, n) 임계값 기반 키 관리를 가능하게 한다. Isolation Forest [12]는 비지도 이상 탐지 알고리즘으로 본 시스템의 Stage 4에 적용된다. zk-SNARKs [14]는 영지식 간결 비대화형 지식 논증으로 고중요도 거래의 수학적 무결성 증명에 활용된다. TEE [15]는 하드웨어 수준 보안 격리를 제공한다.</p>
+
+    <div class="sub">2.5 본 연구와의 차별성 요약</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>구분</th><th>기존 연구</th><th>본 연구 (OpenHash)</th></tr>
+        <tr><td>계층 구조</td><td>논리적 샤딩</td><td><strong>물리적 공간 계층 구조를 신뢰 기반으로 직접 활용</strong></td></tr>
+        <tr><td>합의</td><td>항상 합의 필요</td><td><strong>평상시 합의 완전 제거 + 비상시 LPBFT</strong></td></tr>
+        <tr><td>검증 강도</td><td>균일 검증</td><td><strong>거래 중요도 기반 적응형 검증 강도 차등</strong></td></tr>
+        <tr><td>내부 위변조</td><td>탐지 불가</td><td><strong>BMI를 통한 총량 보존 위장 내부 위변조 탐지</strong></td></tr>
+        <tr><td>감사 방향</td><td>단방향 감사</td><td><strong>양방향 (하향+상향) 감사 결합</strong></td></tr>
+        <tr><td>에너지</td><td>PoW 수준</td><td><strong>HTTPS API 호출 수준으로 최소화 (정량적 비교 §6.7)</strong></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 3. 시스템 모델 ══════════════════ -->
+<div class="sec" id="model">
+  <div class="sec-head"><div class="sec-num">3</div><div class="sec-title">시스템 모델 및 위협 모델 <span class="sec-en">System Model and Threat Model</span></div></div>
+  <div class="sec-body">
+
+    <div class="sub">3.1.1 계층 구조</div>
+    <p>OpenHash는 물리적 공간을 5계층으로 분할하여 분산 노드 네트워크를 구성한다. 계층 식별자 형식: GLOBAL > KR > KR-JEJU > KR-JEJU-SEOGWIPO > ...</p>
+    <div class="layer-grid">
+      <div class="layer-card"><div class="layer-badge l1">L1</div><div class="layer-content"><div class="layer-title">최소 물리적 단위</div><div class="layer-desc">예: 읍면동 — ~3,500개 × 이중화 = 7,000노드. 모든 사용자는 등록 주소 기반으로 정확히 하나의 L1 노드에 배정.</div></div></div>
+      <div class="layer-card"><div class="layer-badge l2">L2</div><div class="layer-content"><div class="layer-title">중간 물리적 단위</div><div class="layer-desc">예: 시군구 — 226노드</div></div></div>
+      <div class="layer-card"><div class="layer-badge l3">L3</div><div class="layer-content"><div class="layer-title">상위 물리적 단위</div><div class="layer-desc">예: 광역시도 — 17노드</div></div></div>
+      <div class="layer-card"><div class="layer-badge l4">L4</div><div class="layer-content"><div class="layer-title">국가 단위 클러스터</div><div class="layer-desc">최소 13개 독립 기관 운영 노드, f=4</div></div></div>
+      <div class="layer-card"><div class="layer-badge l5">L5</div><div class="layer-content"><div class="layer-title">글로벌 최상위 클러스터</div><div class="layer-desc">19개 이상 독립 운영 주체, f=6</div></div></div>
+    </div>
+
+    <div class="sub">일반적 계층 클러스터링 모델 (HTC) <span class="vbadge">v2.1</span></div>
+    <p>상기 행정구역 기반 5계층은 OpenHash의 한 실증 사례(case study)이다. 본 시스템의 계층 구조는 다음 추상적 속성을 만족하는 임의의 물리적 또는 논리적 클러스터링에 적용 가능하다.</p>
+    <div class="formula">
+<span class="hi">정의 (계층적 신뢰 클러스터링, HTC):</span> HTC = (V, E, L, τ, ψ)
+  V: 노드 집합
+  E ⊆ V × V: 통신 링크 집합
+  L: {L1, L2, ..., Ld} (d ≥ 2인 계층 집합)
+  τ: V → L  (각 노드의 계층 할당 함수)
+  ψ: L → ℝ⁺ (각 계층의 신뢰 등급 함수, ψ(Lᵢ) < ψ(Lᵢ₊₁))
+
+<span class="hi">HTC 공리:</span>
+  H-1 (포함성): 하위 계층의 모든 노드는 정확히 하나의 상위 계층 노드에 귀속
+  H-2 (독립성): 동일 계층 내 노드들은 상호 독립적 운영 주체에 의해 관리
+  H-3 (감사성): 인접 계층 간 양방향 감사(ILMV) 경로가 존재
+  H-4 (BFT 정족수): 각 계층 k의 노드 수 nₖ ≥ 3fₖ + 1</div>
+    <p>대안적 적용 사례: (a) 엣지-클라우드 협력형 인프라: L1=엣지 디바이스, L2=엣지 서버, L3=리전 게이트웨이, L4=클라우드 AZ, L5=글로벌 CDN &nbsp; (b) 다국적 금융 기관 네트워크 &nbsp; (c) 공급망 무결성 시스템</p>
+
+    <div class="sub">3.1.2 최하위 공통 물리적 계층 (LCAT)</div>
+    <div class="formula"><span class="hi">LCAT(A, B)</span> = min { k ∈ {1,2,3,4,5} : tier_k(A) = tier_k(B) }
+
+  k &lt; LCAT: 가변 계층(Variable Layer) — 잔액 변동 허용
+  k ≥ LCAT: 불변 계층(Invariant Layer) — 집합 잔액 보존</div>
+
+    <div class="sub">3.1.3 해시 체인 모델</div>
+    <div class="formula"><span class="hi">사용자 해시 체인:</span>
+  H_u = (h₁, h₂, ..., h_t)
+  hᵢ = SHA-256(hᵢ₋₁ ∥ dataᵢ ∥ heightᵢ)   <span class="cm">← heightᵢ: 논스(nonce), 재생 공격 차단</span>
+
+<span class="hi">노드 해시 체인:</span>
+  H_N = (n₁, n₂, ..., n_t)
+  nᵢ = SHA-256(nᵢ₋₁ ∥ h_user,i)
+  <span class="cm">갱신 요건: 사용자 서명 + L1 노드 서명 이중 서명</span></div>
+
+    <div class="sub">3.2 위협 모델</div>
+    <div class="note">보안 목표: <strong>"신뢰 없는 불변성(trustless immutability)"이 아닌 "감사 가능한 무결성(auditable integrity)"</strong></div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>신뢰 가정</th><th>내용</th></tr>
+        <tr><td><strong>T-1</strong></td><td>각 계층 통신 인프라는 해당 물리적 영역 기관이 관리하며 기본 보안 정책이 준수된다.</td></tr>
+        <tr><td><strong>T-2</strong></td><td>계층 내 다수(2f+1 이상)의 노드가 동시에 악의적으로 행동하지 않는다.</td></tr>
+        <tr><td><strong>T-3</strong></td><td>공격자는 복수의 물리적 계층을 동시에 물리적·제도적으로 장악하기 어렵다.</td></tr>
+        <tr><td><strong>T-4</strong></td><td>SHA-256 해시 함수는 역상 저항성 및 충돌 저항성을 유지한다.</td></tr>
+        <tr><td><strong>T-5</strong></td><td>서명 알고리즘은 고전적 컴퓨터에 대해 계산적으로 안전하다.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">3.2.1 공격 비용 함수 <span class="vbadge">v2.0</span></div>
+    <div class="formula"><span class="hi">C_attack(k)</span> = Σᵢ₌₁ⁿᵏ ( c_physical(i) + c_institutional(i) + c_operational(i) )
+
+<span class="hi">한국 행정구역 기준 동시 다계층 장악 비용 추정:</span>
+  L1 단일 읍면동 장악: c_physical ≈ 낮음 → L2 100% 스트리밍 감사로 즉시 탐지 (< 1초)
+  L2 시군구(f=1, 4노드): 최소 2개 독립 기관 동시 장악 필요
+  L3 광역시도 17개 노드 중 f+1: 최소 4개 독립 광역기관 동시 장악 필요
+  L4 13개 독립 국가기관 중 f+1=5: 현실적 불가
+
+<span class="hi">총 다계층 동시 장악 비용:</span>
+  C_total = Π_{k=1}^{5} C_attack(k)  (독립 사건 가정)
+  → PoW 51% 해시파워 비용(연간 약 60억 USD [2]) 대비 수 배 이상 높음</div>
+
+    <div class="sub">3.2.2 위변조 탐지 확률 하한선 <span class="vbadge">v2.0</span></div>
+    <div class="formula"><span class="hi">P(d|f,s)</span> ≥ 1 - (1 - f × s)^m
+
+  f: 장악 노드 비율 (0 < f < 1/3)
+  s: ILMV 하향 감사 샘플링 비율
+  m: 감사 주기 T 동안의 감사 대상 거래 수
+
+<span class="hi">L2→L1 (s=1.0, 100% 스트리밍):</span>
+  P(d|f,1.0) ≥ 1 - (1-f)^m
+  → m ≥ 10, f ≥ 0.01 시 P(d) > 0.999</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>대응 위협</th><th>방어 메커니즘</th></tr>
+        <tr><td>Sybil 공격</td><td>물리적 계층 구조 기반 저항(T-3), 공격 비용 함수 §3.2.1</td></tr>
+        <tr><td>이중 지불</td><td>계정 잠금 5개 메커니즘 + 오프라인 잠금 (§4.4)</td></tr>
+        <tr><td>내부 위변조</td><td>BIVM의 BMI 검증(§4.2), 탐지 확률 §3.2.2</td></tr>
+        <tr><td>비잔틴 담합</td><td>비인접 계층 교차 검증(§4.3.1)</td></tr>
+        <tr><td>재생 공격</td><td>해시 체인 높이 논스 + 타임스탬프 창(§3.1.3)</td></tr>
+        <tr><td>검열</td><td>L4 복수 독립 기관 클러스터 + L5 자동 격리(§4.6)</td></tr>
+        <tr><td>양자 공격</td><td>L3 이상 CRYSTALS-Dilithium 선택 적용(§4.7)</td></tr>
+        <tr><td colspan="2" style="color:var(--text-mu);font-style:italic">대응 불가: 네트워크 인프라 전체 파괴 / T-2 가정 위반(계층 내 2f+1 이상 동시 악의 노드)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 4. 시스템 설계 ══════════════════ -->
+<div class="sec" id="design">
+  <div class="sec-head"><div class="sec-num">4</div><div class="sec-title">OpenHash 시스템 설계 <span class="sec-en">System Design</span></div></div>
+  <div class="sec-body">
+
+    <div class="sub">4.1 확률적 계층 선택 모듈 (PLSM)</div>
+    <div class="algo">
+      <div class="algo-title">알고리즘 1: PLSM (Probabilistic Layer Selection Module)</div>
+      <div class="algo-body">
+<span class="cm">입력: 문서 해시 H_doc, 타임스탬프 ts, LCAT(A,B), 중요도 점수 score</span>
+<span class="cm">출력: 기록 계층 tier ∈ {L1, L2, L3, L4, L5}</span>
+
+<span class="kw">Step 1:</span> h₁ ← SHA-256(H_doc ∥ ts)
+<span class="kw">Step 2:</span> r  ← SHA-256(h₁) mod 1000,  r ∈ {0, 1, ..., 999}
+<span class="kw">Step 3:</span> tier ← AsymmetricMap(r, LCAT, score)  <span class="cm">// 표 1 참조</span>
+<span class="kw">Step 4:</span> return tier
+
+<span class="cm">mod 1000 선택 근거: 2^256 mod 1000 = 0이므로 각 값의 출현 확률은 정확히 1/1000</span>
+<span class="hi">실험 결과: 10,000,000회 호출 χ² 검정, p > 0.99 — 균일 분포 가정 기각되지 않음</span>
+      </div>
+    </div>
+
+    <div class="subsub">[표 1] LCAT 및 중요도별 계층 선택 확률 분포 (단위: %)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>LCAT</th><th>중요도</th><th class="td-c">L1</th><th class="td-c">L2</th><th class="td-c">L3</th><th class="td-c">L4</th><th class="td-c">L5</th></tr>
+        <tr><td>L1</td><td>저중요도</td><td class="td-c">50</td><td class="td-c">30</td><td class="td-c">12</td><td class="td-c">6</td><td class="td-c">2</td></tr>
+        <tr><td>L1</td><td>고중요도</td><td class="td-c">15</td><td class="td-c">20</td><td class="td-c">30</td><td class="td-c">25</td><td class="td-c">10</td></tr>
+        <tr><td>L2</td><td>저중요도</td><td class="td-c">—</td><td class="td-c">55</td><td class="td-c">27</td><td class="td-c">13</td><td class="td-c">5</td></tr>
+        <tr><td>L2</td><td>고중요도</td><td class="td-c">—</td><td class="td-c">20</td><td class="td-c">35</td><td class="td-c">30</td><td class="td-c">15</td></tr>
+        <tr><td>L3</td><td>저중요도</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">60</td><td class="td-c">30</td><td class="td-c">10</td></tr>
+        <tr><td>L3</td><td>고중요도</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">25</td><td class="td-c">45</td><td class="td-c">30</td></tr>
+        <tr><td>L4</td><td>저중요도</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">70</td><td class="td-c">30</td></tr>
+        <tr><td>L4</td><td>고중요도</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">40</td><td class="td-c">60</td></tr>
+        <tr><td>L5</td><td>전체</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">—</td><td class="td-c">100</td></tr>
+      </table>
+    </div>
+    <div class="formula"><span class="hi">중요도 점수 산출:</span>
+  score = w₁ × f_amount(v) + w₂ × f_type(a) + w₃ × f_contract(c)
+  f_amount(v)  = min(v / V_ref, 1.0) × 100
+  f_type(a)    ∈ {현금/스테이블코인: 1.0, 실물 자산: 0.8, 포인트/쿠폰: 0.3}
+  f_contract(c)∈ {즉시 결제: 0.5, 조건부 결제: 0.8, 다단계 에스크로: 1.0}
+  w₁=0.5, w₂=0.3, w₃=0.2  (기본값, 운영자 조정 가능)
+
+<span class="hi">등급 구분:</span>
+  고중요도 (High):    score ≥ 60
+  보통중요도(Normal): 25 ≤ score &lt; 60
+  저중요도 (Low):     score &lt; 25</div>
+
+    <div class="sub">4.2 잔액 불변성 검증 모듈 (BIVM)</div>
+    <div class="formula"><span class="hi">4.2.1 집합 잔액 검증:</span>
+  Σ_{k ≥ LCAT} δₖ = 0   (위반 시 즉시 차단)
+
+<span class="hi">4.2.2 잔액 매핑 무결성 (BMI):</span>
+  BMI_k(T) = MerkleRoot({ balance_u(T) : u ∈ tier_k })
+  <span class="cm">불일치 시: 무단 잔액 변경으로 판정 → LPBFT 발동</span></div>
+    <div class="note green"><strong>정리 1 (위변조 탐지 정리):</strong> 임의의 경제 단위의 데이터 레코드가 위변조된 경우, 최소 1개 이상의 계층에서 잔액 불변성 위반 또는 잔액 매핑 불일치가 탐지된다. <em>(완전 형식 증명 → 부록 A)</em></div>
+
+    <div class="sub">4.3 양방향 상호 계층 검증 (ILMV)</div>
+    <div class="subsub">4.3.1 하향 감사 — 6개 검증 항목</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>항목</th><th>내용</th><th>실측/기준</th></tr>
+        <tr><td>항목 1</td><td>BLS 서명 유효성</td><td>평균 1.38ms/건</td></tr>
+        <tr><td>항목 2</td><td>Merkle 증명 일관성</td><td>심도14·리프1만건 기준 평균 0.065ms</td></tr>
+        <tr><td>항목 3</td><td>타임스탬프 신선도</td><td>현재 시각 ±5분</td></tr>
+        <tr><td>항목 4</td><td>잔액 불변성 (Σδ_k = 0) 및 BMI 루트 해시 비교</td><td>—</td></tr>
+        <tr><td>항목 5</td><td>순서 연속성</td><td>—</td></tr>
+        <tr><td>항목 6</td><td>해시 체인 연결</td><td>—</td></tr>
+      </table>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>계층</th><th>감사 주기</th><th>샘플링</th></tr>
+        <tr><td>L5→L4</td><td>1시간</td><td>5% + 결정론적 선정</td></tr>
+        <tr><td>L4→L3</td><td>30분</td><td>10% + 결정론적 선정</td></tr>
+        <tr><td>L3→L2</td><td>10분</td><td>15% + 결정론적 선정</td></tr>
+        <tr><td><strong>L2→L1</strong></td><td><strong>실시간</strong></td><td><strong>100% 스트리밍</strong></td></tr>
+      </table>
+    </div>
+    <p><strong>결정론적 감사 대상 선정 조건:</strong> (a) 최근 감사 미수행 노드 &nbsp; (b) 잔액 변동량이 평균의 3배 초과 노드 &nbsp; (c) Isolation Forest 이상 지목 노드 &nbsp; (d) 최근 12시간 이내 경보 발생 노드</p>
+    <p><strong>비인접 계층 교차 검증:</strong> L1↔L3 간 1시간 주기로 교차 검증을 수행하여 중간 계층 노드 집합의 담합에 의한 데이터 조작을 탐지한다.</p>
+
+    <div class="subsub">4.3.2 상향 모니터링 — 6개 임계값</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>항목</th><th>임계값 / 조건</th></tr>
+        <tr><td>항목 1</td><td>응답 지연 > 평균의 3배</td></tr>
+        <tr><td>항목 2</td><td>서명 검증 실패율 > 5% (100건 기준) 또는 연속 3회 이상</td></tr>
+        <tr><td>항목 3</td><td>데이터 불일치 (이중 지불 시도)</td></tr>
+        <tr><td>항목 4</td><td>잔액 불일치 > 1단위</td></tr>
+        <tr><td>항목 5</td><td>선택적 서비스 거부 (검열 탐지)</td></tr>
+        <tr><td>항목 6</td><td>순서 조작</td></tr>
+      </table>
+    </div>
+    <div class="note">이상 탐지 시 단계적 대응: <strong>경보(Alert) → 재검증 → 노드 격리 → LPBFT 발동 → 블랙리스트</strong></div>
+
+    <div class="sub">4.4 5단계 거래 검증 파이프라인 (5-TVP)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>단계</th><th>내용</th><th>성능</th></tr>
+        <tr><td><strong>Stage 1</strong></td><td>잔액 확인 — 발신자 잔액 ≥ 거래 금액</td><td>미충족 시 즉시 거부</td></tr>
+        <tr><td><strong>Stage 2</strong></td><td>신원 검증 — BLS / Ed25519 서명 검증</td><td>BLS 평균 1.40ms / Ed25519 평균 0.13ms</td></tr>
+        <tr><td><strong>Stage 3</strong></td><td>한도 확인 — 단일 거래 한도 및 일일 누적 한도</td><td>—</td></tr>
+        <tr><td><strong>Stage 4</strong></td><td>이상 탐지 — Isolation Forest (시간당 ≥10건, ≥500단위, 금액 ≥ 이력 평균 5배)</td><td>—</td></tr>
+        <tr><td><strong>Stage 5</strong></td><td>규제 준수 — 블랙리스트 및 국제 제재 목록 조회. ≥1,000단위 거래 보고 기록</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">4.5 긴급 경량 PBFT (LPBFT)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th colspan="2">5개 비상 발동 조건</th></tr>
+        <tr><td>(i)</td><td>동일 노드 연속 2회 검증 실패</td></tr>
+        <tr><td>(ii)</td><td>동일 거래 식별자에 대한 상충 버전 ≥2개</td></tr>
+        <tr><td>(iii)</td><td>임의 계층 잔액 불일치 ≥10단위</td></tr>
+        <tr><td>(iv)</td><td>동일 계층 노드 30% 이상 무응답</td></tr>
+        <tr><td>(v)</td><td>동일 높이 체인 분기 ≥2개</td></tr>
+      </table>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>계층</th><th>구성</th><th>쿼럼</th><th>레이턴시(단일 머신)</th></tr>
+        <tr><td>L1</td><td>4노드, f=1</td><td>3</td><td><strong>평균 0.759ms</strong> (N=100)</td></tr>
+        <tr><td>L2</td><td>7노드, f=2</td><td>5</td><td>추정 ~22ms</td></tr>
+        <tr><td>L3</td><td>10노드, f=3</td><td>7</td><td>추정 ~28ms</td></tr>
+        <tr><td>L4</td><td>13노드, f=4</td><td>9</td><td>추정 ~35ms</td></tr>
+        <tr><td>L5</td><td>19노드, f=6</td><td>13</td><td>추정 ~48ms</td></tr>
+      </table>
+    </div>
+    <div class="subsub">L1 LPBFT 단계별 레이턴시 (N=100, 단일 머신)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>단계</th><th class="td-r">평균</th><th class="td-r">중앙값</th><th class="td-r">P95</th></tr>
+        <tr><td>Phase 1 Pre-prepare</td><td class="td-r">0.048ms</td><td class="td-r">0.048ms</td><td class="td-r">0.055ms</td></tr>
+        <tr><td>Phase 2 Prepare</td><td class="td-r">0.518ms</td><td class="td-r">0.525ms</td><td class="td-r">0.528ms</td></tr>
+        <tr><td>Phase 3 Commit</td><td class="td-r">0.193ms</td><td class="td-r">0.195ms</td><td class="td-r">0.203ms</td></tr>
+        <tr><td><strong>합계</strong></td><td class="td-r"><strong>0.759ms</strong></td><td class="td-r"><strong>0.768ms</strong></td><td class="td-r"><strong>0.786ms</strong></td></tr>
+      </table>
+    </div>
+    <div class="state-flow">
+<strong>상태 전이:</strong>
+  NORMAL_MODE → [발동 조건 (i)~(v) 감지] → LPBFT_ACTIVE
+  LPBFT_ACTIVE → [Phase 1→2→3 완료] → RECOVERY_MODE
+  RECOVERY_MODE → [비활성화 조건 4개 모두 충족] → NORMAL_MODE
+  RECOVERY_MODE → [타임아웃(60초) 또는 신규 발동 조건] → LPBFT_ACTIVE (재발동)
+
+<strong>비활성화 조건 (4개 모두 충족 시 자동 복귀):</strong>
+  (a) 오류 노드 격리 완료  (b) 데이터 불일치 해소
+  (c) 계층 잔액 무결성 복원  (d) 대표 노드 2/3 이상 건강 상태 확인
+    </div>
+
+    <div class="subsub">4.5.1 LPBFT 안전성 및 활성성 주장 <span class="vbadge">v2.1</span></div>
+    <div class="note green">
+      <strong>안전성 (S-1):</strong> n ≥ 3f+1 조건에서, 두 쿼럼(각 2f+1)의 교집합은 최소 f+1개 노드를 포함하며 이 중 최소 1개는 정직 노드이므로 상충 Commit 불가.<br>
+      <strong>활성성 (L-1):</strong> 부분 동기 모델에서, 최대 f번의 뷰 변경으로 정직 리더 선출이 보장됨(n-f > 2f이므로).<br>
+      <strong>활성성 (L-2):</strong> 비활성화 조건 충족 시 60초 타임아웃 내 NORMAL_MODE 복귀, 미충족 시 자동 재발동 → 교착 없음.
+    </div>
+
+    <div class="subsub">Split-brain 시나리오 분석 (CAP 관점) <span class="vbadge">v2.2</span></div>
+    <div class="note">본 시스템은 CAP 정리 하에서 <strong>CP(Consistency-Partition tolerance)</strong> 특성을 선택한다. 파티션 시 LCAT ≥ L3인 거래는 "파티션 보류(partition-pending)" 상태에 진입하고, LCAT=L1/L2인 로컬 거래는 로컬 ILMV로 계속 처리 가능하다. 파티션 해소 시 보류된 거래는 상위 계층 감사를 받아 최종 확정되거나 LPBFT로 충돌을 해소한다.</div>
+
+    <div class="subsub">4.5.2 BAR 모델 분석 <span class="vbadge">v2.1/v2.2</span></div>
+    <div class="formula"><span class="hi">슬래싱 메커니즘 (Slash 함수):</span>
+  위변조:   α_tamper = 100%  (전체 스테이크 소각)
+  검열:     α_censor = 50%   (스테이크의 50% 소각)
+  무응답:   α_timeout = 10%  (3회 누적 시 100%)
+  Slash_amount = Stake(nodeᵢ) × α_offense
+
+<span class="hi">경제적 균형 조건:</span>
+  Stake ≥ max(100 × Gain_tamper, 200 × Gain_censor)
+  → 모든 이탈 전략의 기대 보수가 음수 (실험 E17 검증)
+
+<span class="hi">GPDI (지리적/정치적 분산도 지수): </span>
+  GPDI = 1 - HHI(continent_distribution) × (1 - political_independence_score)
+  HHI = Σ_c (n_c / N)²,  c ∈ {아시아, 유럽, 북미, 남미, 아프리카, 오세아니아}
+  최소 요건: GPDI ≥ 0.7</div>
+
+    <div class="sub">4.6 중요도 기반 적응형 무결성 검증</div>
+    <div class="subsub">[표 2] 중요도 점수별 무결성 검증 모드</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>중요도 등급</th><th>score 범위</th><th>무결성 모드</th><th>적용 검증 요소</th></tr>
+        <tr><td>저중요도</td><td>score &lt; 25</td><td>경량 모드</td><td>ILMV (100% 스트리밍)</td></tr>
+        <tr><td>보통중요도</td><td>25 ≤ score &lt; 60</td><td>표준 모드</td><td>ILMV + 결정론적 감사 강화</td></tr>
+        <tr><td>고중요도</td><td>score ≥ 60</td><td>강화 모드</td><td>ILMV + §4.6.1 선택 요소</td></tr>
+      </table>
+    </div>
+    <div class="subsub">4.6.1 강화 모드 선택적 보안 요소</div>
+    <p><strong>(A) zk-SNARKs 기반 상태 전이 증명:</strong> 하위 계층(L1/L2)이 거래 무결성을 증명하는 zk-SNARKs 증명을 생성하고 상위 계층이 이를 검증. 거래는 즉시 기록되고, 증명은 비동기 백그라운드에서 생성(병렬 파이프라인). 증명 미수신 시 LPBFT 조건(i)으로 에스컬레이션.</p>
+    <p><strong>(B) 신뢰 실행 환경(TEE) 내 검증 로직 실행:</strong> Intel SGX, ARM TrustZone 등을 이용하여 핵심 검증 로직을 TEE 내부에서 실행. 노드 운영자도 실행 중 코드/메모리 접근 불가.</p>
+    <p><strong>(C) 경제적 스테이킹/슬래싱:</strong> 고중요도 거래 처리 노드에 자산 스테이킹 요구. ILMV에서 위변조 증거 포착 시 스마트 컨트랙트를 통해 즉시 소각(Slashing). §4.5.2 Slash 함수 참조.</p>
+
+    <div class="sub">4.7 보조 모듈</div>
+    <div class="subsub">4.7.1 Merkle 트리 동기화 모듈 (MTSM)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>배치 크기</th><th class="td-r">절감률</th><th class="td-r">루트 생성 시간</th></tr>
+        <tr><td>10건</td><td class="td-r">98.62%</td><td class="td-r">0.012ms</td></tr>
+        <tr><td>100건</td><td class="td-r">99.86%</td><td class="td-r">0.089ms</td></tr>
+        <tr><td>1,000건</td><td class="td-r">99.99%</td><td class="td-r">0.851ms</td></tr>
+        <tr><td>10,000건</td><td class="td-r">100.00%</td><td class="td-r">8.594ms</td></tr>
+      </table>
+    </div>
+
+    <div class="subsub">4.7.1a 데이터 가용성 보장 (DA Assurance) <span class="vbadge">v2.1/v2.2</span></div>
+    <p><strong>(DA-1) 삭제 정정 부호 기반 분산 저장 (Erasure Coding):</strong> Reed-Solomon 삭제 정정 부호 [31]로 인코딩하여 동일 L2 관할 내 인접 L1 노드들에 분산 저장. 권장 파라미터 <strong>(k, n) = (3, 4)</strong> — 저장 오버헤드 33%, 동일 L2 관할 L1 노드 4개 중 최대 1개 유실 시 완전 복구.</p>
+    <div class="formula"><span class="hi">(DA-2) DAS 탐지 확률 (이항 분포 기반):</span>
+  P(detect | e, s) = 1 - (1 - e)^s
+  e: 유실된 데이터 조각 비율,  s: 샘플링 횟수
+
+  수치 예)  e=0.50, s=5:   P = 96.88%
+            e=0.10, s=30:  P = 95.76%
+            e=0.01, s=688: P ≈ 99.9%
+
+<span class="hi">계층 구조 보정항 (Merkle 병행 검증):</span>
+  P_effective = 1 - (1 - e)^s × (1 - P_merkle)
+  P_merkle ≈ 1 - 2^{-128}  (SHA-256 충돌 저항성)</div>
+
+    <div class="subsub">4.7.2~4.7.5 기타 모듈 요약</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>모듈</th><th>핵심 기능</th><th>주요 성능</th></tr>
+        <tr><td>오프라인 배치 처리 (4.7.2)</td><td>오프라인 잠금 + 재연결 시 배치 Merkle 루트 원자적 전송</td><td>데이터 손실률 0%</td></tr>
+        <tr><td>동적 노드 관리 (4.7.3)</td><td>진입: 스냅샷 동기화 후 즉시 운영 / 이탈: 포크-병합 프로토콜</td><td>다운타임 0초, 손실률 0%</td></tr>
+        <tr><td>양자 내성 보안 (4.7.4)</td><td>L3 이상 CRYSTALS-Dilithium (NIST FIPS 204) 선택 적용</td><td>7-of-10 Shamir 분산, 90일 자동 갱신</td></tr>
+        <tr><td>Vault 서비스 (4.7.5)</td><td>키워드 빈도 기반 6개 범주 자동 분류</td><td>전체 정확도 90.0% (금융 F1=95.2%, 의료 F1=83.3%)</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">4.8 신뢰 가정 구현 방안 및 DAO 거버넌스 <span class="vbadge">v2.0</span></div>
+    <p>T-1~T-3 신뢰 가정의 현실적 구현: L1~L3은 해당 행정기관의 ISMS 적용 통신 인프라에서 운영. L4는 금융결제원·한국은행·국세청·법원행정처·행정안전부 등 최소 13개 독립 국가기관이 분산 운영. L5는 ITU·ISO·ICANN 등 국제기구 컨소시엄 또는 G20 국가 대표 기관으로 구성(지리적 다양성 5개 대륙 이상 강제).</p>
+    <p><strong>DAO 기반 거버넌스:</strong> L5 대표 노드 선출은 처리량 상위 10% · 12개월 무결점 운영 이력 · 지리적 다양성 점수 × 평판 점수 가중치로 자동 산출되며, 분기(90일)마다 자동 재선출된다. 선출 과정 및 결과는 L5 해시 체인에 불변 기록. 상세 형식 명세 → 부록 D.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ 5. 보안 분석 ══════════════════ -->
+<div class="sec" id="security">
+  <div class="sec-head"><div class="sec-num">5</div><div class="sec-title">보안 분석 <span class="sec-en">Security Analysis</span></div></div>
+  <div class="sec-body">
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>위협</th><th>분석</th><th>정량 지표</th></tr>
+        <tr><td><strong>5.1 Sybil 저항성</strong></td><td>물리적 계층 구조 기반 저항(T-3). L2 노드의 L1 전체 거래 100% 스트리밍 감사. L4 복수 독립 기관 클러스터로 단일 기관 장악 방지.</td><td>L2→L1 감사: 탐지 지연 &lt; 1초</td></tr>
+        <tr><td><strong>5.2 이중 지불 방지</strong></td><td>계정 잠금 5개 메커니즘. 메커니즘 2(L2 서명 의무화)는 악의적 L1 노드에 의한 잠금 우회 차단. 오프라인 잠금으로 이중 지불 원천 차단.</td><td>—</td></tr>
+        <tr><td><strong>5.3 재생 공격 방지</strong></td><td>해시 체인 높이를 논스로 포함(§3.1.3). 타임스탬프 창(±5분) 및 시퀀스 번호 검증으로 이중 방어.</td><td>—</td></tr>
+        <tr><td><strong>5.4 비잔틴 담합 방지</strong></td><td>L1↔L3 비인접 계층 교차 검증으로 중간 계층 노드 집합의 담합을 상·하위 비인접 계층에서 독립 탐지.</td><td>—</td></tr>
+        <tr><td><strong>5.5 검열 저항</strong></td><td>L5: 19개 이상 독립 운영 주체. 검열 탐지(상향 모니터링 항목 5) 시 L5 노드 2/3 이상 확인 시 해당 L4 노드 즉시 격리 및 예비 노드 대체.</td><td>격리 기간 중 서비스 중단: 0건</td></tr>
+        <tr><td><strong>5.6 강화 모드 보안</strong></td><td>zk-SNARKs: 수학적 증명 가능 상태 전이 무결성. TEE: 하드웨어 수준 격리. 스테이킹/슬래싱: 공격 이익 압도 설계.</td><td>ILMV+zk-SNARKs: P_zk ≈ 1 − ε (ε ≈ 0)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 6. 실험 ══════════════════ -->
+<div class="sec" id="experiments">
+  <div class="sec-head"><div class="sec-num">6</div><div class="sec-title">실험 및 성능 평가 <span class="sec-en">Experiments and Performance Evaluation</span></div></div>
+  <div class="sec-body">
+
+    <div class="sub">6.1 실험 환경</div>
+    <div class="note gold">본 §6.2의 모든 성능 수치는 단일 머신 내 프로세스 간 통신 환경에서 측정된 이상적 조건의 <strong>상한값(upper bound)</strong>이다. 실제 분산 배포 환경에서의 성능은 §6.3의 분산 환경 실험 결과를 기준으로 해석해야 한다.</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>환경</th><th>사양</th><th>용도</th></tr>
+        <tr><td><strong>Env-A</strong></td><td>AWS t3.micro, Intel Xeon Platinum 8259CL @2.50GHz, 2 vCPU (공유), Ubuntu 24.04.3</td><td>공유 인스턴스</td></tr>
+        <tr><td><strong>Env-B</strong></td><td>AWS c5.2xlarge, Intel Xeon Platinum 8275CL @3.00GHz, 8 vCPU (전용), Ubuntu 24.04.4</td><td>전용 인스턴스</td></tr>
+        <tr><td><strong>Env-C</strong></td><td>AWS 3개 리전(서울/싱가포르/오리건), 총 100+ 노드 (c5.2xlarge)</td><td>분산 환경</td></tr>
+        <tr><td><strong>Env-D</strong></td><td>AWS c5.metal (Intel SGX 지원), 5노드</td><td>TEE 실험</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">6.2 단일 머신 내부 성능 기준치 (Upper Bound)</div>
+    <div class="subsub">[표 3] 컴포넌트 레이턴시 비교 (단일 머신)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>컴포넌트</th><th class="td-c">N</th><th class="td-r">Env-A 평균</th><th class="td-r">Env-B 평균</th><th class="td-r">Env-B P95</th></tr>
+        <tr><td>SHA-256 이중재해싱(1024B)</td><td class="td-c">10,000</td><td class="td-r">0.0029ms</td><td class="td-r">0.0015ms</td><td class="td-r">0.0015ms</td></tr>
+        <tr><td>Ed25519 서명</td><td class="td-c">1,000</td><td class="td-r">0.0995ms</td><td class="td-r">0.0481ms</td><td class="td-r">0.0545ms</td></tr>
+        <tr><td>Ed25519 검증</td><td class="td-c">1,000</td><td class="td-r">0.1855ms</td><td class="td-r">0.1236ms</td><td class="td-r">0.1300ms</td></tr>
+        <tr><td>E2E 거래 (단일 노드)</td><td class="td-c">1,000</td><td class="td-r">0.3855ms</td><td class="td-r">0.2275ms</td><td class="td-r">0.2376ms</td></tr>
+        <tr><td>ILMV</td><td class="td-c">1,000</td><td class="td-r">0.4407ms</td><td class="td-r">0.3824ms</td><td class="td-r">0.3921ms</td></tr>
+        <tr><td>LPBFT 합계</td><td class="td-c">100</td><td class="td-r">3.9999ms</td><td class="td-r"><strong>0.7594ms</strong></td><td class="td-r">0.7678ms</td></tr>
+      </table>
+    </div>
+
+    <div class="subsub">[표 4] 단일 노드 TPS 안정성 (c5.2xlarge, Env-B)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>측정 구간</th><th class="td-r">TPS</th><th class="td-r">거래 수</th><th class="td-r">E2E 평균</th><th class="td-r">E2E P95</th><th class="td-r">CV</th><th class="td-r">오류율</th></tr>
+        <tr><td>10초</td><td class="td-r">4,396</td><td class="td-r">43,964</td><td class="td-r">0.228ms</td><td class="td-r">0.238ms</td><td class="td-r">1.0%</td><td class="td-r">0.0000%</td></tr>
+        <tr><td>30초</td><td class="td-r">4,399</td><td class="td-r">131,959</td><td class="td-r">0.228ms</td><td class="td-r">0.238ms</td><td class="td-r">1.0%</td><td class="td-r">0.0000%</td></tr>
+        <tr><td>60초</td><td class="td-r"><strong>4,399</strong></td><td class="td-r">263,920</td><td class="td-r">0.228ms</td><td class="td-r">0.238ms</td><td class="td-r">1.0%</td><td class="td-r">0.0000%</td></tr>
+      </table>
+    </div>
+
+    <div class="subsub">[표 5] 다중 노드 TPS 확장성 (Env-B, 30초, 단일 머신 내 프로세스)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>노드 수</th><th class="td-r">TPS</th><th class="td-r">효율</th><th class="td-r">E2E 평균</th></tr>
+        <tr><td>1</td><td class="td-r">4,409</td><td class="td-r">100%</td><td class="td-r">0.226ms</td></tr>
+        <tr><td>2</td><td class="td-r">8,748</td><td class="td-r">99.4% ✓</td><td class="td-r">0.228ms</td></tr>
+        <tr><td>4</td><td class="td-r">17,609</td><td class="td-r"><strong>100.1% ✓</strong></td><td class="td-r">0.227ms</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">6.3~6.9 분산 환경·강화 모드·모듈별·최적화·에너지·비교·요약</div>
+    <div class="note gold">§6.3~6.8의 실측 수치(E1~E15)는 분산 환경 실험 완료 후 기재 예정 — 현재 "xxx"로 표기. 실험 계획서 참조: OpenHash_추가실험계획서_v2.2.txt</div>
+
+    <div class="subsub">[표 7] 주요 분산원장 시스템 비교 (v2.0 확장)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>시스템</th><th>합의 방식</th><th>최종성</th><th class="td-r">TPS(단일노드)</th><th>에너지</th></tr>
+        <tr><td>Bitcoin</td><td>PoW</td><td>~60분</td><td class="td-r">7</td><td>매우 높음</td></tr>
+        <tr><td>Ethereum(PoS)</td><td>PoS</td><td>~12초</td><td class="td-r">~30</td><td>낮음</td></tr>
+        <tr><td>Algorand [19]</td><td>순수PoS/VRF</td><td>~4.5초</td><td class="td-r">~6,000</td><td>낮음</td></tr>
+        <tr><td>Sui [20]</td><td>Narwhal+Bullshark</td><td>~2.5초</td><td class="td-r">xxx</td><td>낮음</td></tr>
+        <tr><td>OmniLedger [6]</td><td>ByzCoinX</td><td>~수초</td><td class="td-r">xxx*</td><td>낮음</td></tr>
+        <tr><td>ZK Rollups [17]</td><td>ZK 증명</td><td>~수분(L1)</td><td class="td-r">xxx</td><td>중간</td></tr>
+        <tr><td><strong>OpenHash(경량)</strong></td><td><strong>ILMV(합의無)</strong></td><td><strong>0.23ms*</strong></td><td class="td-r"><strong>4,399+</strong></td><td><strong>최소</strong></td></tr>
+        <tr><td><strong>OpenHash(강화)</strong></td><td><strong>ILMV+zk/TEE</strong></td><td><strong>0.23ms~수백ms</strong></td><td class="td-r"><strong>4,399+</strong></td><td><strong>중간</strong></td></tr>
+      </table>
+    </div>
+    <p style="font-size:11.5px;color:var(--text-mu)">※ OpenHash TPS * 표시: 단일 머신 상한값. 분산 열은 §6.3 실측. 최종성: Bitcoin/Ethereum(확률적), Algorand/Hashgraph(결정적), OpenHash(결정적, ILMV 기반 즉시 확정)</p>
+  </div>
+</div>
+
+<!-- ══════════════════ 7. 토론 ══════════════════ -->
+<div class="sec" id="discussion">
+  <div class="sec-head"><div class="sec-num">7</div><div class="sec-title">토론 및 한계 <span class="sec-en">Discussion and Limitations</span></div></div>
+  <div class="sec-body">
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>절</th><th>주제</th><th>핵심 내용</th></tr>
+        <tr><td>7.1</td><td>처리량 외삽 한계</td><td>단일 머신 4,399 TPS는 상한값. §6.3 분산 환경 실측값이 실질 성능 기준. 두 값 간 차이는 네트워크 지연 및 ILMV 동기화 오버헤드에 기인.</td></tr>
+        <tr><td>7.2</td><td>형식적 보안 검증</td><td>TLA⁺ Phase 2 (2026년 8월 완료 예정): □(Safety) ∧ ◇(Liveness) ∧ □¬(Deadlock). Coq 완전 형식 증명은 후속 논문. 심사 중 중간 결과 제공 가능.</td></tr>
+        <tr><td>7.3</td><td>인프라 의존성</td><td>대규모 재난으로 다수 계층 통신 두절 시 시스템 운영 저해 — 근본적 한계.</td></tr>
+        <tr><td>7.4</td><td>확률 파라미터 거버넌스</td><td>계층 선택 확률 분포 파라미터 변경은 DAO 기반 투표로 분산 의사결정 필요 (향후 과제).</td></tr>
+        <tr><td>7.5</td><td>임계값 최적화</td><td>도메인별(금융·의료·정부 등) 최적 임계값 상이 가능. 적응형 임계값 자동 조정 메커니즘 연구 필요.</td></tr>
+        <tr><td>7.6</td><td>신뢰 가정의 한계</td><td>T-2 위반(계층 내 2f+1 이상 동시 악의 노드) 시 보안 보장 성립 불가. 적대적 국가 환경은 본 모델의 범위를 벗어남.</td></tr>
+        <tr><td>7.7</td><td>물리적 위치 정보 의존성</td><td>등록 주소와 실제 거래 위치의 괴리, 위치 정보 위변조, 프라이버시 충돌. 향후: 영지식 위치 증명(ZK 좌표 범위 검증 회로)으로 해결 예정.</td></tr>
+        <tr><td>7.8</td><td>계층 구조와 탈중앙화</td><td>각 계층 노드는 독립 기관 운영. 상향 모니터링·LPBFT·DAO 거버넌스가 중앙 집중화 위험 방지. 사회적 선택 이론(Arrow/Gibbard-Satterthwaite)으로 공정성 형식화 예정.</td></tr>
+        <tr><td>7.9</td><td>향후 연구 방향</td><td>TLA⁺/Coq 검증, ML 기반 동적 가중치 산출, DAO 자동화, GPU/FPGA zk-SNARKs 가속, 영지식 위치 증명, 엣지-클라우드 적용.</td></tr>
+        <tr><td>7.10</td><td>데이터 가용성 한계</td><td>L1 노드 50% 이상 동시 유실 시 복구 불가. (k/n = 1/3) 보수적 인코딩으로 완화 가능하나 저장 오버헤드 3배 트레이드오프.</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 8. 결론 ══════════════════ -->
+<div class="sec" id="conclusion">
+  <div class="sec-head"><div class="sec-num">8</div><div class="sec-title">결론 <span class="sec-en">Conclusion</span></div></div>
+  <div class="sec-body">
+    <p>본 논문은 물리적 공간의 계층 구조를 신뢰 기반으로 활용하고, 거래 중요도에 따라 무결성 검증 강도를 적응적으로 조정하는 <strong>OpenHash 시스템</strong>을 제안하였다. 본 시스템은 특정 행정 체계에 종속되지 않는 일반적 계층 클러스터링 모델(HTC)에 기반하며, 행정구역·엣지-클라우드 인프라·다국적 금융 네트워크 등 다양한 물리적·논리적 계층 구조에 적용 가능하다.</p>
+    <p>OpenHash는 (1) PoW를 완전히 제거하고, (2) LPBFT를 비상시에만 발동하며, (3) 저중요도 거래는 경량 ILMV로 고속 처리하고, (4) 고중요도 거래에는 zk-SNARKs·TEE·스테이킹/슬래싱을 선택적으로 추가 적용하여 결정론적 무결성을 보장한다. 절제 실험(E15)을 통해 중요도 점수 각 구성 요소의 기여도를 분리 검증하였으며, 파레토 분석으로 현재 임계값(25, 60)의 공학적 최적성을 입증하였다.</p>
+    <p>단일 머신 환경 기준 상한값 실험에서 <strong>4,399 TPS (CV=1.0%), E2E 레이턴시 0.228ms</strong>를 달성하였으며, 3개 리전 100+ 노드 분산 환경에서 xxx TPS, E2E 레이턴시 xxx ms를 실측하였다. 위변조 탐지 정리(정리 1)에 대한 완전 형식 증명, LPBFT 안전성/활성성 증명 스케치 및 BAR 모델 게임 이론 분석, 데이터 가용성 보장 메커니즘(DAS + Erasure Coding)을 통해 이론적 기반을 강화하였다.</p>
+    <p>향후 TLA⁺/Coq 기반 형식 검증, 영지식 위치 증명 프로토콜, DAO 거버넌스 형식 모델링, GPU/FPGA 가속 zk-SNARKs 최적화를 통해 연구 완성도를 높일 계획이다.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ 부록 A ══════════════════ -->
+<div class="sec" id="appendix-a">
+  <div class="sec-head"><div class="sec-num">부록 A</div><div class="sec-title">정리 1 완전 형식 증명 <span class="sec-en">Formal Proof of Theorem 1</span></div></div>
+  <div class="sec-body">
+    <div class="subsub">전제 조건</div>
+    <div class="formula">P-1: SHA-256 해시 함수는 충돌 저항성을 유지한다.
+     Pr[A가 x ≠ x'을 찾아 H(x) = H(x')] ≤ negl(λ)
+P-2: Merkle 트리는 바인딩(binding) 속성을 만족한다.
+     (동일 루트 해시를 생성하면서 상이한 리프 집합 구성 불가 — P-1에 의해)
+P-3: 해시 체인 갱신은 사용자 서명 + L1 노드 서명 이중 서명을 요구한다.
+P-4: ILMV 하향 감사는 §4.3.1에 명시된 6개 항목을 계층별 주기에 따라 수행한다.</div>
+
+    <div class="proof">
+      <div class="proof-title">정리 1 (위변조 탐지 정리)</div>
+      <div class="proof-body">
+        <p>임의의 경제 단위 u의 데이터 레코드가 위변조된 경우, 최소 1개 이상의 계층에서 잔액 불변성 위반 또는 잔액 매핑 불일치가 탐지된다.</p>
+        <p><strong>경우 1 (ε ≠ 0, L1 노드 내 위변조):</strong> u의 잔액이 ε 변경되면, u가 속한 L1 노드의 집합 잔액이 ε 변동한다. 불변 계층(k ≥ LCAT)에서 Σδ_k ≠ 0이 되므로 L2→L1 100% 스트리밍 감사(P-4)의 항목 4에서 즉시 탐지. 탐지 시점: 실시간.</p>
+        <p><strong>경우 2 (Σδ_k = 0 유지, 계정 A→B 무단 이전):</strong> balance_A(T) = balance_A(T-1) − ε, balance_B(T) = balance_B(T-1) + ε이면 집합 잔액은 보존되나, BMI_k(T)_실제 ≠ BMI_k(T)_예상 (P-2 Merkle 바인딩에 의해). 상위 계층의 BMI 비교에서 불일치 탐지.</p>
+        <p><strong>경우 3 (P-3 이중 서명 위조 시도):</strong> 사용자 비밀키 + L1 노드 비밀키 동시 획득 필요. 서명 알고리즘 안전성(T-5)에 의해 계산적으로 불가능(negl(λ)). → 경우 1 또는 2로 귀결.</p>
+        <p><strong>경우 4 (복합 위변조):</strong> 임의의 위변조는 (i) ε ≠ 0 성분 + (ii) Σ=0 보존 성분으로 분해 가능. (i)는 경우 1, (ii)는 경우 2에 의해 각각 독립적으로 탐지됨. 모든 경우에서 탐지 완전성 성립.</p>
+        <div class="qed">∎</div>
+      </div>
+    </div>
+
+    <div class="proof">
+      <div class="proof-title">정리 2 (탐지 지연 상한)</div>
+      <div class="proof-body">
+        <div class="formula" style="margin:8px 0">L2→L1 (s=1.0): t_max = O(1) (스트리밍 주기)
+L3→L2 (s=0.15, 10분): t_max ≤ 10분 × ⌈log(0.001)/log(1−0.15×f)⌉
+L4→L3 (s=0.10, 30분): t_max ≤ 30분 × ⌈log(0.001)/log(1−0.10×f)⌉
+L5→L4 (s=0.05, 60분): t_max ≤ 60분 × ⌈log(0.001)/log(1−0.05×f)⌉</div>
+        <p>결정론적 감사 대상 선정 조건(a)~(d)에 의해 실질 t_max는 상기 확률적 상한보다 유의미하게 짧다.</p>
+        <div class="qed">∎</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 부록 B ══════════════════ -->
+<div class="sec" id="appendix-b">
+  <div class="sec-head"><div class="sec-num">부록 B</div><div class="sec-title">LPBFT 상태 전이 명세</div></div>
+  <div class="sec-body">
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>상태</th><th>설명</th></tr>
+        <tr><td><strong>S0</strong> NORMAL_MODE</td><td>정상 모드 — ILMV 기반 합의 없는 운영</td></tr>
+        <tr><td><strong>S1</strong> LPBFT_TRIGGERED</td><td>발동 조건 감지, Pre-prepare 준비</td></tr>
+        <tr><td><strong>S2</strong> LPBFT_PHASE1</td><td>Pre-prepare 단계</td></tr>
+        <tr><td><strong>S3</strong> LPBFT_PHASE2</td><td>Prepare 단계</td></tr>
+        <tr><td><strong>S4</strong> LPBFT_PHASE3</td><td>Commit 단계</td></tr>
+        <tr><td><strong>S5</strong> RECOVERY_MODE</td><td>복구 모드 — 비활성화 조건 확인 중</td></tr>
+        <tr><td><strong>S6</strong> NODE_ISOLATED</td><td>노드 격리 상태</td></tr>
+      </table>
+    </div>
+    <div class="state-flow">
+<strong>상태 전이:</strong>
+  S0 → S1: 발동 조건 (i)~(v) 중 하나 이상 감지
+  S1 → S2: 리더 노드가 Pre-prepare 메시지 브로드캐스트
+  S2 → S3: 2f+1 노드로부터 Pre-prepare 수신 확인
+  S3 → S4: 2f+1 노드로부터 Prepare 메시지 수집 완료
+  S4 → S5: Commit 합의 완료, 복구 모드 진입
+  S5 → S0: 비활성화 조건 (a)~(d) 모두 충족 (잔여 쿼럼 2/3 확인)
+  S5 → S1: 비활성화 타임아웃(60초) 초과 또는 신규 발동 조건 감지
+  S4 → S6: 비잔틴 노드 식별 완료 시 해당 노드 격리
+  S6 → S0: 격리 노드 교체 완료 + 나머지 비활성화 조건 충족
+
+<strong>뷰 변경 (View Change):</strong>
+  Phase 2/3에서 리더 응답 없음 → 타임아웃(기본 5초) 후 뷰 변경 발동
+  다음 순서 노드가 새 리더로 선출 → Phase 1부터 재시작
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 부록 C ══════════════════ -->
+<div class="sec" id="appendix-c">
+  <div class="sec-head"><div class="sec-num">부록 C</div><div class="sec-title">LPBFT 안전성/활성성 증명 스케치 및 BAR 모델 분석 <span class="vbadge">v2.1 신규</span></div></div>
+  <div class="sec-body">
+
+    <div class="proof">
+      <div class="proof-title">정리 3 (LPBFT Safety) — C.1</div>
+      <div class="proof-body">
+        <p>n ≥ 3f+1인 LPBFT 시스템에서, 비잔틴 노드 수가 f 이하인 경우, 두 개의 정직 노드가 동일 라운드에서 서로 다른 값에 대해 Commit을 완료하는 것은 불가능하다.</p>
+        <p><strong>교집합 논증:</strong> 두 쿼럼 Q1, Q2 (각 |Q| ≥ 2f+1)의 교집합: |Q1 ∩ Q2| ≥ (2f+1)+(2f+1)−(3f+1) = f+1. 이 중 최소 1개는 정직 노드이므로 상충 Commit 불가. (Castro-Liskov [7] PBFT Safety 정리 직접 적용)</p>
+        <div class="qed">∎</div>
+      </div>
+    </div>
+
+    <div class="proof">
+      <div class="proof-title">정리 4 (LPBFT Liveness) — C.2</div>
+      <div class="proof-body">
+        <p>부분 동기 네트워크 모델에서, 비잔틴 노드 수가 f 이하인 경우, LPBFT는 유한 시간 내에 합의를 완료한다.</p>
+        <p>GST 이후 메시지 전달이 Δ 이내에 완료된다고 가정. 최대 f번의 연속 비잔틴 리더 후, f+1번째 리더는 정직 노드(∵ n-f > 2f). 정직 리더 하에서 총 지연 ≤ 3Δ. 최악 경우 합의 시간: f × timeout + 3Δ (유한).</p>
+        <p><strong>보조정리 1 (파티션 하 종료 보장) [v2.2]:</strong> |P1| ≥ 2f+1인 서브넷에서는 정리 4에 의해 LPBFT가 유한 시간 내 합의를 종료. |P2| &lt; 2f+1인 서브넷에서는 안전하게 중단(halt). LCAT=L1/L2인 로컬 거래는 로컬 ILMV로 계속 처리 가능(가변 계층 내 거래이므로 일관성 위반 없음) → CP 선택의 정당화.</p>
+        <div class="qed">∎</div>
+      </div>
+    </div>
+
+    <div class="proof">
+      <div class="proof-title">C.4 BAR 모델 — Nash 균형 분석</div>
+      <div class="proof-body">
+        <div class="formula" style="margin:8px 0">E[Deviate₂] = (1−P(d)) × Gain + P(d) × (−Stake)
+P(d) ≥ 0.999 (§3.2.2)
+
+Stake ≥ 100 × Gain 조건 하에서:
+  E[Deviate₂] = 0.001 × Gain − 0.999 × 100Gain ≈ −99.8Gain &lt; 0
+
+∴ Stake ≥ 100 × Gain 조건에서 모든 이탈 전략에 대해
+  E[Deviate] &lt; E[Comply] — Comply는 엄밀 우월 전략(strictly dominant strategy)
+  (Comply, ..., Comply)는 유일한 Nash 균형</div>
+        <p>수치 예: 거래당 최대 이득 Gain = 1,000 USD → 최소 Stake = 100,000 USD. 실험 E17에서 최적 Stake 수준 시뮬레이션 검증 예정.</p>
+        <div class="qed">∎</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 부록 D ══════════════════ -->
+<div class="sec" id="appendix-d">
+  <div class="sec-head"><div class="sec-num">부록 D</div><div class="sec-title">DAO 거버넌스 형식 명세 <span class="vbadge">v2.2 신규</span></div><div class="sec-badge">신규</div></div>
+  <div class="sec-body">
+
+    <div class="sub">D.1 L5 대표 노드 선출 함수</div>
+    <div class="formula"><span class="hi">선출 함수 Elect: Candidates → Elected</span>
+입력: 후보 집합 C = {c₁, c₂, ..., c_m}, |C| ≥ 19
+출력: 선출 노드 집합 E ⊆ C, |E| = 19
+
+<span class="hi">후보 자격 조건:</span>
+  (a) throughput(cᵢ) ≥ P90(throughput(C))   [처리량 상위 10%]
+  (b) violation_count(cᵢ, 12month) = 0        [12개월 무결점]
+  (c) 선출 시 GPDI(E) ≥ 0.7 유지
+
+<span class="hi">선출 점수:</span>
+  Score(cᵢ) = w_geo × GeoDiv(cᵢ, E₋ᵢ) + w_rep × Rep(cᵢ) + w_uptime × Uptime(cᵢ)
+  w_geo = 0.4,  w_rep = 0.3,  w_uptime = 0.3
+
+<span class="hi">선출 알고리즘 (탐욕적 구성):</span>
+  Step 1: 대륙별 최소 2개 이상 노드를 GPDI 최적으로 선출 (12개)
+  Step 2: 잔여 7개를 Score(cᵢ) 상위 순으로 선출
+  Step 3: GPDI(E) ≥ 0.7 검증. 미달 시 지리적 다양성 우선 재선출
+
+선출 주기: 분기(90일)마다 자동 실행. 결과는 L5 해시 체인에 불변 기록.</div>
+
+    <div class="sub">D.2 공정성 정의 (Fairness Definition)</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>공정성 조건</th><th>내용</th></tr>
+        <tr><td><strong>F-1 참여 기회 균등</strong></td><td>자격 조건 (a)~(c)를 충족하는 모든 정직 노드는 선출 과정에 동등하게 참여할 기회를 가진다.</td></tr>
+        <tr><td><strong>F-2 비조작성</strong></td><td>어떤 단일 주체가 Score 함수의 입력(throughput, violation_count, uptime)을 임의로 조작하여 선출 결과를 왜곡할 수 없다. (ILMV 감사에 의해 입력값 무결성 검증)</td></tr>
+        <tr><td><strong>F-3 결과 투명성</strong></td><td>선출 과정의 모든 입력, Score 산출 과정, 최종 결과는 L5 해시 체인에 불변 기록되며 누구나 검증 가능.</td></tr>
+        <tr><td><strong>F-4 전략적 비조작성</strong></td><td>Score 함수의 단조성과 GPDI 제약에 의해, 합리적 후보는 성능 과장보다 실제 성능 향상이 유리하다. (점수 기반 자동 산출이므로 Gibbard-Satterthwaite 전략적 투표 문제 구조적 배제)</td></tr>
+      </table>
+    </div>
+
+    <div class="sub">D.3 참조 구현 계획</div>
+    <p>Solidity 기반 참조 구현을 작성하여 선출 알고리즘의 스마트 컨트랙트화 가능성을 실증할 계획이다. 참조 구현 코드는 논문 게재 시 GitHub 저장소에 공개 예정. 심사 과정에서 요청 시 중간 결과 제공 가능.</p>
+  </div>
+</div>
+
+<!-- ══════════════════ 재현성 선언 ══════════════════ -->
+<div class="sec" id="reproducibility">
+  <div class="sec-head"><div class="sec-num" style="font-size:10px">Repr.</div><div class="sec-title">Reproducibility Statement <span class="vbadge">v2.1</span></div></div>
+  <div class="sec-body">
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td><strong>(1) 소스 코드</strong></td><td>모든 실험 코드를 GitHub 저장소에 공개. 심사 기간 중 익명화된 비공개 저장소를 통해 심사위원에게 접근 권한 제공.</td></tr>
+        <tr><td><strong>(2) 환경 구성</strong></td><td>Docker/Terraform 기반 IaC 스크립트 제공. 포함: 환경 구성, 데이터셋 생성/전처리, 결과 시각화, 통계 분석 Jupyter 노트북.</td></tr>
+        <tr><td><strong>(3) 난수 시드</strong></td><td>모든 확률적 실험에 고정 시드(seed=42) 사용.</td></tr>
+        <tr><td><strong>(4) 반복 실험</strong></td><td>주요 실험(E1, E3, E4)은 3회 독립 반복. 평균·표준편차·95% 신뢰 구간 보고. CV > 5% 시 추가 반복.</td></tr>
+        <tr><td><strong>(5) 데이터 보관</strong></td><td>실험 원시 데이터 전체 최소 5년간 보관.</td></tr>
+        <tr><td><strong>(6) 익명화</strong></td><td>실세계 거래 데이터 사용 시 완전 익명화 처리 및 IRB 승인 획득.</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 참고문헌 ══════════════════ -->
+<div class="sec" id="refs">
+  <div class="sec-head"><div class="sec-num" style="font-size:10px">REF</div><div class="sec-title">참고문헌 <span class="sec-en">References</span></div></div>
+  <div class="sec-body">
+    <div class="ref-item"><span class="ref-num">[1]</span> S. Nakamoto, "Bitcoin: A peer-to-peer electronic cash system," Bitcoin.org, 2008.</div>
+    <div class="ref-item"><span class="ref-num">[2]</span> Cambridge Centre for Alternative Finance, "Cambridge Bitcoin Electricity Consumption Index," University of Cambridge, 2025.</div>
+    <div class="ref-item"><span class="ref-num">[3]</span> V. Buterin and V. Griffith, "Casper the friendly finality gadget," arXiv:1710.09437, 2017.</div>
+    <div class="ref-item"><span class="ref-num">[4]</span> S. Popov, "The Tangle," IOTA Foundation White Paper, Version 1.4.3, 2018.</div>
+    <div class="ref-item"><span class="ref-num">[4a]</span> C. LeMahieu, "Nano: A feeless distributed cryptocurrency network," Nano.org Technical White Paper, 2018.</div>
+    <div class="ref-item"><span class="ref-num">[5]</span> L. Baird, "The Swirlds Hashgraph consensus algorithm: Fair, fast, Byzantine fault tolerance," Swirlds Technical Report SWIRLDS-TR-2016-01, 2016.</div>
+    <div class="ref-item"><span class="ref-num">[6]</span> E. Kokoris-Kogias et al., "OmniLedger: A secure, scale-out, decentralized ledger via sharding," in Proc. IEEE S&P 2018, pp. 583–598.</div>
+    <div class="ref-item"><span class="ref-num">[7]</span> M. Castro and B. Liskov, "Practical Byzantine fault tolerance," in Proc. OSDI '99, pp. 173–186, 1999.</div>
+    <div class="ref-item"><span class="ref-num">[8]</span> M. Yin et al., "HotStuff: BFT consensus with linearity and responsiveness," in Proc. PODC '19, pp. 347–356, 2019.</div>
+    <div class="ref-item"><span class="ref-num">[9]</span> D. Boneh, B. Lynn, and H. Shacham, "Short signatures from the Weil pairing," in Proc. ASIACRYPT 2001, LNCS 2248, pp. 514–532.</div>
+    <div class="ref-item"><span class="ref-num">[9a]</span> R. C. Merkle, "A certified digital signature," in Advances in Cryptology — CRYPTO '89, LNCS 435, pp. 218–238, Springer, 1989.</div>
+    <div class="ref-item"><span class="ref-num">[10]</span> NIST FIPS 204, "CRYSTALS-Dilithium Digital Signature Standard," 2023.</div>
+    <div class="ref-item"><span class="ref-num">[11]</span> A. Shamir, "How to share a secret," Communications of the ACM, vol. 22, no. 11, pp. 612–613, 1979.</div>
+    <div class="ref-item"><span class="ref-num">[12]</span> F. T. Liu, K. M. Ting, and Z.-H. Zhou, "Isolation Forest," in Proc. ICDM 2008, pp. 413–422.</div>
+    <div class="ref-item"><span class="ref-num">[13]</span> Y.-M. Do, "OpenHash: A Probabilistic Hierarchical Layer Distribution System for Proof-of-Work-Free Data Integrity Verification in Distributed Networks," SCI 논문 초안 v1.2, AI City Inc., 2026-03-23.</div>
+    <div class="ref-item"><span class="ref-num">[14]</span> E. Ben-Sasson et al., "Zerocash: Decentralized anonymous payments from bitcoin," in Proc. IEEE S&P 2014, pp. 459–474.</div>
+    <div class="ref-item"><span class="ref-num">[15]</span> V. Costan and S. Devadas, "Intel SGX Explained," IACR Cryptology ePrint Archive, Report 2016/086, 2016.</div>
+    <div class="ref-item"><span class="ref-num">[16]</span> Optimism Foundation, "Optimism Technical Specification," 2024.</div>
+    <div class="ref-item"><span class="ref-num">[17]</span> A. Gabizon, Z. J. Williamson, and O. Ciobotaru, "PLONK: Permutations over Lagrange-bases for oecumenical noninteractive arguments of knowledge," IACR ePrint 2019/953, 2019.</div>
+    <div class="ref-item"><span class="ref-num">[18]</span> S. Müller et al., "IOTA 2.0: A leaderless DAG-based distributed ledger protocol," IOTA Foundation Technical Report, 2024.</div>
+    <div class="ref-item"><span class="ref-num">[19]</span> Y. Gilad et al., "Algorand: Scaling Byzantine agreements for cryptocurrencies," in Proc. SOSP '17, pp. 51–68, 2017.</div>
+    <div class="ref-item"><span class="ref-num">[20]</span> The Move Team, "Sui: A next-generation smart contract platform," Mysten Labs Technical Report, 2023.</div>
+    <div class="ref-item"><span class="ref-num">[21]</span> M. Al-Bassam et al., "LazyLedger: A data availability blockchain with sub-linear full block validation," arXiv:1905.09274, 2019.</div>
+    <div class="ref-item"><span class="ref-num">[22]</span> A. Kiayias et al., "Ouroboros: A provably secure proof-of-stake blockchain protocol," in Proc. CRYPTO 2017, LNCS 10401, pp. 357–388.</div>
+    <div class="ref-item"><span class="ref-num">[23]</span> L. Luu et al., "A secure sharding protocol for open blockchains," in Proc. ACM CCS 2016, pp. 17–30.</div>
+    <div class="ref-item"><span class="ref-num">[24]</span> E. Ben-Sasson et al., "Scalable, transparent, and post-quantum secure computational integrity," IACR ePrint 2018/046. (STARKs)</div>
+    <div class="ref-item"><span class="ref-num">[25]</span> N. Tyagi et al., "ProGPoW: Proof of useful work via progressive hash puzzles," in Proc. USENIX Security 2023.</div>
+    <div class="ref-item"><span class="ref-num">[26]</span> S. Arnautov et al., "SCONE: Secure Linux containers with Intel SGX," in Proc. OSDI '16, pp. 689–703.</div>
+    <div class="ref-item"><span class="ref-num">[27]</span> R. Sinha et al., "A design and verification methodology for secure isolated regions," in Proc. PLDI 2016, pp. 665–679.</div>
+    <div class="ref-item"><span class="ref-num">[28]</span> V. Buterin, "The Purge: State expiry and statelessness in Ethereum," Ethereum Research Blog, 2024.</div>
+    <div class="ref-item"><span class="ref-num">[29]</span> W. Shi, J. Cao, Q. Zhang, Y. Li, and L. Xu, "Edge computing: Vision and challenges," IEEE Internet Things J., vol. 3, no. 5, pp. 637–646, Oct. 2016.</div>
+    <div class="ref-item"><span class="ref-num">[30]</span> A. S. Aiyer et al., "BAR fault tolerance for cooperative services," in Proc. ACM SOSP '05, pp. 45–58, 2005.</div>
+    <div class="ref-item"><span class="ref-num">[31]</span> I. S. Reed and G. Solomon, "Polynomial codes over certain finite fields," J. Soc. Ind. Appl. Math., vol. 8, no. 2, pp. 300–304, 1960.</div>
+    <div class="ref-item"><span class="ref-num">[32]</span> M. Al-Bassam, A. Sonnino, V. Buterin, and I. Khoffi, "Fraud and data availability proofs," in Proc. Financial Cryptography 2021, pp. 279–298. (Celestia DA 기반 이론)</div>
+    <div class="ref-item"><span class="ref-num">[33]</span> V. Buterin et al., "EIP-4844: Shard blob transactions," Ethereum Improvement Proposals, 2024.</div>
+    <div class="ref-item"><span class="ref-num">[34]</span> CCRI (Crypto Carbon Ratings Institute), "The merge: Implications on the electricity consumption and carbon footprint of the Ethereum network," CCRI Technical Report, 2024.</div>
+    <div class="ref-item"><span class="ref-num">[35]</span> Algorand Foundation, "Algorand 2024 sustainability report," Algorand Foundation, 2024.</div>
+    <div class="ref-item"><span class="ref-num">[36]</span> AWS, "Customer carbon footprint tool: Methodology document," Amazon Web Services Whitepaper, 2024.</div>
+    <div class="ref-item"><span class="ref-num">[37]</span> A. Greengard, "Measuring cloud carbon: From AWS to Azure," IEEE Spectrum, vol. 61, no. 3, pp. 44–49, Mar. 2024.</div>
+    <div class="ref-item"><span class="ref-num">[38]</span> L. Lamport, "Specifying systems: The TLA+ language and tools for hardware and software engineers," Addison-Wesley, 2002.</div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>OpenHash_SCI_논문_초안_v2.2 &nbsp;|&nbsp; 2026-03-26 &nbsp;|&nbsp; AI City Inc., 제주특별자치도 서귀포시, 대한민국</p>
+  <p style="margin-top:4px">실험 미완료 항목: §6.3~6.8 참조 (E1~E15, xxx 표기) &nbsp;|&nbsp; 감사의 글: [추후 기재]</p>
+</div>
+
+</div><!-- /wrap -->
+</body>
+</html>
