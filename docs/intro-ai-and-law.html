@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI와 법률의 만남 | K-Law 입문</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #2d2d4e;
+    --accent: #c8102e;
+    --accent-light: #f5e6e9;
+    --gold: #b8962e;
+    --gold-light: #f7f0dc;
+    --bg: #fafaf7;
+    --bg-warm: #f4f1eb;
+    --border: #d0ccc0;
+    --text: #2a2a3a;
+    --text-muted: #6b6880;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--ink);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.025) 60px, rgba(255,255,255,0.025) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.025) 60px, rgba(255,255,255,0.025) 61px);
+  }
+
+  .cover-badge {
+    display: inline-block;
+    border: 1px solid rgba(200,16,46,0.6);
+    color: #e87a8a;
+    font-size: 11px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .cover-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 300;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-desc {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.45);
+    font-style: italic;
+    margin-bottom: 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-rule {
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 0 auto 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.05em;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── TOC ── */
+  .toc-section {
+    background: var(--bg-warm);
+    padding: 80px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc-inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .toc-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 48px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .toc-list { list-style: none; }
+
+  .toc-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc-num {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 70px;
+    letter-spacing: 0.05em;
+  }
+
+  .toc-name {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .toc-name a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .toc-name a:hover { color: var(--accent); }
+
+  .toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted var(--border);
+    margin: 0 12px;
+    min-width: 20px;
+  }
+
+  .toc-page {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 20px;
+    text-align: right;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ── CHAPTER ── */
+  .chapter {
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter:last-child { border-bottom: none; }
+
+  .chapter-header {
+    margin-bottom: 48px;
+  }
+
+  .chapter-num {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--accent);
+    padding: 5px 14px;
+    margin-bottom: 20px;
+  }
+
+  .chapter-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .chapter-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 44px; }
+
+  .section-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-left: 14px;
+    border-left: 3px solid var(--accent);
+  }
+
+  p {
+    margin-bottom: 16px;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    background: var(--gold-light);
+    border-left: 4px solid var(--gold);
+    padding: 20px 24px;
+    margin: 28px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .callout.blue {
+    background: #eef3fa;
+    border-left-color: #2c5f9e;
+  }
+
+  .callout.red {
+    background: var(--accent-light);
+    border-left-color: var(--accent);
+  }
+
+  .callout-icon {
+    font-size: 1.1rem;
+    margin-right: 6px;
+  }
+
+  .callout strong {
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 28px 0;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background: var(--white);
+  }
+
+  th {
+    background: var(--ink);
+    color: var(--white);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    font-size: 0.82rem;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:nth-child(even) td { background: var(--bg-warm); }
+
+  td strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ── CASE BOX ── */
+  .case-box {
+    background: var(--ink);
+    color: var(--white);
+    padding: 32px 36px;
+    margin: 32px 0;
+    position: relative;
+  }
+
+  .case-box::before {
+    content: '📋 사건 개요';
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .case-box p {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .case-verdict {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .case-verdict .match {
+    display: inline-block;
+    background: #27ae60;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    letter-spacing: 0.1em;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── STAT GRID ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  .stat-item {
+    background: var(--white);
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    display: block;
+    line-height: 1.1;
+  }
+
+  .stat-arrow {
+    font-size: 1.2rem;
+    color: var(--gold);
+    display: block;
+    margin: 4px 0;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* ── PARTICIPATION BOX ── */
+  .participate-box {
+    border: 2px solid var(--ink);
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+
+  .participate-box strong {
+    display: block;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .participate-box a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .participate-box a:hover { text-decoration: underline; }
+
+  /* ── APPENDIX ── */
+  .appendix { background: var(--bg-warm); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 40px;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  footer a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .content { padding: 0 20px; }
+    .toc-section { padding: 60px 24px; }
+    .chapter { padding: 60px 0 40px; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .cover { padding: 60px 24px; }
+    .cover-meta { flex-direction: column; gap: 12px; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-badge">K-Law 방법론 · 일반인용 개정판</div>
+  <h1><em>AI</em>와 법률의<br>만남</h1>
+  <div class="cover-subtitle">K-Law 방법론과 차세대 사법 시스템</div>
+  <div class="cover-desc">일반인을 위한 쉬운 입문서</div>
+  <div class="cover-rule"></div>
+  <div class="cover-meta">
+    <span>AI City Inc.</span>
+    <span>·</span>
+    <span>2026년 4월</span>
+    <span>·</span>
+    <a href="https://github.com/jejuro/k-law" style="color:rgba(255,255,255,0.4)">github.com/jejuro/k-law</a>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-section">
+  <div class="toc-inner">
+    <span class="section-label">Contents</span>
+    <h2 class="toc-title">목 차</h2>
+    <ul class="toc-list">
+      <li>
+        <span class="toc-num">제1장</span>
+        <span class="toc-name"><a href="#ch1">AI가 바꾸는 법률 세계</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">3</span>
+      </li>
+      <li>
+        <span class="toc-num">제2장</span>
+        <span class="toc-name"><a href="#ch2">AI는 어떻게 판사처럼 생각할까?</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">5</span>
+      </li>
+      <li>
+        <span class="toc-num">제3장</span>
+        <span class="toc-name"><a href="#ch3">K-Law — 판결을 예측하는 17가지 규칙</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">8</span>
+      </li>
+      <li>
+        <span class="toc-num">제4장</span>
+        <span class="toc-name"><a href="#ch4">숫자로 보는 AI의 실력</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">11</span>
+      </li>
+      <li>
+        <span class="toc-num">제5장</span>
+        <span class="toc-name"><a href="#ch5">AI 법정엔 판사가 몇 명?</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">14</span>
+      </li>
+      <li>
+        <span class="toc-num">제6장</span>
+        <span class="toc-name"><a href="#ch6">분쟁이 시작되기 전에 막는다 — Openhash</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">16</span>
+      </li>
+      <li>
+        <span class="toc-num">제7장</span>
+        <span class="toc-name"><a href="#ch7">AI 시대, 내가 할 수 있는 것들</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">19</span>
+      </li>
+      <li>
+        <span class="toc-num">부록 A</span>
+        <span class="toc-name"><a href="#appA">용어 해설</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">21</span>
+      </li>
+      <li>
+        <span class="toc-num">부록 B</span>
+        <span class="toc-name"><a href="#appB">K-Law 시뮬레이션 이용 가이드</a></span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">23</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- CHAPTERS -->
+<div class="content">
+
+  <!-- Chapter 1 -->
+  <div class="chapter" id="ch1">
+    <div class="chapter-header">
+      <div class="chapter-num">제1장</div>
+      <h2 class="chapter-title">AI가 바꾸는 법률 세계</h2>
+      <p class="chapter-subtitle">법률은 이미 AI와 함께 움직이고 있습니다</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">1.1 우리 일상 속 법률 분쟁</h3>
+      <p>우리는 살면서 생각보다 많은 법률 분쟁에 마주칩니다. 중고 거래에서 사기를 당했거나, 이사 후 집주인이 보증금을 돌려주지 않거나, 택배가 파손되어 배상을 요구해야 할 때가 그 예입니다.</p>
+      <p>그런데 막상 소송을 생각하면 벽이 느껴집니다. 변호사 선임 비용, 몇 달이 걸리는 재판 기간, 복잡한 법률 용어... 대부분의 사람들은 "이 정도 금액으로 소송까지 해야 하나?"며 포기하고 맙니다.</p>
+      <div class="callout blue">
+        <strong><span class="callout-icon">💡</span>핵심 질문</strong>
+        <p>AI가 이 문제를 바꿀 수 있을까요? 5분 만에, 100원으로, 내 사건의 판결을 미리 예측할 수 있다면 어떨까요?</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">1.2 AI는 변호사를 대체하는가</h3>
+      <p>뉴스에서 "AI가 변호사를 대체한다"는 말을 들어보셨을 겁니다. 하지만 이것은 절반만 맞는 말입니다. 정확히는 "AI가 법률 업무의 일부를 대신한다"는 것이 맞습니다.</p>
+      <p>예를 들어, 판례 수천 건을 검색하고, 계약서에서 위험한 조항을 찾아내고, 소장의 초안을 작성하는 작업은 AI가 사람보다 훨씬 빠르게 할 수 있습니다. 하지만 의뢰인의 상황을 공감하고, 법정에서 판사를 설득하고, 새로운 법 해석을 창조하는 일은 여전히 사람만이 할 수 있습니다.</p>
+      <p>쉽게 비유하면: AI는 매우 능숙한 "법률 보조원"입니다. 빠르고, 지치지 않으며, 실수도 적습니다. 하지만 "법률가"는 여전히 사람이어야 합니다.</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">1.3 세계의 변화</h3>
+      <p>이미 세계는 변하고 있습니다. 2023년부터 미국 대형 로펌들은 AI를 이용해 계약서 검토를 자동화했습니다. 2025년에는 영국 법원이 AI 보조 판결 시스템 시범 운영을 발표했습니다. 한국도 이 흐름에서 예외가 아닙니다.</p>
+      <p>K-Law는 바로 이런 변화의 현장에서 탄생한 한국형 AI 판결 예측 시스템입니다. 대법원 판결을 80% 이상의 정확도로 예측하며, 지금 이 순간에도 계속 학습하고 있습니다.</p>
+    </div>
+  </div>
+
+  <!-- Chapter 2 -->
+  <div class="chapter" id="ch2">
+    <div class="chapter-header">
+      <div class="chapter-num">제2장</div>
+      <h2 class="chapter-title">AI는 어떻게 판사처럼 생각할까?</h2>
+      <p class="chapter-subtitle">기술 지식 없이 이해하는 AI의 작동 원리</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">2.1 AI는 도서관에서 공부한 학생입니다</h3>
+      <p>AI, 특히 "거대 언어 모델(LLM, Large Language Model)"을 이해하는 가장 쉬운 방법은 이 비유입니다:</p>
+      <p>상상해 보세요. 어떤 학생이 평생 도서관에 살면서 수십만 편의 책, 논문, 판결문, 뉴스를 모두 읽었습니다. 그 결과 이 학생은 "판결문은 이런 형식으로, 이런 논리 순서로 쓰인다"는 패턴을 완전히 내면화했습니다. AI도 이것과 같습니다. 다만 "학생" 대신 컴퓨터 프로그램이고, "수십만 편" 대신 수조 개의 단어를 처리했다는 차이가 있을 뿐입니다.</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 1] AI의 학습(도서관 공부)과 추론(시험 문제 풀기) 비유</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">2.2 "학습"과 "추론"의 차이</h3>
+      <p>AI의 작동 방식은 크게 두 단계로 나뉩니다:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>구분</th><th>학습 단계</th><th>추론 단계</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>의미</strong></td>
+              <td>법리 패턴을 수백만 건의 문서에서 습득</td>
+              <td>새 사건에 습득한 패턴을 적용해 답 생성</td>
+            </tr>
+            <tr>
+              <td><strong>비유</strong></td>
+              <td>로스쿨 3년간의 공부</td>
+              <td>변호사시험 문제를 처음 보고 푸는 것</td>
+            </tr>
+            <tr>
+              <td><strong>K-Law</strong></td>
+              <td>AI 자체의 사전 학습 (수십만 편 법률 문서 포함)</td>
+              <td>K-Law 17개 원리로 가상 판결을 생성하는 것</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">2.3 K-Law가 AI에게 내리는 "지시문"</h3>
+      <p>AI에게 좋은 결과를 얻으려면, 좋은 "지시문(프롬프트)"이 필요합니다. 예를 들어, 누군가에게 "밥 해줘"라고 하는 것과 "당근, 감자, 돼지고기를 사용해서, 집에 있는 재료만으로, 20분 안에 만들 수 있는 식사를 만들어줘"라고 하는 것은 전혀 다른 결과를 낳습니다.</p>
+      <p>K-Law의 핵심 혁신은 바로 이 지시문을 정교하게 설계한 것입니다. "이 사건을 대법원 판사의 관점에서 판결문 형식으로 작성하라"는 식으로, 17가지 구체적인 원리를 담은 지시문으로 AI를 안내합니다.</p>
+      <div class="callout">
+        <strong><span class="callout-icon">🔑</span>핵심 포인트</strong>
+        <p>K-Law의 가장 중요한 혁신은 복잡한 AI 기술이 아닙니다. "AI에게 어떻게 묻느냐"를 정교하게 설계한 것입니다. 마치 훌륭한 요리사가 똑같은 재료로 최고의 요리를 만들듯, K-Law는 AI라는 도구를 법률이라는 분야에 최적화된 방식으로 활용합니다.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">2.4 K-Law에서 AI 모델들의 역할 분담</h3>
+      <p>K-Law는 세 가지 AI 모델을 각각 다른 역할로 사용합니다:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>AI 모델</th><th>맡은 역할</th><th>쉬운 비유</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Google Gemini</strong></td>
+              <td>사실관계 정리 — 복잡한 사건을 약 450자로 요약</td>
+              <td>재판 전 서기관이 사건 개요를 정리하는 역할</td>
+            </tr>
+            <tr>
+              <td><strong>DeepSeek (1)</strong></td>
+              <td>가상 판결 생성 — K-Law 17원리로 법리 분석 후 판결문 작성</td>
+              <td>재판장이 판결문을 작성하는 역할</td>
+            </tr>
+            <tr>
+              <td><strong>DeepSeek (2)</strong></td>
+              <td>일치도 평가 — 가상 판결과 실제 판결을 비교해 점수 부여</td>
+              <td>상급심 법관이 하급심 판결을 검토하는 역할</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chapter 3 -->
+  <div class="chapter" id="ch3">
+    <div class="chapter-header">
+      <div class="chapter-num">제3장</div>
+      <h2 class="chapter-title">K-Law — 판결을 예측하는 17가지 규칙</h2>
+      <p class="chapter-subtitle">대법원 판결의 논리를 해부한 방법론</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">3.1 K-Law 방법론이란?</h3>
+      <p>K-Law는 수백 건의 대법원 판결문을 분석해 "대법원은 어떤 순서로, 어떤 논리로 판결을 내리는가"를 17가지 원리로 정리한 것입니다. 게임으로 비유하면, 대법원 판결이라는 "게임의 규칙"을 발견해 매뉴얼로 만든 셈입니다.</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">3.2 핵심 원리 — 알아야 할 4가지</h3>
+      <p>17가지 원리 중 일반인이 이해하면 가장 도움이 되는 4가지를 소개합니다:</p>
+
+      <div class="callout red">
+        <strong>원리 0: 관계부터 정하라</strong>
+        <p>"이 사건은 계약 문제인가, 불법행위 문제인가?" — 모든 분석의 시작점입니다. 집을 짓기 전 땅의 종류(논밭인지, 산인지)를 먼저 확인하는 것과 같습니다. 이 단계를 건너뛰면 이후의 모든 법리 분석이 엉뚱한 방향으로 흘러갑니다.</p>
+      </div>
+
+      <div class="callout red">
+        <strong>원리 1: 사건을 4가지로 압축하라 (Who-What-Why-How much)</strong>
+        <p>아무리 복잡한 사건도 4가지 질문으로 요약할 수 있습니다: 누가(Who) / 무엇을(What) / 왜(Why) / 얼마나(How much). 예: "피보험자(Who)가 보험설계사의 사기(Why)로 인해 5,500만 원(How much)의 보험료를 허위 상품(What)에 납입했다."</p>
+      </div>
+
+      <div class="callout red">
+        <strong>원리 3: 양쪽의 논리를 동시에 구성하라</strong>
+        <p>원고(소송을 건 쪽)와 피고(소송 당한 쪽) 각각의 주장을 "만약 A이면, B이다" 형식으로 정리합니다. 이는 바둑에서 "상대방이 여기 두면 나는 저기 두어야 한다"를 미리 생각해두는 것과 같습니다.</p>
+      </div>
+
+      <div class="callout red">
+        <strong>원리 5: 법적 가치를 저울질하라</strong>
+        <p>여러 법적 가치가 충돌할 때 어느 것을 우선할지 결정합니다. "강행규정 → 계약 해석 → 책임 귀속 → 이익 형량 → 약자 보호" 순서로 적용합니다. 실제 대법원이 이 순서를 일관되게 따른다는 것을 발견한 것이 K-Law의 핵심 발견 중 하나입니다.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">3.3 실제 사례: 보험 사기 피해자의 이야기</h3>
+      <p>2025년 대법원 사건(2025다212464)을 예로 들어보겠습니다. 이 사건에서 K-Law는 대법원 판결과 100% 일치하는 가상 판결을 생성했습니다.</p>
+      <div class="case-box">
+        <p>보험설계사 김씨는 A보험사 소속으로 일했습니다. 그런데 그는 고객에게 존재하지 않는 허위 보험 상품을 팔고, 고객이 낸 보험료 5,500만 원을 가로챘습니다.</p>
+        <p>● 1심 판결: 원고 패소 (A보험사는 책임 없음)</p>
+        <p>● 2심 판결: 원고 승소 (A보험사 사용자 책임 인정)</p>
+        <p>● <strong style="color:white;">대법원 판결: 2심 확정 → 5,500만 원 반환 명령</strong></p>
+        <div class="case-verdict">
+          <strong style="color:white;">K-Law 가상 판결:</strong>
+          <p>"보험설계사의 사기 행위는 보험사의 업무 범위 내에 있으므로, 보험사는 사용자 책임(민법 제756조)으로 5,500만 원을 반환해야 한다."</p>
+          <p>→ 대법원 결과와 <span class="match">100% 일치</span></p>
+        </div>
+      </div>
+      <p>더욱 놀라운 것은 K-Law가 소송 기록 전체가 아닌, 약 450자의 짧은 사실 요약만으로 이 결론에 도달했다는 점입니다. 1심 판사가 놓쳤던 법리를 K-Law는 정확히 짚어낸 것입니다.</p>
+    </div>
+  </div>
+
+  <!-- Chapter 4 -->
+  <div class="chapter" id="ch4">
+    <div class="chapter-header">
+      <div class="chapter-num">제4장</div>
+      <h2 class="chapter-title">숫자로 보는 AI의 실력</h2>
+      <p class="chapter-subtitle">70건의 실증 실험이 증명한 것들</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">4.1 실험 개요</h3>
+      <p>K-Law 연구팀은 실제 대법원 민사 손해배상 사건 70건을 대상으로 실험했습니다. 각 사건마다 K-Law가 만든 "가상 판결"이 실제 판결과 얼마나 일치하는지를 0~10점으로 채점했습니다. (10점 = 완전 일치)</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 2] K-Law 가상 판결과 실제 판결의 일치도 비교</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">4.2 흥미로운 발견 — 왜 대법원만 올라갈까?</h3>
+      <p>실험 결과에서 놀라운 패턴이 발견되었습니다. K-Law의 정확도가 개선될수록, 대법원과의 일치도는 계속 올라가는데, 1심·2심과의 일치도는 처음부터 끝까지 거의 변하지 않는 것입니다.</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 3] 1~70번 사건에 걸친 K-Law 정확도 추이 (파란 막대: 대법원 일치도, 점선: 하급심)</p>
+      <div class="callout blue">
+        <strong>이것이 왜 중요한가?</strong>
+        <p>K-Law는 처음부터 "대법원의 논리를 복제"하도록 설계되었습니다. 만약 K-Law가 단순히 "법적 추론 능력"이 높아진 것이라면, 세 심급 모두에서 일치도가 올라야 합니다. 그런데 대법원만 올라간다는 것은, K-Law가 정확히 "대법원의 판단 방식"을 학습하고 있다는 증거입니다. 설계대로 작동하고 있는 것입니다.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">4.3 450자, 5분, 100원의 혁명</h3>
+      <p>실제 법원이 판결을 내리는 데 필요한 것들과 K-Law가 필요로 하는 것을 비교해 보겠습니다:</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 4] 기존 재판 vs K-Law 효율성 비교 (로그 척도 — 격차가 매우 큽니다)</p>
+
+      <div class="stat-grid">
+        <div class="stat-item">
+          <span class="stat-value">수백만</span>
+          <span class="stat-arrow">↓</span>
+          <span class="stat-value" style="font-size:1.6rem;">~100원</span>
+          <span class="stat-label">비용 (1/10,000 이하)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">수개월</span>
+          <span class="stat-arrow">↓</span>
+          <span class="stat-value" style="font-size:1.6rem;">5분</span>
+          <span class="stat-label">소요 시간</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">수천</span>
+          <span class="stat-arrow">↓</span>
+          <span class="stat-value" style="font-size:1.6rem;">450자</span>
+          <span class="stat-label">입력 자료 (A4 반 페이지)</span>
+        </div>
+      </div>
+
+      <p>물론 K-Law의 가상 판결이 실제 법적 효력을 갖는 것은 아닙니다. 하지만 소송을 결정하기 전 "내 사건의 전망이 어떨까"를 미리 확인하는 도구로서, 또는 변호사가 전략을 세울 때 참고하는 "두 번째 의견"으로서 매우 유용합니다.</p>
+    </div>
+  </div>
+
+  <!-- Chapter 5 -->
+  <div class="chapter" id="ch5">
+    <div class="chapter-header">
+      <div class="chapter-num">제5장</div>
+      <h2 class="chapter-title">AI 법정엔 판사가 몇 명?</h2>
+      <p class="chapter-subtitle">단독심·합의심·전원합의심의 구조</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">5.1 왜 여러 AI가 필요한가</h3>
+      <p>현실에서 지방법원 판사 한 명이 판결하는 것보다, 고등법원 합의부 3명이 함께 판결하는 것이 더 신뢰받습니다. 그리고 대법원 전원합의체 13명의 판결은 가장 권위 있습니다.</p>
+      <p>K-Law도 같은 원리를 따릅니다. AI도 편향(특정 방향으로 치우치는 경향)을 가질 수 있습니다. 여러 AI가 각자 독립적으로 판결을 내린 뒤 토론하면, 개별 AI의 편향이 상쇄되어 더 정확한 결론에 도달할 수 있습니다.</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 5] AI 법정의 3단계 구조 — 단계가 높아질수록 정확도 향상</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">5.2 세 가지 방식 비교</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>방식</th><th>AI 참여 수</th><th>예상 정확도</th><th>소요 시간</th><th>비용</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>단독심</strong></td>
+              <td>1개</td>
+              <td>~80%</td>
+              <td>약 5분</td>
+              <td>약 100원</td>
+            </tr>
+            <tr>
+              <td><strong>합의심</strong></td>
+              <td>3개 (토론 후 합의)</td>
+              <td>~90% (예상)</td>
+              <td>약 30분</td>
+              <td>약 300원</td>
+            </tr>
+            <tr>
+              <td><strong>전원합의심</strong></td>
+              <td>12개+ (다수결)</td>
+              <td>~99% (예상)</td>
+              <td>약 2시간</td>
+              <td>약 1,200원</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">5.3 지금 체험해 볼 수 있습니다</h3>
+      <p>단독심 시뮬레이션은 현재 누구나 무료로 체험할 수 있습니다. 아래 주소에서 직접 사건 개요를 입력하면, AI가 실시간으로 법리 추론 과정을 보여주며 가상 판결을 생성합니다.</p>
+      <div class="participate-box">
+        <strong>체험 사이트</strong>
+        <a href="https://jejuro.github.io/k-law" target="_blank">https://jejuro.github.io/k-law</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">5.4 흥미로운 질문 — AI가 대법원보다 정확하다면?</h3>
+      <p>전원합의심(12개+ AI)에서 AI들이 만장일치로 내린 결론이 실제 대법원 판결과 다르다면, 어느 쪽이 맞는 걸까요?</p>
+      <p>이것은 단순한 철학적 질문이 아닙니다. K-Law의 정확도가 충분히 높아진다면, AI와 실제 판결의 불일치는 "AI의 오류"가 아니라 "이 판결에 대해 더 깊이 토론해 볼 필요가 있다"는 신호가 될 수 있습니다. 법학 연구의 새로운 도구로서의 가능성입니다.</p>
+    </div>
+  </div>
+
+  <!-- Chapter 6 -->
+  <div class="chapter" id="ch6">
+    <div class="chapter-header">
+      <div class="chapter-num">제6장</div>
+      <h2 class="chapter-title">분쟁이 시작되기 전에 막는다</h2>
+      <p class="chapter-subtitle">Openhash — 디지털 공증의 미래</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">6.1 공증의 디지털 버전</h3>
+      <p>분쟁에서 가장 많은 시간이 걸리는 것은 법리 판단이 아닙니다. "이 사실이 실제로 일어났는가?"를 확인하는 것입니다. 택배가 파손되었는지, 보증금이 실제로 지급되었는지, 계약서에 서명한 것이 맞는지...</p>
+      <p>Openhash는 이 문제를 근본적으로 해결합니다. "분산원장(DLT)"이라는 기술을 이용해, 모든 거래와 활동을 실시간으로 암호학적으로 기록합니다.</p>
+      <div class="callout">
+        <strong><span class="callout-icon">🏛️</span>쉬운 비유: 공증</strong>
+        <p>공증이란 "이 문서가 이 날짜에 존재했다"는 것을 공증인이 확인해주는 것입니다. Openhash는 이것을 자동화하여, 일상의 모든 거래에 대해 실시간으로 "디지털 공증"을 수행합니다. 누군가 기록을 변조하려 하면, 네트워크의 다른 참여자들이 즉시 감지합니다.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">6.2 보증금 분쟁을 없애는 방법</h3>
+      <p>임대차 보증금 분쟁은 가장 흔한 민사 분쟁 유형입니다. Openhash 방식에서는 임대 기간 동안 보증금 지급 내역, 월세 납부 기록, 시설 상태(입주·퇴거 시 사진), 수리 요청 및 처리 내역이 모두 자동 기록됩니다. 퇴거 시 분쟁이 발생하면, 법원은 이 기록을 1초 안에 조회합니다. 사실 확인에 수개월 걸리던 것이 1초로 단축됩니다.</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 6] 기존 소송 방식(수개월) vs K-Law + Openhash(수 분) 비교</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">6.3 K-Law + Openhash = 차세대 사법 시스템</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>단계</th><th>기존 방식</th><th>K-Law + Openhash</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>사실 확인</strong></td>
+              <td>증거 제출, 증인 심문 — 수개월</td>
+              <td>Openhash 기록 조회 — 1초</td>
+            </tr>
+            <tr>
+              <td><strong>법률 평가</strong></td>
+              <td>판사가 법리 분석 — 수주~수개월</td>
+              <td>K-Law 가상 판결 — 5분</td>
+            </tr>
+            <tr>
+              <td><strong>전체 소요</strong></td>
+              <td>수개월~수년</td>
+              <td>약 5분</td>
+            </tr>
+            <tr>
+              <td><strong>비용</strong></td>
+              <td>수십만~수백만 원</td>
+              <td>약 100원</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout blue">
+        <strong><span class="callout-icon">🔬</span>실증 프로젝트 진행 중</strong>
+        <p>AI City Inc.는 현재 제주도청 소속 공기업과 Openhash 기반 예방법학 실증 프로젝트를 협의 중입니다. 이 프로젝트가 성공하면, 특정 유형의 민사 분쟁을 원천적으로 차단하는 실제 사례가 탄생합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chapter 7 -->
+  <div class="chapter" id="ch7">
+    <div class="chapter-header">
+      <div class="chapter-num">제7장</div>
+      <h2 class="chapter-title">AI 시대, 내가 할 수 있는 것들</h2>
+      <p class="chapter-subtitle">변화에 올라타는 법</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">7.1 AI가 하는 일 vs 사람이 하는 일</h3>
+      <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;">[그림 7] AI와 사람의 역할 분담 — 경쟁이 아닌 협업</p>
+      <p>AI는 사람을 대체하는 것이 아니라, 사람이 더 가치 있는 일에 집중할 수 있게 해줍니다. 판례 수천 건을 뒤지는 시간을 줄이면, 그 시간에 의뢰인을 더 깊이 이해하고 창의적인 전략을 세울 수 있습니다.</p>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">7.2 일반 시민에게 열리는 기회</h3>
+      <p>K-Law는 법률가만을 위한 도구가 아닙니다. 일반 시민도 다음과 같이 활용할 수 있습니다:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>상황</th><th>활용 방법</th><th>기대 효과</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>소송 여부 결정</strong></td>
+              <td>사건 개요를 입력해 예상 판결 확인</td>
+              <td>불필요한 소송 방지, 합리적 결정</td>
+            </tr>
+            <tr>
+              <td><strong>협상 전략 수립</strong></td>
+              <td>상대방의 패소 가능성을 미리 파악</td>
+              <td>합의금 협상에서 유리한 위치 선점</td>
+            </tr>
+            <tr>
+              <td><strong>변호사 선임 준비</strong></td>
+              <td>가상 판결로 사건의 법리 쟁점 파악</td>
+              <td>변호사와의 첫 상담 효율 향상</td>
+            </tr>
+            <tr>
+              <td><strong>법학 공부</strong></td>
+              <td>실제 사건으로 법리 학습</td>
+              <td>판례 분석 능력 향상</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">7.3 K-Law 프로젝트에 참여하는 방법</h3>
+      <p>K-Law 프로젝트는 다양한 배경의 참여자를 환영합니다. 법학 전공자라면 판결 품질 평가나 법리 검증에, 컴퓨터를 다룰 줄 아는 분이라면 개발 기여에, 법학과 기술 모두에 관심 있다면 온톨로지 설계에 참여할 수 있습니다.</p>
+      <div class="participate-box">
+        <strong>참여 방법</strong>
+        <p>GitHub: <a href="https://github.com/jejuro/k-law" target="_blank">github.com/jejuro/k-law</a></p>
+        <p>이메일: <a href="mailto:tensor.city@gmail.com">tensor.city@gmail.com</a></p>
+        <p>체험 사이트: <a href="https://jejuro.github.io/k-law" target="_blank">jejuro.github.io/k-law</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appendix A -->
+  <div class="chapter appendix" id="appA">
+    <div class="chapter-header">
+      <div class="chapter-num">부록 A</div>
+      <h2 class="chapter-title">용어 해설</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>용어</th><th>한 줄 설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>LLM (거대 언어 모델)</strong></td><td>수조 개 단어를 학습해 자연어를 이해·생성하는 AI. ChatGPT가 대표적</td></tr>
+          <tr><td><strong>프롬프트 (Prompt)</strong></td><td>AI에게 주는 지시문. "이렇게 답해줘"라고 요청하는 것</td></tr>
+          <tr><td><strong>일치도 (Concordance)</strong></td><td>K-Law 가상 판결과 실제 판결이 얼마나 같은지를 나타내는 점수 (0~10)</td></tr>
+          <tr><td><strong>비대칭적 일치도</strong></td><td>대법원 일치도만 올라가고 하급심은 변하지 않는 현상. K-Law의 핵심 발견</td></tr>
+          <tr><td><strong>분산원장 (DLT)</strong></td><td>여러 참여자가 동일한 데이터를 공유·검증하는 기술. 공증의 디지털 버전</td></tr>
+          <tr><td><strong>Private Data Vault</strong></td><td>Openhash 기반 개인 데이터 저장소. 일상의 모든 거래를 암호학적으로 기록</td></tr>
+          <tr><td><strong>사용자책임 (민법 756조)</strong></td><td>직원의 잘못에 대해 회사(고용주)가 지는 법적 책임</td></tr>
+          <tr><td><strong>삼단논법</strong></td><td>법 규범(대전제) + 사실관계(소전제) = 법적 결론의 논리 구조</td></tr>
+          <tr><td><strong>이익형량</strong></td><td>충돌하는 법적 가치 중 어느 것을 더 중시할지 비교·조정하는 법리 작업</td></tr>
+          <tr><td><strong>예방법학</strong></td><td>분쟁 발생 후 해결이 아니라, 분쟁 자체가 발생하지 않도록 예방하는 접근법</td></tr>
+          <tr><td><strong>API</strong></td><td>소프트웨어가 서로 통신하는 방식. K-Law는 AI 모델의 API를 호출해 판결 생성</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Appendix B -->
+  <div class="chapter" id="appB">
+    <div class="chapter-header">
+      <div class="chapter-num">부록 B</div>
+      <h2 class="chapter-title">K-Law 시뮬레이션 이용 가이드</h2>
+    </div>
+    <div class="participate-box">
+      <strong>체험 주소</strong>
+      <a href="https://jejuro.github.io/k-law" target="_blank">https://jejuro.github.io/k-law</a>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<footer>
+  <p>AI와 법률의 만남 · K-Law 입문 &nbsp;|&nbsp; AI City Inc. · 2026년 4월</p>
+  <p style="margin-top:8px;"><a href="https://github.com/jejuro/k-law" target="_blank">github.com/jejuro/k-law</a></p>
+</footer>
+
+</body>
+</html>
