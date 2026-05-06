@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenHash & Gopang | AI City Inc.</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gov-blue:  #003087;
+  --gov-blue2: #004099;
+  --gov-line:  #0050d8;
+  --accent:    #f5c842;
+  --accent2:   #e8a000;
+  --bg:        #f0f2f5;
+  --surface:   #ffffff;
+  --border:    #c9cdd6;
+  --txt:       #1b1e27;
+  --txt2:      #3d4360;
+  --txt3:      #6b7280;
+  --ok:        #0c6b35;
+  --sans:      'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --serif:     'Noto Serif KR', 'Batang', serif;
+  --mono:      'JetBrains Mono', 'Consolas', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); color: var(--txt); background: var(--bg); line-height: 1.7; }
+
+/* ── 헤더 ── */
+.site-header {
+  background: var(--gov-blue);
+  border-bottom: 4px solid var(--gov-line);
+  padding: 12px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.site-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.site-logo-emblem {
+  width: 36px; height: 36px; background: #fff; color: var(--gov-blue);
+  font-family: var(--serif); font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; border-radius: 2px;
+}
+.site-logo-text { color: #fff; font-size: 15px; font-weight: 700; font-family: var(--serif); }
+.site-logo-sub { color: rgba(255,255,255,.5); font-size: 11px; margin-left: 4px; }
+.back-btn {
+  color: rgba(255,255,255,.75); font-size: 13px; text-decoration: none;
+  border: 1px solid rgba(255,255,255,.25); border-radius: 3px;
+  padding: 6px 14px; transition: all .15s;
+}
+.back-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+/* ── 히어로 ── */
+.hero {
+  background: linear-gradient(135deg, #001f5c 0%, #003087 50%, #0050d8 100%);
+  padding: 72px 28px 64px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,200,66,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(245,200,66,.15); border: 1px solid rgba(245,200,66,.4);
+  color: var(--accent); font-size: 11px; font-family: var(--mono);
+  letter-spacing: 1.5px; padding: 5px 14px; border-radius: 20px;
+  margin-bottom: 20px; text-transform: uppercase;
+}
+.hero h1 {
+  font-family: var(--serif); font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 16px;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero-sub {
+  font-size: 16px; color: rgba(255,255,255,.7); max-width: 640px; margin: 0 auto 36px;
+  line-height: 1.8;
+}
+.hero-stats {
+  display: flex; gap: 32px; justify-content: center; flex-wrap: wrap;
+}
+.hero-stat {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px; padding: 16px 28px; text-align: center;
+}
+.hero-stat-num {
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  color: var(--accent); display: block; line-height: 1;
+}
+.hero-stat-label { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 4px; }
+
+/* ── 섹션 공통 ── */
+.section { max-width: 1000px; margin: 0 auto; padding: 64px 28px; }
+.section-tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+  color: var(--gov-blue); text-transform: uppercase;
+  border-left: 3px solid var(--gov-line); padding-left: 10px;
+  margin-bottom: 10px; display: block;
+}
+.section-title {
+  font-family: var(--serif); font-size: clamp(22px, 3.5vw, 32px);
+  font-weight: 700; color: var(--txt); line-height: 1.3; margin-bottom: 14px;
+}
+.section-lead {
+  font-size: 15px; color: var(--txt2); line-height: 1.85;
+  max-width: 720px; margin-bottom: 40px;
+}
+
+/* ── 구분선 ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* ── OpenHash 섹션 ── */
+.oh-bg { background: #fff; }
+.oh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media(max-width:720px){ .oh-grid { grid-template-columns: 1fr; } }
+
+.oh-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 24px;
+}
+.oh-card-icon {
+  width: 44px; height: 44px; background: var(--gov-blue);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 14px;
+}
+.oh-card h3 {
+  font-size: 15px; font-weight: 700; color: var(--gov-blue);
+  margin-bottom: 8px;
+}
+.oh-card p { font-size: 13px; color: var(--txt2); line-height: 1.8; }
+.oh-card .metric {
+  margin-top: 12px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 10px 14px;
+}
+.oh-card .metric-num {
+  font-family: var(--mono); font-size: 22px; font-weight: 700;
+  color: var(--gov-blue);
+}
+.oh-card .metric-label { font-size: 11px; color: var(--txt3); margin-top: 2px; }
+
+/* OpenHash 아키텍처 다이어그램 */
+.oh-arch {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 28px; margin-top: 32px;
+}
+.oh-arch-title {
+  font-size: 13px; font-weight: 700; color: var(--txt2);
+  letter-spacing: .3px; text-transform: uppercase; margin-bottom: 20px;
+  font-family: var(--mono);
+}
+.oh-layers { display: flex; flex-direction: column; gap: 8px; }
+.oh-layer {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 12px 16px;
+}
+.oh-layer-num {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--gov-blue);
+  color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.oh-layer-name { font-size: 13px; font-weight: 700; color: var(--txt); min-width: 80px; }
+.oh-layer-desc { font-size: 12px; color: var(--txt3); flex: 1; }
+.oh-layer-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 10px;
+  font-family: var(--mono); white-space: nowrap;
+}
+.badge-blue { background: #dce6f5; color: var(--gov-blue); }
+.badge-green { background: #d1f2eb; color: var(--ok); }
+.badge-gold { background: #fef3cd; color: #7a5800; }
+
+/* ── Gopang 섹션 ── */
+.gp-bg { background: linear-gradient(180deg, #f8f9fb 0%, #fff 100%); }
+
+.gp-flow {
+  display: flex; align-items: center; gap: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.gp-flow-step {
+  flex: 1; min-width: 120px;
+  padding: 20px 16px; text-align: center;
+  border-right: 1px solid var(--border); position: relative;
+}
+.gp-flow-step:last-child { border-right: none; }
+.gp-flow-step::after {
+  content: '→';
+  position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+  color: var(--txt3); font-size: 16px; z-index: 1;
+}
+.gp-flow-step:last-child::after { display: none; }
+.gp-flow-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+.gp-flow-label { font-size: 12px; font-weight: 700; color: var(--gov-blue); }
+.gp-flow-sub { font-size: 11px; color: var(--txt3); margin-top: 3px; }
+
+.gp-prevention {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px; margin-bottom: 32px;
+}
+.gp-prev-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 20px;
+  border-left: 3px solid var(--gov-blue);
+}
+.gp-prev-type { font-size: 12px; font-weight: 700; color: var(--txt2); margin-bottom: 6px; }
+.gp-prev-rate {
+  font-family: var(--mono); font-size: 30px; font-weight: 700;
+  color: var(--gov-blue); line-height: 1;
+}
+.gp-prev-label { font-size: 11px; color: var(--txt3); margin-top: 4px; }
+
+/* 위험 등급표 */
+.risk-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.risk-table th {
+  background: var(--gov-blue); color: #fff;
+  padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px;
+}
+.risk-table td { padding: 10px 14px; border-bottom: 1px solid var(--bg); }
+.risk-table tr:last-child td { border-bottom: none; }
+.risk-table tr:nth-child(odd) td { background: var(--bg); }
+.risk-table tr:nth-child(even) td { background: var(--surface); }
+.risk-badge {
+  display: inline-block; font-family: var(--mono); font-size: 12px;
+  font-weight: 700; padding: 2px 10px; border-radius: 10px;
+}
+.risk-s0 { background: #d1f2eb; color: #0c6b35; }
+.risk-s1 { background: #fef9c3; color: #78350f; }
+.risk-s2 { background: #fde8d0; color: #7a3900; }
+.risk-s3 { background: #fde8e8; color: #8b0000; }
+
+/* ── 비교표 ── */
+.compare-section { background: var(--gov-blue); }
+.compare-section .section-tag { color: var(--accent); border-color: var(--accent); }
+.compare-section .section-title { color: #fff; }
+.compare-section .section-lead { color: rgba(255,255,255,.65); }
+
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.compare-table th {
+  padding: 12px 16px; text-align: left; font-weight: 700; font-size: 12px;
+  letter-spacing: .3px; text-transform: uppercase;
+}
+.compare-table th:first-child { color: rgba(255,255,255,.5); font-weight: 400; }
+.compare-table th.col-old { background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); }
+.compare-table th.col-new {
+  background: rgba(245,200,66,.15); color: var(--accent);
+  border-top: 2px solid var(--accent);
+}
+.compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.07); color: rgba(255,255,255,.75); }
+.compare-table td.col-old { background: rgba(255,255,255,.03); color: rgba(255,255,255,.45); }
+.compare-table td.col-new { background: rgba(245,200,66,.06); color: rgba(255,255,255,.9); }
+.compare-table tr:last-child td { border-bottom: none; }
+.check { color: var(--accent); font-weight: 700; }
+.cross { color: rgba(255,255,255,.3); }
+
+/* ── 통합 구조 ── */
+.integration-bg { background: #fff; }
+.integration-diagram {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 24px; max-width: 700px; margin: 0 auto 40px;
+}
+@media(max-width:600px){ .integration-diagram { grid-template-columns: 1fr; } }
+.int-box {
+  background: var(--bg); border: 2px solid var(--border);
+  border-radius: 8px; padding: 24px; text-align: center;
+}
+.int-box.highlight { border-color: var(--gov-blue); background: #dce6f5; }
+.int-box-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+.int-box-name {
+  font-family: var(--serif); font-size: 17px; font-weight: 700;
+  color: var(--gov-blue); margin-bottom: 6px;
+}
+.int-box-desc { font-size: 12px; color: var(--txt2); line-height: 1.6; }
+.int-arrow {
+  text-align: center; font-size: 24px; color: var(--gov-blue); font-weight: 700;
+}
+.int-plus {
+  width: 48px; height: 48px; background: var(--gov-blue); color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 700; margin: 0 auto;
+}
+
+/* ── CTA ── */
+.cta-section {
+  background: linear-gradient(135deg, #001f5c, #003087);
+  padding: 64px 28px; text-align: center;
+}
+.cta-section h2 {
+  font-family: var(--serif); font-size: 28px; font-weight: 700;
+  color: #fff; margin-bottom: 14px;
+}
+.cta-section p { color: rgba(255,255,255,.65); font-size: 15px; margin-bottom: 32px; max-width: 560px; margin-left: auto; margin-right: auto; }
+.cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.cta-btn-primary {
+  background: var(--accent); color: var(--gov-blue);
+  border: none; border-radius: 4px; padding: 13px 28px;
+  font-size: 14px; font-weight: 700; font-family: var(--sans);
+  cursor: pointer; text-decoration: none; display: inline-block;
+  transition: all .15s;
+}
+.cta-btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.cta-btn-sec {
+  background: transparent; color: rgba(255,255,255,.8);
+  border: 1px solid rgba(255,255,255,.3); border-radius: 4px;
+  padding: 13px 28px; font-size: 14px; font-weight: 600;
+  font-family: var(--sans); cursor: pointer; text-decoration: none;
+  display: inline-block; transition: all .15s;
+}
+.cta-btn-sec:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+/* ── 푸터 ── */
+footer {
+  background: var(--gov-blue); color: rgba(255,255,255,.4);
+  padding: 18px 28px; text-align: center;
+  font-size: 11px; line-height: 1.8;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+footer strong { color: rgba(255,255,255,.65); }
+footer a { color: rgba(255,255,255,.35); text-decoration: none; }
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero > * { animation: fadeInUp .5s ease both; }
+.hero > *:nth-child(1) { animation-delay: .05s; }
+.hero > *:nth-child(2) { animation-delay: .15s; }
+.hero > *:nth-child(3) { animation-delay: .25s; }
+.hero > *:nth-child(4) { animation-delay: .35s; }
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="site-header">
+  <a href="./index.html" class="site-logo">
+    <div class="site-logo-emblem">法</div>
+    <div>
+      <span class="site-logo-text">K-Law</span>
+      <span class="site-logo-sub"> · AI City Inc.</span>
+    </div>
+  </a>
+  <a href="./index.html" class="back-btn">← K-Law 법리 분석 시스템</a>
+</header>
+
+<!-- 히어로 -->
+<section class="hero">
+  <div class="hero-badge">Core Technologies · AI City Inc.</div>
+  <h1>분쟁을 <em>예방</em>하고<br>증거를 <em>영구 보존</em>합니다</h1>
+  <p class="hero-sub">
+    OpenHash와 Gopang은 사후 처방적 사법 시스템의 구조적 한계를 극복하기 위해 설계된
+    차세대 예방 법학 기술 플랫폼입니다.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num">4,399</span>
+      <div class="hero-stat-label">TPS · OpenHash 처리 성능</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">0.228ms</span>
+      <div class="hero-stat-label">E2E 레이턴시</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">99%</span>
+      <div class="hero-stat-label">소통 매개 범죄·분쟁 예방 가능</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">100%</span>
+      <div class="hero-stat-label">위변조 탐지율 · PDV</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OpenHash 섹션 ══ -->
+<div class="oh-bg">
+<div class="section">
+  <span class="section-tag">OpenHash · 분산원장 기술</span>
+  <h2 class="section-title">합의 없이도 무결성을 보장하는<br>계층적 분산원장</h2>
+  <p class="section-lead">
+    OpenHash는 기존 블록체인(PoW·PoS)의 에너지 비효율과 낮은 처리량을 근본적으로 극복합니다.
+    물리적 공간을 5계층으로 분할한 분산 노드 네트워크에서, 합의 연산 없이 이중 SHA-256 기반
+    확률적 계층 선택만으로 무결성을 실시간 검증합니다. 에너지 소비는 PoW 대비 0.01% 미만입니다.
+  </p>
+
+  <div class="oh-grid">
+    <div class="oh-card">
+      <div class="oh-card-icon">🔒</div>
+      <h3>확률적 계층 선택 모듈 (PLSM)</h3>
+      <p>이중 SHA-256 재해싱 후 mod 1,000 연산으로 합의 없이 거래별 기록 계층을 결정합니다.
+         1,000만 회 χ² 검정 결과 p &gt; 0.99로 균일 분포를 확인했습니다.</p>
+      <div class="metric">
+        <div class="metric-num">0 합의</div>
+        <div class="metric-label">평상시 합의 연산 불필요 — 비상시에만 경량 PBFT 발동</div>
+      </div>
+    </div>
+    <div class="oh-card">
+      <div class="oh-card-icon">⚖️</div>
+      <h3>잔액 불변성 검증 모듈 (BIVM)</h3>
+      <p>집합 잔액 불변성(Σδ_k = 0)과 잔액 매핑 무결성(BMI)을 병렬 검증하여
+         이중 지불 및 내부 위변조를 실시간 탐지합니다. 총량 보존을 위장한 내부 위변조까지 감지합니다.</p>
+      <div class="metric">
+        <div class="metric-num">100%</div>
+        <div class="metric-label">위변조 탐지율 (시나리오 A·B·C, 3/3 탐지)</div>
+      </div>
+    </div>
+    <div class="oh-card">
+      <div class="oh-card-icon">🔄</div>
+      <h3>양방향 상호 계층 검증 (ILMV)</h3>
+      <p>6개 항목 하향 감사와 6개 임계값 상향 모니터링을 결합한 합의 없는 실시간
+         무결성 검증입니다. L2→L1 100% 스트리밍 감사 및 비인접 계층 교차 검증을 포함합니다.</p>
+      <div class="metric">
+        <div class="metric-num">4,399 TPS</div>
+        <div class="metric-label">단일 노드 기준 처리 성능 (CV=1.0%)</div>
+      </div>
+    </div>
+    <div class="oh-card">
+      <div class="oh-card-icon">⚡</div>
+      <h3>중요도 기반 적응형 무결성 검증</h3>
+      <p>거래 중요도 점수에 따라 경량·표준·강화 모드를 자동 선택합니다.
+         고중요도 거래에는 zk-SNARKs(영지식 증명), TEE(신뢰 실행 환경),
+         스테이킹/슬래싱을 선택적으로 추가 적용합니다.</p>
+      <div class="metric">
+        <div class="metric-num">0.01%</div>
+        <div class="metric-label">PoW 대비 에너지 소비량 — HTTPS API 호출 수준</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 계층 구조 -->
+  <div class="oh-arch">
+    <div class="oh-arch-title">OpenHash 5계층 분산 노드 구조</div>
+    <div class="oh-layers">
+      <div class="oh-layer">
+        <div class="oh-layer-num">L1</div>
+        <div class="oh-layer-name">글로벌 계층</div>
+        <div class="oh-layer-desc">국가 간 최상위 무결성 앵커 — 비상시 LPBFT 합의 발동</div>
+        <span class="oh-layer-badge badge-blue">최고 신뢰</span>
+      </div>
+      <div class="oh-layer">
+        <div class="oh-layer-num">L2</div>
+        <div class="oh-layer-name">국가 계층</div>
+        <div class="oh-layer-desc">국가 단위 ISP 인프라 기반 무결성 검증 — L1 100% 스트리밍 감사</div>
+        <span class="oh-layer-badge badge-blue">국가 신뢰</span>
+      </div>
+      <div class="oh-layer">
+        <div class="oh-layer-num">L3</div>
+        <div class="oh-layer-name">지역 계층</div>
+        <div class="oh-layer-desc">광역 단위 분산 노드 — 확률적 계층 선택으로 부하 분산</div>
+        <span class="oh-layer-badge badge-green">지역 분산</span>
+      </div>
+      <div class="oh-layer">
+        <div class="oh-layer-num">L4</div>
+        <div class="oh-layer-name">기관 계층</div>
+        <div class="oh-layer-desc">기업·기관 단위 노드 — 중요도 기반 검증 강도 자동 조정</div>
+        <span class="oh-layer-badge badge-green">기관 검증</span>
+      </div>
+      <div class="oh-layer">
+        <div class="oh-layer-num">L5</div>
+        <div class="oh-layer-name">개인 계층</div>
+        <div class="oh-layer-desc">개인 데이터 볼트(PDV) — 소통 기록 생성 시점부터 위변조 불가 보존</div>
+        <span class="oh-layer-badge badge-gold">개인 보관</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- ══ Gopang 섹션 ══ -->
+<div class="gp-bg">
+<div class="section">
+  <span class="section-tag">Gopang · 예방 법학 플랫폼</span>
+  <h2 class="section-title">분쟁이 시작되기 전에<br>소통 시점에서 차단합니다</h2>
+  <p class="section-lead">
+    Louis Brown(1950)이 체계화한 예방 법학(Preventive Law)을 개인의 일상 소통 수준에서 최초로 구현한 플랫폼입니다.
+    AI 비서가 모든 대화를 1초 이내에 실시간 검증하고, OpenHash PDV가 소통 기록을 위변조 불가능하게 보존합니다.
+    소통 매개 범죄·분쟁의 약 99%를 소통 시점에서 예방합니다.
+  </p>
+
+  <!-- 처리 흐름 -->
+  <div class="gp-flow">
+    <div class="gp-flow-step">
+      <span class="gp-flow-icon">💬</span>
+      <div class="gp-flow-label">메시지 발송</div>
+      <div class="gp-flow-sub">텍스트·음성·문서</div>
+    </div>
+    <div class="gp-flow-step">
+      <span class="gp-flow-icon">🤖</span>
+      <div class="gp-flow-label">AI 비서 검증</div>
+      <div class="gp-flow-sub">0.8ms 이내 판정</div>
+    </div>
+    <div class="gp-flow-step">
+      <span class="gp-flow-icon">⚖️</span>
+      <div class="gp-flow-label">위법성 평가</div>
+      <div class="gp-flow-sub">형사·민사·노동법</div>
+    </div>
+    <div class="gp-flow-step">
+      <span class="gp-flow-icon">🔒</span>
+      <div class="gp-flow-label">PDV 기록</div>
+      <div class="gp-flow-sub">OpenHash 무결성</div>
+    </div>
+    <div class="gp-flow-step">
+      <span class="gp-flow-icon">✅</span>
+      <div class="gp-flow-label">전송 또는 차단</div>
+      <div class="gp-flow-sub">4단계 등급 결정</div>
+    </div>
+  </div>
+
+  <!-- 예방 가능 비율 -->
+  <h3 style="font-size:15px;font-weight:700;color:var(--txt2);margin-bottom:16px;letter-spacing:.3px;text-transform:uppercase;font-family:var(--mono);">소통 매개 범죄·분쟁 유형별 예방 가능 비율</h3>
+  <div class="gp-prevention">
+    <div class="gp-prev-card">
+      <div class="gp-prev-type">보이스피싱·전화금융사기</div>
+      <div class="gp-prev-rate">99.7%</div>
+      <div class="gp-prev-label">2023년 피해 18,902건 · 4,472억 원</div>
+    </div>
+    <div class="gp-prev-card">
+      <div class="gp-prev-type">온라인 사기·SNS 사기</div>
+      <div class="gp-prev-rate">97.3%</div>
+      <div class="gp-prev-label">2023년 사이버사기 257,429건</div>
+    </div>
+    <div class="gp-prev-card">
+      <div class="gp-prev-type">임대차·부동산 분쟁</div>
+      <div class="gp-prev-rate">94.1%</div>
+      <div class="gp-prev-label">2023년 임대차 민사소송 약 43만 건</div>
+    </div>
+    <div class="gp-prev-card">
+      <div class="gp-prev-type">개인 간 금전 분쟁</div>
+      <div class="gp-prev-rate">91.4%</div>
+      <div class="gp-prev-label">2023년 소액 민사 약 31만 건</div>
+    </div>
+    <div class="gp-prev-card" style="border-left-color:var(--accent2);">
+      <div class="gp-prev-type">가중 평균 (전체)</div>
+      <div class="gp-prev-rate" style="color:var(--accent2);">≈ 99%</div>
+      <div class="gp-prev-label">소통 매개 범죄·분쟁 전체 기준</div>
+    </div>
+    <div class="gp-prev-card" style="border-left-color:var(--border);background:var(--bg);">
+      <div class="gp-prev-type" style="color:var(--txt3);">예방 불가 잔여</div>
+      <div class="gp-prev-rate" style="color:var(--txt3);font-size:22px;">~1%</div>
+      <div class="gp-prev-label">즉각적 물리적 폭력, 순수 현금 거래 등</div>
+    </div>
+  </div>
+
+  <!-- 위험 등급 -->
+  <h3 style="font-size:15px;font-weight:700;color:var(--txt2);margin-bottom:16px;letter-spacing:.3px;text-transform:uppercase;font-family:var(--mono);">AI 비서 위험 등급 체계 (예방방법론 v1.0)</h3>
+  <div style="overflow-x:auto;">
+  <table class="risk-table">
+    <thead>
+      <tr>
+        <th>등급</th>
+        <th>위험 점수</th>
+        <th>처리 방식</th>
+        <th>적용 예시</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="risk-badge risk-s0">S0 안전</span></td>
+        <td style="font-family:var(--mono);">0.00 ~ 0.29</td>
+        <td>정상 전송</td>
+        <td>일반적인 안부 인사, 업무 연락</td>
+      </tr>
+      <tr>
+        <td><span class="risk-badge risk-s1">S1 주의</span></td>
+        <td style="font-family:var(--mono);">0.30 ~ 0.59</td>
+        <td>소프트 알림 후 전송</td>
+        <td>계약 조항 누락, 주의 필요 표현</td>
+      </tr>
+      <tr>
+        <td><span class="risk-badge risk-s2">S2 경고</span></td>
+        <td style="font-family:var(--mono);">0.60 ~ 0.84</td>
+        <td>전송 보류 + 명시적 확인 요구</td>
+        <td>불공정 조항, 금전 이동 유도</td>
+      </tr>
+      <tr>
+        <td><span class="risk-badge risk-s3">S3 긴급 차단</span></td>
+        <td style="font-family:var(--mono);">0.85 ~ 1.00</td>
+        <td>즉시 차단 + 관련 기관 연결 안내</td>
+        <td>보이스피싱 패턴, 기망적 투자 권유</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- ══ 기존 시스템 비교 ══ -->
+<div class="compare-section">
+<div class="section">
+  <span class="section-tag">기존 시스템 대비 차별성</span>
+  <h2 class="section-title" style="color:#fff;">왜 OpenHash & Gopang인가</h2>
+  <p class="section-lead">기존 블록체인 및 채팅 플랫폼과의 근본적 차이</p>
+  <div style="overflow-x:auto;">
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>비교 항목</th>
+        <th class="col-old">기존 블록체인 (PoW/PoS)</th>
+        <th class="col-old">기존 채팅 앱</th>
+        <th class="col-new">OpenHash + Gopang</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>합의 방식</td>
+        <td class="col-old">항상 합의 필요</td>
+        <td class="col-old">해당 없음</td>
+        <td class="col-new"><span class="check">✓</span> 평상시 합의 제거 · 비상시만 LPBFT</td>
+      </tr>
+      <tr>
+        <td>에너지 소비</td>
+        <td class="col-old">연간 ~121 TWh (PoW)</td>
+        <td class="col-old">—</td>
+        <td class="col-new"><span class="check">✓</span> HTTPS API 호출 수준 (0.01%)</td>
+      </tr>
+      <tr>
+        <td>처리 성능</td>
+        <td class="col-old">7 TPS (Bitcoin)</td>
+        <td class="col-old">—</td>
+        <td class="col-new"><span class="check">✓</span> 4,399 TPS · 0.228ms</td>
+      </tr>
+      <tr>
+        <td>위법성 검증</td>
+        <td class="col-old">해당 없음</td>
+        <td class="col-old"><span class="cross">✗</span> 없음</td>
+        <td class="col-new"><span class="check">✓</span> 실시간 0.8ms 이내 AI 검증</td>
+      </tr>
+      <tr>
+        <td>증거 무결성</td>
+        <td class="col-old">금융 거래 한정</td>
+        <td class="col-old"><span class="cross">✗</span> 위변조 가능</td>
+        <td class="col-new"><span class="check">✓</span> 소통 시점부터 위변조 불가</td>
+      </tr>
+      <tr>
+        <td>예방 법학 구현</td>
+        <td class="col-old">해당 없음</td>
+        <td class="col-old"><span class="cross">✗</span> 없음</td>
+        <td class="col-new"><span class="check">✓</span> 소통 시점 실시간 개입</td>
+      </tr>
+      <tr>
+        <td>소통 범위</td>
+        <td class="col-old">금융 거래</td>
+        <td class="col-old">개인 ↔ 개인</td>
+        <td class="col-new"><span class="check">✓</span> 개인·기관·사물 전방위</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+</div>
+
+<!-- ══ K-Law 통합 구조 ══ -->
+<div class="integration-bg">
+<div class="section">
+  <span class="section-tag">K-Law 생태계 통합</span>
+  <h2 class="section-title">예방 + 해결 — 완결된 법적 지원 구조</h2>
+  <p class="section-lead">
+    Gopang(분쟁 예방)과 K-Law(분쟁 해결)의 이중 구조는 사전 예방과 사후 해결을 아우르는
+    완결된 법적 지원 생태계를 구성합니다. 예방에 실패한 분쟁에 대해서도 K-Law가 법리 분석 경로를 보장합니다.
+  </p>
+  <div class="integration-diagram">
+    <div class="int-box highlight">
+      <span class="int-box-icon">🛡️</span>
+      <div class="int-box-name">Gopang</div>
+      <div class="int-box-desc">소통 시점 실시간 위법성 검증<br>OpenHash PDV 증거 보전<br><strong>분쟁 예방 계층</strong></div>
+    </div>
+    <div class="int-arrow">
+      <div class="int-plus">+</div>
+    </div>
+    <div class="int-box highlight">
+      <span class="int-box-icon">⚖️</span>
+      <div class="int-box-name">K-Law</div>
+      <div class="int-box-desc">AI 법리 분석 보고서<br>대법원 기준 97% 일치도<br><strong>분쟁 해결 계층</strong></div>
+    </div>
+  </div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:20px 24px;max-width:700px;margin:0 auto;">
+    <div style="font-size:13px;color:var(--txt2);line-height:1.9;">
+      <strong style="color:var(--gov-blue);">OpenHash</strong>는 두 시스템의 기술 기반입니다.
+      Gopang의 PDV가 소통 기록을 OpenHash에 저장하고, 분쟁 발생 시 K-Law 분석의 증거 자료로 활용됩니다.
+      증거 진정성 논쟁이 원천 제거되어 K-Law 분석의 신뢰도가 더욱 높아집니다.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ CTA ══ -->
+<section class="cta-section">
+  <h2>K-Law로 법리 분석을 시작하세요</h2>
+  <p>OpenHash 기반 증거 무결성과 Gopang 예방 법학 위에 구축된 AI 법리 분석 시스템입니다.</p>
+  <div class="cta-btns">
+    <a href="./index.html" class="cta-btn-primary">K-Law 법리 분석 시작 →</a>
+    <a href="https://github.com/nounweb/k-law" target="_blank" class="cta-btn-sec">GitHub 저장소</a>
+  </div>
+</section>
+
+<footer>
+  <strong>K-Law</strong> · OpenHash &amp; Gopang · AI City Inc.<br>
+  &copy; 2026 <a href="https://github.com/nounweb">AI City Inc.</a> ·
+  <a href="https://github.com/nounweb/k-law">GitHub</a><br>
+  본 페이지는 연구·교육 목적으로 제공됩니다.
+</footer>
+
+</body>
+</html>
