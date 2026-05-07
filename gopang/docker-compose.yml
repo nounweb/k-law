@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  gopang:
+    build: .
+    container_name: gopang
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./data:/app/data          # PDV 영구 저장
+      - ./.env:/app/.env:ro       # 환경변수
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8443/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
