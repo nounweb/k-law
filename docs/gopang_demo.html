@@ -119,6 +119,14 @@ body {
 /* ══════════════════════════════════════════════
    스마트폰 Shell
 ══════════════════════════════════════════════ */
+.phone-guide {
+  font-size: 13px; color: var(--ink-2);
+  text-align: center;
+  padding: 10px 20px 16px;
+  line-height: 1.6;
+}
+.phone-guide strong { color: var(--pri); font-weight: 700; }
+
 .phone-wrap {
   margin-top: 32px;
   display: flex;
@@ -152,6 +160,7 @@ body {
   background: #0a0e18;
   border-radius: 20px;
   z-index: 30;
+  pointer-events: none;
   display: flex; align-items: center; justify-content: center;
   gap: 8px;
 }
@@ -442,13 +451,75 @@ body {
   line-height: 1.6;
 }
 
+
+/* ── LLM 선택 ── */
+.llm-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 7px;
+  margin-bottom: 14px;
+}
+.llm-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 9px 6px 8px;
+  border-radius: 8px;
+  border: 1.5px solid #d1d9e0;
+  background: var(--bg-0);
+  cursor: pointer; transition: all .15s;
+  position: relative;
+}
+.llm-card:hover { border-color: var(--pri); background: var(--pri-lt); }
+.llm-card.selected {
+  border-color: var(--pri);
+  background: var(--pri-lt);
+  box-shadow: 0 0 0 2px rgba(14,107,82,.15);
+}
+.llm-card.selected::after {
+  content: '✓';
+  position: absolute; top: 4px; right: 6px;
+  font-size: 9px; font-weight: 700; color: var(--pri);
+}
+.llm-ico  { font-size: 18px; line-height: 1; }
+.llm-name { font-size: 11px; font-weight: 700; color: var(--ink-1); }
+.llm-model{ font-size: 9px; color: var(--ink-3); text-align: center; line-height: 1.3; }
+.llm-def  { font-size: 8px; color: var(--pri);
+  border: 1px solid var(--pri); border-radius: 3px; padding: 1px 5px; }
+.llm-endpoint {
+  font-family: var(--mono); font-size: 10px; color: var(--pri);
+  background: var(--pri-lt); border-radius: 4px;
+  padding: 5px 10px; margin-bottom: 10px; line-height: 1.5;
+}
+.llm-custom-row {
+  display: none; flex-direction: column; gap: 4px; margin-bottom: 10px;
+}
+.llm-custom-row.show { display: flex; }
+.llm-custom-label {
+  font-size: 10px; font-weight: 700; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: .8px;
+}
+/* 헤더 LLM 뱃지 */
+.g-llm-badge {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--pri); background: var(--pri-lt);
+  border: 1px solid rgba(14,107,82,.25);
+  border-radius: 4px; padding: 2px 8px;
+  cursor: pointer; transition: all .15s;
+}
+.g-llm-badge:hover { background: rgba(14,107,82,.15); }
+
 /* ══════════════════════════════════════════════
    반응형
 ══════════════════════════════════════════════ */
 @media (max-width: 420px) {
   :root { --pw: 100vw; --ph: calc(100vh - 52px); --pr: 0px; }
   .phone { border-radius: 0; border: none; box-shadow: none; }
-  .phone-wrap { margin-top: 0; }
+  .phone-guide {
+  font-size: 13px; color: var(--ink-2);
+  text-align: center;
+  padding: 10px 20px 16px;
+  line-height: 1.6;
+}
+.phone-guide strong { color: var(--pri); font-weight: 700; }
+
+.phone-wrap { margin-top: 0; }
 }
 </style>
 </head>
@@ -459,9 +530,58 @@ body {
   <div class="modal-card">
     <div class="modal-emblem">🐚</div>
     <h2>OpenClaw 시작</h2>
-    <p>K-Law Gopang v1.0 AI 비서를 시작합니다.<br>DeepSeek API Key를 입력하세요.</p>
-    <div class="modal-label">API Key</div>
-    <input class="modal-inp" id="modalKey" type="password" placeholder="sk-..." autocomplete="off">
+    <p>사용할 LLM을 선택하고 API Key를 입력하세요.</p>
+
+    <!-- LLM 선택 카드 -->
+    <div class="llm-grid" id="llmGrid">
+      <div class="llm-card selected" data-llm="deepseek" data-ep="api.deepseek.com/v1" onclick="pickLlm(this)">
+        <span class="llm-ico">🔷</span>
+        <span class="llm-name">DeepSeek</span>
+        <span class="llm-model">deepseek-chat</span>
+        <span class="llm-def">DEFAULT</span>
+      </div>
+      <div class="llm-card" data-llm="claude" data-ep="api.anthropic.com/v1" onclick="pickLlm(this)">
+        <span class="llm-ico">🟣</span>
+        <span class="llm-name">Claude</span>
+        <span class="llm-model">sonnet-4-6</span>
+      </div>
+      <div class="llm-card" data-llm="gemini" data-ep="generativelanguage.googleapis.com" onclick="pickLlm(this)">
+        <span class="llm-ico">💎</span>
+        <span class="llm-name">Gemini</span>
+        <span class="llm-model">2.0 Flash</span>
+      </div>
+      <div class="llm-card" data-llm="openai" data-ep="api.openai.com/v1" onclick="pickLlm(this)">
+        <span class="llm-ico">🟢</span>
+        <span class="llm-name">OpenAI</span>
+        <span class="llm-model">gpt-4o</span>
+      </div>
+      <div class="llm-card" data-llm="grok" data-ep="api.x.ai/v1" onclick="pickLlm(this)">
+        <span class="llm-ico">𝕏</span>
+        <span class="llm-name">Grok</span>
+        <span class="llm-model">grok-3-beta</span>
+      </div>
+      <div class="llm-card" data-llm="openrouter" data-ep="openrouter.ai/api/v1" onclick="pickLlm(this)">
+        <span class="llm-ico">🌐</span>
+        <span class="llm-name">OpenRouter</span>
+        <span class="llm-model">커스텀</span>
+      </div>
+    </div>
+
+    <!-- 엔드포인트 표시 -->
+    <div class="llm-endpoint" id="llmEndpoint">엔드포인트: api.deepseek.com/v1</div>
+
+    <!-- OpenRouter 커스텀 모델 입력 -->
+    <div class="llm-custom-row" id="llmCustomRow">
+      <div class="llm-custom-label">모델명 (Model ID)</div>
+      <input class="modal-inp" id="llmCustomModel" type="text"
+        placeholder="예: meta-llama/llama-3.3-70b-instruct" autocomplete="off"
+        style="margin-bottom:0">
+    </div>
+
+    <div class="modal-label" style="margin-top:4px">API Key</div>
+    <input class="modal-inp" id="modalKey" type="password"
+      placeholder="sk-..." autocomplete="off">
+
     <div class="modal-actions">
       <button class="btn-modal-primary" onclick="initWithKey()">시작하기 →</button>
       <div class="modal-skip">
@@ -482,6 +602,7 @@ body {
     <span class="g-logo-ver">K-Law Gopang v1.0</span>
   </a>
   <div class="g-status">
+    <span class="g-llm-badge" id="gLlmBadge" onclick="openModal()">DeepSeek v4 Pro ▾</span>
     <div class="g-dot" id="gDot"></div>
     <span id="gStatusTxt">대기 중</span>
   </div>
@@ -490,6 +611,10 @@ body {
 <!-- ── 페이지 ─────────────────────────────────────────────────── -->
 <div class="page">
   <div class="phone-wrap">
+    <div class="phone-guide">
+      스마트폰 화면 상단의 <strong>AI 비서</strong>를 선택하면,
+      사용자의 전속 AI 비서와 대화할 수 있습니다.
+    </div>
     <div class="phone" id="phone">
 
       <!-- 다이나믹 아일랜드 -->
@@ -560,6 +685,64 @@ let API_KEY   = '';
 let history_  = [];
 let isLoad    = false;
 let aiOn      = false;
+
+/* ─── LLM 설정 테이블 ───────────────────────────── */
+const LLM_CFG = {
+  deepseek: {
+    label: 'DeepSeek v4 Pro',
+    url:   'https://api.deepseek.com/v1/chat/completions',
+    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
+    body:  (sys,msgs,mdl) => ({model:'deepseek-chat',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
+    pick:  d => d.choices[0].message.content,
+    hint:  'sk-...',
+  },
+  claude: {
+    label: 'Claude Sonnet 4.6',
+    url:   'https://api.anthropic.com/v1/messages',
+    headers: k => ({'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'}),
+    body:  (sys,msgs,mdl) => ({model:'claude-sonnet-4-6',max_tokens:1400,temperature:0.1,system:sys,messages:msgs}),
+    pick:  d => d.content[0].text,
+    hint:  'sk-ant-...',
+  },
+  gemini: {
+    label: 'Gemini 2.0 Flash',
+    url:   k => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${k}`,
+    headers: _k => ({'Content-Type':'application/json'}),
+    body:  (sys,msgs,mdl) => ({
+      system_instruction:{parts:[{text:sys}]},
+      contents:msgs.map(m=>({role:m.role==='assistant'?'model':m.role,parts:[{text:m.content}]})),
+      generationConfig:{temperature:0.1,maxOutputTokens:1400},
+    }),
+    pick:  d => d.candidates[0].content.parts[0].text,
+    hint:  'AIza...',
+  },
+  openai: {
+    label: 'GPT-4o',
+    url:   'https://api.openai.com/v1/chat/completions',
+    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
+    body:  (sys,msgs,mdl) => ({model:'gpt-4o',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
+    pick:  d => d.choices[0].message.content,
+    hint:  'sk-...',
+  },
+  grok: {
+    label: 'Grok 3 Beta',
+    url:   'https://api.x.ai/v1/chat/completions',
+    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
+    body:  (sys,msgs,mdl) => ({model:'grok-3-beta',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
+    pick:  d => d.choices[0].message.content,
+    hint:  'xai-...',
+  },
+  openrouter: {
+    label: 'OpenRouter',
+    url:   'https://openrouter.ai/api/v1/chat/completions',
+    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
+    body:  (sys,msgs,mdl) => ({model:mdl||'meta-llama/llama-3.3-70b-instruct',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
+    pick:  d => d.choices[0].message.content,
+    hint:  'sk-or-...',
+  },
+};
+let curLlm    = 'deepseek';
+let curModel  = '';   // OpenRouter 커스텀
 
 /* ─── Fast-Path ─────────────────────────────────── */
 const FP = [
@@ -686,23 +869,24 @@ FP참고: 채택|기각|해당없음
 - 확신도 4 미만 경고 금지
 - 한국어로 응답`;
 
-/* ─── API 호출 ──────────────────────────────────── */
+/* ─── API 호출 (범용) ───────────────────────────── */
 async function callLLM(userMsg, fpSum) {
+  const cfg  = LLM_CFG[curLlm];
   const msgs = [
     ...history_,
     { role:'user', content: fpSum
         ? `[사용자 메시지]\n${userMsg}\n\n[Fast-Path 사전 탐지]\n${fpSum}\n위 결과를 참고하여 분석해 주세요.`
         : userMsg }
   ];
-  const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${API_KEY}` },
-    body: JSON.stringify({ model:'deepseek-chat',
-      messages:[{role:'system',content:SYS},...msgs],
-      temperature:0.1, max_tokens:1400 }),
-  });
-  if (!res.ok) throw new Error(`API ${res.status}`);
-  return (await res.json()).choices[0].message.content;
+  const url  = typeof cfg.url === 'function' ? cfg.url(API_KEY) : cfg.url;
+  const hdrs = cfg.headers(API_KEY);
+  const body = cfg.body(SYS, msgs, curModel);
+  const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
+  if (!res.ok) {
+    const et = await res.text().catch(()=>'');
+    throw new Error(`${cfg.label} API ${res.status}: ${et.slice(0,100)}`);
+  }
+  return cfg.pick(await res.json());
 }
 
 function parseRes(raw, fpHits) {
@@ -890,13 +1074,36 @@ function setStatus(ok) {
   const d = document.getElementById('gDot');
   const t = document.getElementById('gStatusTxt');
   d.className = 'g-dot' + (ok?' ok':' err');
-  t.textContent = ok ? (API_KEY?'OpenClaw 연결됨':'Fast-Path 모드') : '연결 오류';
+  const lb = LLM_CFG[curLlm]?.label || 'LLM';
+  t.textContent = ok ? (API_KEY?`${lb} 연결됨`:'Fast-Path 모드') : '연결 오류';
 }
 
 /* ─── 모달 ─────────────────────────────────────── */
+function openModal() {
+  document.getElementById('modalBg').classList.add('open');
+}
+function pickLlm(card) {
+  document.querySelectorAll('#llmGrid .llm-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  curLlm = card.dataset.llm;
+  // 엔드포인트 표시
+  document.getElementById('llmEndpoint').textContent = '엔드포인트: ' + card.dataset.ep;
+  // OpenRouter 커스텀 모델 표시/숨김
+  const customRow = document.getElementById('llmCustomRow');
+  customRow.classList.toggle('show', curLlm === 'openrouter');
+  // placeholder 힌트
+  const hint = LLM_CFG[curLlm]?.hint || 'API Key...';
+  document.getElementById('modalKey').placeholder = hint;
+  // 헤더 뱃지 갱신
+  document.getElementById('gLlmBadge').textContent = (LLM_CFG[curLlm]?.label || curLlm) + ' ▾';
+}
 function initWithKey() {
-  const k = document.getElementById('modalKey').value.trim();
+  const k  = document.getElementById('modalKey').value.trim();
+  const cm = document.getElementById('llmCustomModel')?.value.trim() || '';
+  if (cm) curModel = cm;
   if (k) API_KEY = k;
+  // 헤더 뱃지 최종 갱신
+  document.getElementById('gLlmBadge').textContent = (LLM_CFG[curLlm]?.label || curLlm) + ' ▾';
   document.getElementById('modalBg').classList.remove('open');
   setStatus(!!k);
 }
