@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>고팡 (Gopang) — OpenClaw AI 비서</title>
+<title>고팡 (Gopang) — K-Law AI 비서</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -126,6 +126,7 @@ body {
   line-height: 1.6;
 }
 .phone-guide strong { color: var(--pri); font-weight: 700; }
+.phone-guide .guide-em { color: var(--pri); font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
 
 .phone-wrap {
   margin-top: 32px;
@@ -246,6 +247,58 @@ body {
   50%      { opacity: 1; }
 }
 
+
+/* ── 첨부 버튼 ── */
+.btn-attach {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.6);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: all .15s;
+}
+.btn-attach:hover:not(:disabled) {
+  background: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.9);
+}
+.btn-attach:disabled { opacity: .25; cursor: not-allowed; }
+.btn-attach svg { pointer-events: none; }
+
+/* 첨부 파일 미리보기 칩 영역 */
+.attach-bar {
+  display: none;
+  flex-wrap: wrap; gap: 5px;
+  padding: 6px 12px 0;
+}
+.attach-bar.visible { display: flex; }
+.attach-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 8px 4px 10px;
+  background: rgba(14,107,82,.2);
+  border: 1px solid rgba(14,107,82,.4);
+  border-radius: 12px;
+  font-size: 11px; color: rgba(255,255,255,.85);
+  max-width: 200px;
+  animation: msgIn .15s ease;
+}
+.attach-chip-name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1;
+}
+.attach-chip-size {
+  font-family: var(--mono); font-size: 9px;
+  color: rgba(255,255,255,.4); flex-shrink: 0;
+}
+.attach-chip-del {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: none; cursor: pointer; color: rgba(255,255,255,.7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0; line-height: 1;
+  transition: background .1s;
+}
+.attach-chip-del:hover { background: rgba(239,68,68,.4); color: #fff; }
+
 /* ── 메시지 영역 ── */
 .phone-msgs {
   flex: 1;
@@ -305,6 +358,39 @@ body {
 .warn.cv { background: rgba(194,65,12,.12);   border-color: #ea580c; color: #fb923c; }
 .warn.lb { background: rgba(185,28,28,.12);   border-color: #dc2626; color: #f87171; }
 .warn.cc { background: rgba(107,33,168,.15);  border-color: #9333ea; color: #c084fc; }
+
+/* ── 리포트 헤더 (경고 블록 상단) ── */
+.report-header {
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: 7px; padding-bottom: 7px;
+}
+.report-title {
+  font-size: 12px; font-weight: 900;
+  letter-spacing: -.2px; line-height: 1.3;
+  margin-bottom: 3px;
+}
+.report-subtitle {
+  font-family: var(--mono); font-size: 9px;
+  opacity: .6; letter-spacing: .3px;
+}
+.report-grade {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 5px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px;
+  border: 1px solid currentColor;
+  opacity: .9;
+}
+/* 면책 고지 */
+.report-disclaimer {
+  margin-top: 8px; padding: 6px 8px;
+  background: rgba(0,0,0,.2);
+  border-radius: 5px;
+  font-size: 9.5px; line-height: 1.55;
+  opacity: .65;
+  font-style: italic;
+}
+
 .warn-title { font-weight: 700; margin-bottom: 4px; font-size: 12.5px; }
 .warn-row { display: flex; gap: 5px; margin-top: 3px; }
 .warn-row span:first-child { flex-shrink: 0; }
@@ -451,7 +537,6 @@ body {
   line-height: 1.6;
 }
 
-
 /* ── LLM 선택 ── */
 .llm-grid {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 7px;
@@ -529,7 +614,7 @@ body {
 <div class="modal-bg" id="modalBg">
   <div class="modal-card">
     <div class="modal-emblem">🐚</div>
-    <h2>OpenClaw 시작</h2>
+    <h2>K-Law 시작</h2>
     <p>사용할 LLM을 선택하고 API Key를 입력하세요.</p>
 
     <!-- LLM 선택 카드 -->
@@ -613,7 +698,8 @@ body {
   <div class="phone-wrap">
     <div class="phone-guide">
       스마트폰 화면 상단의 <strong>AI 비서</strong>를 선택하면,
-      사용자의 전속 AI 비서와 대화할 수 있습니다.
+      사용자의 <strong class="guide-em">전속 AI 비서</strong>와 대화할 수 있으며,
+      AI 비서는 귀하의 대화나 문서 등에서 법적 위험을 감지하면 즉시 알려드립니다.
     </div>
     <div class="phone" id="phone">
 
@@ -661,8 +747,26 @@ body {
       <!-- 메시지 영역 -->
       <div class="phone-msgs" id="msgs"></div>
 
+      <!-- 첨부 파일 미리보기 -->
+      <div class="attach-bar" id="attachBar"></div>
+
       <!-- 입력 영역 -->
       <div class="phone-input">
+        <!-- 숨김 파일 input -->
+        <input type="file" id="fileInput" style="display:none"
+          accept=".txt,.md,.pdf,.docx,.doc,.xlsx,.xls,.csv,.json,.html,.htm"
+          multiple onchange="onFileChange(event)">
+
+        <!-- 첨부 버튼 -->
+        <button class="btn-attach" id="btnAttach" disabled
+          onclick="document.getElementById('fileInput').click()"
+          title="문서 첨부 (txt·pdf·docx·xlsx·csv 등)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13.5 7.5l-6 6a4 4 0 01-5.657-5.657l6.364-6.364a2.5 2.5 0 013.535 3.535L5.379 11.38a1 1 0 01-1.414-1.414L10.5 3.5"
+              stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
         <textarea class="inp-field" id="inp"
           placeholder=""
           rows="1" disabled
@@ -743,6 +847,7 @@ const LLM_CFG = {
 };
 let curLlm    = 'deepseek';
 let curModel  = '';   // OpenRouter 커스텀
+let attachedFiles = [];  // { name, size, type, text } 배열
 
 /* ─── Fast-Path ─────────────────────────────────── */
 const FP = [
@@ -823,7 +928,7 @@ function highest(hits) {
 }
 
 /* ─── System Prompt ─────────────────────────────── */
-const SYS = `당신은 OpenClaw입니다. 고팡(Gopang) AI 비서 — 사용자의 법적 보호막이자 분쟁 예방 파트너.
+const SYS = `당신은 K-Law AI 비서입니다. 고팡(Gopang) 플랫폼의 인격형 AI 비서 — 사용자의 법적 보호막이자 분쟁 예방 파트너.
 
 ## 역할
 1. 친절한 생활 AI 비서: 일상 질문, 서면 작성, 기관 소통 등 모든 작업 수행.
@@ -869,14 +974,105 @@ FP참고: 채택|기각|해당없음
 - 확신도 4 미만 경고 금지
 - 한국어로 응답`;
 
+
+/* ─── 파일 첨부 처리 ────────────────────────────── */
+const READABLE = ['text/plain','text/markdown','text/csv','text/html',
+                  'application/json','application/xml'];
+
+async function readFileText(file) {
+  // PDF·DOCX는 텍스트 추출 불가 → 파일명+타입만 전달
+  if (READABLE.includes(file.type) || /\.(txt|md|csv|json|html|htm)$/i.test(file.name)) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = e => res(e.target.result);
+      r.onerror = () => rej(new Error('읽기 실패'));
+      r.readAsText(file, 'utf-8');
+    });
+  }
+  // PDF / DOCX / XLSX: base64로 읽어 API에 전달 (지원 모델에서만 파싱)
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = e => res(e.target.result);  // data:... base64
+    r.onerror = () => rej(new Error('읽기 실패'));
+    r.readAsDataURL(file);
+  });
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024)       return bytes + 'B';
+  if (bytes < 1024*1024)  return (bytes/1024).toFixed(1) + 'KB';
+  return (bytes/1024/1024).toFixed(1) + 'MB';
+}
+
+async function onFileChange(e) {
+  const files = Array.from(e.target.files);
+  e.target.value = '';  // 동일 파일 재선택 허용
+  if (!files.length) return;
+
+  for (const file of files) {
+    if (file.size > 10 * 1024 * 1024) {
+      alert(`${file.name}: 10MB 이하 파일만 첨부 가능합니다.`);
+      continue;
+    }
+    let text = '';
+    try { text = await readFileText(file); }
+    catch(err) { text = `[읽기 오류: ${err.message}]`; }
+
+    const id = Date.now() + '_' + Math.random().toString(36).slice(2);
+    attachedFiles.push({ id, name: file.name, size: file.size, type: file.type, text });
+    addAttachChip(id, file.name, file.size);
+  }
+  updateAttachBar();
+}
+
+function addAttachChip(id, name, size) {
+  const bar  = document.getElementById('attachBar');
+  const chip = document.createElement('div');
+  chip.className = 'attach-chip';
+  chip.id = 'chip_' + id;
+  chip.innerHTML = `
+    <span>📎</span>
+    <span class="attach-chip-name" title="${esc(name)}">${esc(name)}</span>
+    <span class="attach-chip-size">${fmtSize(size)}</span>
+    <button class="attach-chip-del" onclick="removeAttach('${id}')" title="제거">✕</button>`;
+  bar.appendChild(chip);
+}
+
+function removeAttach(id) {
+  attachedFiles = attachedFiles.filter(f => f.id !== id);
+  const chip = document.getElementById('chip_' + id);
+  if (chip) chip.remove();
+  updateAttachBar();
+}
+
+function updateAttachBar() {
+  const bar = document.getElementById('attachBar');
+  bar.classList.toggle('visible', attachedFiles.length > 0);
+}
+
+function buildAttachContext() {
+  if (!attachedFiles.length) return '';
+  return '\n\n[첨부 문서]\n' + attachedFiles.map(f => {
+    const isBase64 = f.text.startsWith('data:');
+    const preview  = isBase64
+      ? `[바이너리 파일 — 텍스트 직접 추출 불가. 파일명: ${f.name}, 유형: ${f.type}]`
+      : f.text.slice(0, 8000) + (f.text.length > 8000 ? '\n...(이하 생략)' : '');
+    return `--- ${f.name} ---\n${preview}`;
+  }).join('\n\n');
+}
+
 /* ─── API 호출 (범용) ───────────────────────────── */
 async function callLLM(userMsg, fpSum) {
   const cfg  = LLM_CFG[curLlm];
   const msgs = [
     ...history_,
-    { role:'user', content: fpSum
-        ? `[사용자 메시지]\n${userMsg}\n\n[Fast-Path 사전 탐지]\n${fpSum}\n위 결과를 참고하여 분석해 주세요.`
-        : userMsg }
+    { role:'user', content: (() => {
+        const attach = buildAttachContext();
+        const base   = fpSum
+          ? `[사용자 메시지]\n${userMsg}\n\n[Fast-Path 사전 탐지]\n${fpSum}\n위 결과를 참고하여 분석해 주세요.`
+          : userMsg;
+        return base + attach;
+      })() }
   ];
   const url  = typeof cfg.url === 'function' ? cfg.url(API_KEY) : cfg.url;
   const hdrs = cfg.headers(API_KEY);
@@ -916,7 +1112,7 @@ function fpOnlyRes(hits) {
   const top = hits.reduce((a,b)=>SEV[a.lv]>=SEV[b.lv]?a:b);
   const lv  = highest(hits);
   return { lv, cf:7, sum:top.desc, law:top.law, ax:top.axiom, act:top.action,
-    reply:`⚠️ [${lv}] K-Law Gopang 예방 경고\n\n📋 ${top.desc}\n📚 ${top.law}\n⚖️ ${top.axiom}\n💡 ${top.action}\n🔒 PDV 기록 완료\n\n_(API Key 입력 시 전체 분석 가능합니다)_` };
+    reply:`⚠️ K-Law AI 판결 시뮬레이션 리포트\n[AI 사법 리스크 점검 결과]\n\n📋 ${top.desc}\n📚 ${top.law}\n⚖️ ${top.axiom}\n💡 ${top.action}\n🔒 PDV 기록 완료\n\n본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며, 어떠한 법적 효력도 가지지 않습니다.\n\n_(API Key 입력 시 전체 분석 가능합니다)_` };
 }
 
 /* ─── 렌더링 ─────────────────────────────────────── */
@@ -927,30 +1123,80 @@ function now() {
   return new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 }
 
-function addUserMsg(text) {
+function addUserMsg(text, files=[]) {
   const el = document.createElement('div');
   el.className = 'msg user';
+  const attachHtml = files.length ? files.map(f =>
+    `<div style="display:flex;align-items:center;gap:5px;margin-top:5px;
+      padding:4px 8px;background:rgba(255,255,255,.1);border-radius:8px;
+      font-size:10px;color:rgba(255,255,255,.7);">
+      <span>📎</span><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
+      <span style="opacity:.5;font-family:var(--mono)">${fmtSize(f.size)}</span>
+    </div>`
+  ).join('') : '';
   el.innerHTML = `<div class="msg-av">🙋</div>
     <div class="msg-body">
-      <div class="msg-bub">${esc(text)}</div>
+      <div class="msg-bub">${esc(text)}${attachHtml}</div>
       <div class="msg-time">${now()}</div>
     </div>`;
   return el;
 }
+
+
+/* ─── 등급별 리포트 타이틀 ──────────────────────── */
+function reportTitle(lv) {
+  // NONE·CR·CV → 정상/주의 계열
+  // LB·CC      → 위험/심각 계열
+  if (lv === 'LB' || lv === 'CC') {
+    return {
+      main: 'K-Law AI 판결 시뮬레이션 리포트',
+      sub:  'AI 판결 시뮬레이션 및 분쟁 예측',
+    };
+  }
+  return {
+    main: 'K-Law AI 판결 시뮬레이션 리포트',
+    sub:  'AI 사법 리스크 점검 결과',
+  };
+}
+
+const GRADE_LABEL = {
+  CR: '계약 위험 (Contract Risk)',
+  CV: '법령 위반 (Contract Violation)',
+  LB: '법적 경계 (Legal Boundary)',
+  CC: '형사 우려 (Criminal Concern)',
+};
 
 function addBotMsg(lv, cf, sum, law, ax, act, reply) {
   const el = document.createElement('div');
   el.className = 'msg bot';
   let warn = '';
   if (lv !== 'NONE' && cf >= 4) {
-    const c = lv.toLowerCase();
-    warn = `<div class="warn ${c}">
-      <div class="warn-title">${EMOJ[lv]} [${lv}] K-Law 예방 경고</div>
+    const cls   = lv.toLowerCase();
+    const title = reportTitle(lv);
+    const grade = GRADE_LABEL[lv] || lv;
+    const engine = curLlm === 'deepseek' ? 'DeepSeek v4 Pro'
+                 : curLlm === 'claude'   ? 'Claude Sonnet 4.6'
+                 : curLlm === 'gemini'   ? 'Gemini 2.0 Flash'
+                 : curLlm === 'openai'   ? 'GPT-4o'
+                 : curLlm === 'grok'     ? 'Grok 3 Beta'
+                 : 'OpenRouter';
+    warn = `<div class="warn ${cls}">
+      <div class="report-header">
+        <div class="report-title">${title.main}</div>
+        <div class="report-subtitle">K-Law Engine (${engine}) 기반 분석</div>
+        <div class="report-subtitle" style="margin-top:2px">${title.sub}</div>
+        <div class="report-grade">${EMOJ[lv]} ${grade}</div>
+      </div>
       ${sum ? `<div class="warn-row"><span>📋</span><span>${esc(sum)}</span></div>` : ''}
       ${law ? `<div class="warn-row"><span>📚</span><span>${esc(law)}</span></div>` : ''}
       ${ax  ? `<div class="warn-row"><span>⚖️</span><span>${esc(ax)}</span></div>` : ''}
       ${act ? `<div class="warn-row"><span>💡</span><span>${esc(act)}</span></div>` : ''}
       <div class="warn-row"><span>🔒</span><span>PDV 기록 완료 (위변조 불가)</span></div>
+      <div class="report-disclaimer">
+        본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
+        어떠한 법적 효력도 가지지 않습니다.
+        구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
+      </div>
     </div>`;
   }
   el.innerHTML = `<div class="msg-av">🐚</div>
@@ -1001,10 +1247,11 @@ function toggleAi() {
     inp.disabled  = false;
     inp.placeholder = '메시지 입력';
     send.disabled = false;
-    msgs.appendChild(addSys('OpenClaw AI 비서가 활성화되었습니다'));
+    document.getElementById('btnAttach').disabled = false;
+    msgs.appendChild(addSys('K-Law AI 비서가 활성화되었습니다'));
     setTimeout(() => {
       msgs.appendChild(addBotMsg('NONE',0,'','','','',
-        '안녕하세요, OpenClaw입니다 🐚\n무엇이든 말씀해 주세요. 법적 위험이 감지되면 즉시 알려드립니다.'));
+        '귀하의 AI 비서입니다.'));
       scroll();
     }, 250);
     inp.focus();
@@ -1014,6 +1261,7 @@ function toggleAi() {
     inp.disabled  = true;
     inp.placeholder = '';
     send.disabled = true;
+    document.getElementById('btnAttach').disabled = true;
     msgs.appendChild(addSys('AI 비서가 일시 중지되었습니다'));
     scroll();
   }
@@ -1031,8 +1279,14 @@ async function sendMsg(preText) {
   document.getElementById('btnSend').disabled = true;
   inp.disabled = true;
 
+  // 첨부 파일 목록 스냅샷 (전송 후 초기화)
+  const sentFiles = [...attachedFiles];
+  attachedFiles = [];
+  document.getElementById('attachBar').innerHTML = '';
+  updateAttachBar();
+
   const msgs = document.getElementById('msgs');
-  msgs.appendChild(addUserMsg(text));
+  msgs.appendChild(addUserMsg(text, sentFiles));
   const tp = addTyping();
   msgs.appendChild(tp); scroll();
 
