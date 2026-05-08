@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>고팡 (Gopang) — K-Law AI 비서</title>
+<!-- Telegram Web App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -895,6 +897,7 @@ body {
   </a>
   <div class="g-status">
     <span class="prompt-status" id="promptStatus">⏳ K-Law Prompt 로딩 중…</span>
+    <span class="prompt-status" id="pdvStatus" style="color:rgba(110,231,183,.4);cursor:pointer" title="PDV 기록 현황">🔒 PDV</span>
     <span class="g-llm-badge" id="gLlmBadge" onclick="openModal()">DeepSeek v4 Pro ▾</span>
     <div class="g-dot" id="gDot"></div>
     <span id="gStatusTxt">대기 중</span>
@@ -1061,6 +1064,134 @@ const LLM_CFG = {
 };
 let curLlm    = 'deepseek';
 let curModel  = '';   // OpenRouter 커스텀
+
+/* ═══════════════════════════════════════════════════════
+   Telegram TWA + PDV (Private Data Vault)
+   논문 §3.1.3 해시 체인 모델 구현
+   ═══════════════════════════════════════════════════════ */
+
+// PDV 상태
+let pdvHeight = 0;
+let pdvPrevHash = '0'.repeat(64);
+
+// Telegram 환경 감지
+const IS_TWA = !!(window.Telegram?.WebApp?.initData);
+
+/* ── SHA-256 (Web Crypto API) ── */
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest(
+    'SHA-256', new TextEncoder().encode(str)
+  );
+  return Array.from(new Uint8Array(buf))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ── PDV 해시 계산 (논문 §3.1.3) ──
+   h_i = SHA-256(h_{i-1} ∥ data_i ∥ height_i)        */
+async function pdvComputeHash(userMsg, aiReply, riskLevel) {
+  const data = JSON.stringify({
+    ts: Date.now(), height: pdvHeight,
+    u: userMsg.slice(0, 300),
+    a: aiReply.slice(0, 300),
+    r: riskLevel
+  });
+  const hash = await sha256hex(pdvPrevHash + data + pdvHeight);
+  return hash;
+}
+
+/* ── PDV 저장 (대화 완료 후 호출) ── */
+async function pdvRecord(userMsg, aiReply, riskLevel) {
+  const hash = await pdvComputeHash(userMsg, aiReply, riskLevel);
+  const entry = {
+    height: pdvHeight,
+    hash,
+    ts: Date.now(),
+    risk: riskLevel,
+    prev: pdvPrevHash
+  };
+
+  // Telegram CloudStorage (TWA 환경)
+  if (IS_TWA && window.Telegram.WebApp.CloudStorage) {
+    const cs = window.Telegram.WebApp.CloudStorage;
+    cs.setItem('pdv_' + pdvHeight, JSON.stringify(entry));
+    cs.setItem('pdv_latest', JSON.stringify(entry));
+  }
+
+  // fallback: localStorage (브라우저 환경)
+  try {
+    const chain = JSON.parse(localStorage.getItem('pdv_chain') || '[]');
+    chain.push({ height: pdvHeight, hash, ts: Date.now(), risk: riskLevel });
+    if (chain.length > 500) chain.splice(0, chain.length - 500);
+    localStorage.setItem('pdv_chain', JSON.stringify(chain));
+    localStorage.setItem('pdv_latest', JSON.stringify(entry));
+  } catch(e) {}
+
+  // OpenHash L1 앵커링 (서버)
+  pdvAnchor(hash, pdvHeight, riskLevel).catch(() => {});
+
+  // 상태 갱신
+  pdvPrevHash = hash;
+  pdvHeight++;
+  return hash;
+}
+
+/* ── OpenHash L1 앵커링 ── */
+async function pdvAnchor(hash, height, risk) {
+  const userId = IS_TWA
+    ? (window.Telegram.WebApp.initDataUnsafe?.user?.id || 'anon')
+    : 'browser';
+  try {
+    await fetch('https://openhash.kr/law/pdv/anchor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, height, hash, risk,
+                             ts: Date.now() })
+    });
+  } catch(e) {
+    // 오프라인 시 큐에 저장
+    const q = JSON.parse(localStorage.getItem('pdv_queue') || '[]');
+    q.push({ hash, height, risk, ts: Date.now() });
+    localStorage.setItem('pdv_queue', JSON.stringify(q));
+  }
+}
+
+/* ── PDV 상태 초기화 (기존 체인 로드) ── */
+async function pdvInit() {
+  // localStorage에서 이전 상태 복원
+  try {
+    const latest = JSON.parse(localStorage.getItem('pdv_latest') || 'null');
+    if (latest) {
+      pdvHeight   = latest.height + 1;
+      pdvPrevHash = latest.hash;
+    }
+  } catch(e) {}
+
+  // TWA: CloudStorage에서 복원 (localStorage보다 우선)
+  if (IS_TWA && window.Telegram.WebApp.CloudStorage) {
+    window.Telegram.WebApp.CloudStorage.getItem('pdv_latest', (err, val) => {
+      if (val) {
+        try {
+          const latest = JSON.parse(val);
+          pdvHeight   = latest.height + 1;
+          pdvPrevHash = latest.hash;
+        } catch(e) {}
+      }
+    });
+  }
+}
+
+/* ── 오프라인 큐 재전송 ── */
+async function pdvFlushQueue() {
+  const q = JSON.parse(localStorage.getItem('pdv_queue') || '[]');
+  if (!q.length) return;
+  for (const item of q) {
+    try {
+      await pdvAnchor(item.hash, item.height, item.risk);
+    } catch(e) { return; } // 실패 시 중단
+  }
+  localStorage.removeItem('pdv_queue');
+}
+
 let attachedFiles = [];  // { name, size, type, text } 배열
 
 /* ─── Fast-Path ─────────────────────────────────── */
@@ -2278,6 +2409,18 @@ async function sendMsg(preText) {
 
     msgs.appendChild(addBotMsg(r.lv, r.cf, r.sum, r.law, r.ax, r.act, r.reply));
 
+    // PDV 기록 (해시 계산 + CloudStorage + L1 앵커)
+    pdvRecord(text, r.reply, r.lv).then(hash => {
+      console.log('[PDV] height:', pdvHeight-1, 'hash:', hash.slice(0,16) + '...');
+      // 헤더 PDV 뱃지 업데이트
+      const pdvEl = document.getElementById('pdvStatus');
+      if (pdvEl) {
+        pdvEl.textContent = '🔒 PDV #' + (pdvHeight-1);
+        pdvEl.title = 'height:' + (pdvHeight-1) + ' | ' + hash.slice(0,16) + '...';
+        pdvEl.style.color = 'rgba(110,231,183,.7)';
+      }
+    });
+
     // 판결문 모드: 다운로드/이메일 액션 버튼 추가
     if (verdictMode && r.reply && r.reply.length > 200) {
       addVerdictActions(r.reply);
@@ -2354,13 +2497,46 @@ function tick() {
     new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 }
 window.addEventListener('DOMContentLoaded', async () => {
-  await loadSystemPrompt();  // ★ 로드 완료 후 모달 열기
-  // DeepSeek default 키 자동 적용
+
+  // ── Telegram TWA 초기화 ──
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.expand();                          // 전체 화면
+    tg.ready();                           // 로드 완료 신호
+
+    // 헤더에 Telegram 사용자 이름 표시
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+      const badge = document.getElementById('gLlmBadge');
+      if (badge) badge.title = user.first_name + ' (Telegram)';
+    }
+
+    // 뒤로가기 버튼
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => tg.close());
+
+    // Telegram 테마 색상 적용
+    document.documentElement.style.setProperty(
+      '--tg-bg', tg.themeParams?.bg_color || '#060a12'
+    );
+  }
+
+  // ── PDV 체인 초기화 (이전 기록 복원) ──
+  await pdvInit();
+
+  // ── 오프라인 큐 재전송 ──
+  pdvFlushQueue().catch(() => {});
+
+  // ── System Prompt 로드 ──
+  await loadSystemPrompt();
+
+  // ── DeepSeek default 키 자동 적용 ──
   const defKey = LLM_CFG['deepseek']?.defaultKey || '';
   if (defKey) {
     API_KEY = defKey;
     document.getElementById('modalKey').value = defKey;
   }
+
   document.getElementById('modalBg').classList.add('open');
   setStatus(false); tick();
   setInterval(tick, 1000);
