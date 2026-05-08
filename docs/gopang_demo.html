@@ -422,6 +422,206 @@ body {
   animation: msgIn .2s ease;
 }
 
+
+/* ── K-Law 판결문 작성 Progress ── */
+.klaw-progress {
+  align-self: flex-start;
+  width: 92%;
+  background: #1a2640;
+  border: 1px solid rgba(110,231,183,.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  animation: msgIn .2s ease;
+}
+.klaw-progress-title {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--g-mid); letter-spacing: 1px;
+  margin-bottom: 8px; font-weight: 700;
+}
+.klaw-progress-bar-wrap {
+  background: rgba(255,255,255,.07);
+  border-radius: 4px; height: 6px;
+  margin-bottom: 8px; overflow: hidden;
+}
+.klaw-progress-bar {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--pri), var(--g-mid));
+  width: 0%;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.klaw-progress-step {
+  font-size: 11px; color: rgba(255,255,255,.6);
+  display: flex; align-items: center; gap: 6px;
+  min-height: 18px;
+}
+.klaw-progress-step .step-icon { font-size: 12px; flex-shrink: 0; }
+.klaw-progress-pct {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--g-mid); margin-left: auto; flex-shrink: 0;
+}
+
+/* ── 판결문 다운로드/이메일 액션 버튼 ── */
+.verdict-actions {
+  display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap;
+}
+.btn-verdict {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 8px;
+  font-family: var(--sans); font-size: 11px; font-weight: 700;
+  cursor: pointer; border: none; transition: all .15s;
+  white-space: nowrap;
+}
+.btn-verdict-dl {
+  background: var(--pri); color: #fff;
+}
+.btn-verdict-dl:hover { background: var(--pri-mid); }
+.btn-verdict-email {
+  background: rgba(110,231,183,.1);
+  border: 1px solid rgba(110,231,183,.3);
+  color: var(--g-light);
+}
+.btn-verdict-email:hover { background: rgba(110,231,183,.18); }
+
+/* ── 이메일 입력 인라인 폼 ── */
+.email-form {
+  display: none; margin-top: 8px; gap: 6px;
+  align-items: center;
+}
+.email-form.show { display: flex; }
+.email-inp {
+  flex: 1; background: rgba(255,255,255,.07);
+  border: 1px solid rgba(110,231,183,.25);
+  border-radius: 6px; padding: 6px 10px;
+  font-family: var(--mono); font-size: 11px;
+  color: rgba(255,255,255,.9); outline: none;
+  transition: border .15s;
+}
+.email-inp:focus { border-color: rgba(110,231,183,.5); }
+.email-inp::placeholder { color: rgba(255,255,255,.25); }
+.btn-email-send {
+  padding: 6px 12px; border-radius: 6px; border: none;
+  background: var(--pri); color: #fff;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  transition: background .15s; white-space: nowrap;
+}
+.btn-email-send:hover { background: var(--pri-mid); }
+
+
+/* ── K-Law 버튼 ── */
+.btn-klaw {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid rgba(100,160,255,.3);
+  background: rgba(100,160,255,.07);
+  color: rgba(180,210,255,.8);
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .18s; white-space: nowrap;
+}
+.btn-klaw:hover {
+  border-color: rgba(100,160,255,.5);
+  background: rgba(100,160,255,.14);
+  color: #c8e0ff;
+}
+.btn-klaw.active {
+  background: #1a4a8a;
+  border-color: #4a90d9;
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(74,144,217,.3);
+}
+.btn-klaw.active .klaw-led {
+  background: #7eb3ff;
+  box-shadow: 0 0 6px #7eb3ff;
+  animation: ledBlink 2s ease-in-out infinite;
+}
+.klaw-led {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(100,160,255,.4); flex-shrink: 0;
+  transition: all .18s;
+}
+
+/* ── K-Law Phase 배지 (버블 상단) ── */
+.klaw-phase-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px; margin-bottom: 6px;
+  letter-spacing: .5px;
+}
+.badge-intake    { background: rgba(74,144,217,.2);  color: #7eb3ff; border: 1px solid rgba(74,144,217,.3); }
+.badge-analysis  { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+.badge-simulate  { background: rgba(14,107,82,.2);   color: #6ee7b7; border: 1px solid rgba(14,107,82,.3); }
+.badge-done      { background: rgba(107,33,168,.2);  color: #c084fc; border: 1px solid rgba(107,33,168,.3); }
+
+/* ── 사건 구조화 카드 ── */
+.case-card {
+  background: #131f35; border: 1px solid rgba(74,144,217,.25);
+  border-radius: 10px; overflow: hidden; margin-bottom: 2px;
+}
+.case-card-header {
+  background: #1a3560; padding: 7px 12px;
+  font-size: 11px; font-weight: 700; color: #7eb3ff;
+  display: flex; align-items: center; gap: 6px;
+}
+.case-card-body {
+  padding: 9px 12px; font-size: 12px; color: rgba(255,255,255,.8);
+  line-height: 1.65; white-space: pre-wrap;
+}
+
+/* ── K-Law Progress (스마트폰 버블형) ── */
+.klaw-sim-progress {
+  align-self: flex-start; width: 94%;
+  background: #0d1a2e;
+  border: 1px solid rgba(74,144,217,.3);
+  border-radius: 12px; overflow: hidden;
+  animation: msgIn .2s ease;
+}
+.kp-header {
+  background: #0d2247; padding: 9px 13px;
+  display: flex; align-items: center; gap: 8px;
+}
+.kp-header-title {
+  font-size: 11px; font-weight: 700; color: #7eb3ff;
+  flex: 1; letter-spacing: .3px;
+}
+.kp-pct { font-family: var(--mono); font-size: 11px; color: #7eb3ff; }
+.kp-pbar-track {
+  height: 4px; background: rgba(255,255,255,.06);
+}
+.kp-pbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1a4a8a, #4a90d9);
+  width: 0%; transition: width .55s cubic-bezier(.4,0,.2,1);
+}
+/* Phase 탭 */
+.kp-phases {
+  display: flex; border-bottom: 1px solid rgba(255,255,255,.07);
+  padding: 0 4px;
+}
+.kp-phase {
+  flex: 1; padding: 5px 2px; text-align: center;
+  font-family: var(--mono); font-size: 9px;
+  color: rgba(255,255,255,.25); letter-spacing: .5px;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+}
+.kp-phase.active { color: #7eb3ff; border-bottom-color: #7eb3ff; }
+.kp-phase.done   { color: rgba(110,231,183,.6); }
+/* Step 로그 */
+.kp-log {
+  padding: 8px 12px; max-height: 160px;
+  overflow-y: auto; font-family: var(--mono); font-size: 10px;
+  line-height: 1.9;
+}
+.kp-log::-webkit-scrollbar { width: 2px; }
+.kp-log-row {
+  display: flex; align-items: flex-start; gap: 6px;
+  padding: 1px 0;
+  animation: msgIn .15s ease;
+}
+.kp-log-row.pending { color: rgba(255,255,255,.25); }
+.kp-log-row.active  { color: #7eb3ff; font-weight: 700; }
+.kp-log-row.done    { color: rgba(110,231,183,.7); }
+.kp-log-icon { flex-shrink: 0; width: 14px; text-align: center; }
+
 /* ── 입력 영역 ── */
 .phone-input {
   flex-shrink: 0;
@@ -744,11 +944,16 @@ body {
         </div>
       </div>
 
-      <!-- AI 비서 버튼 바 -->
+      <!-- 버튼 바: AI 비서 + K-Law -->
       <div class="phone-topbar">
         <button class="btn-ai" id="btnAi" onclick="toggleAi()">
           <span id="btnAiLabel">AI 비서</span>
           <span class="ai-led" id="aiLed"></span>
+        </button>
+        <button class="btn-klaw" id="btnKlaw" onclick="toggleKlaw()">
+          <span>⚖</span>
+          <span id="btnKlawLabel">K-Law</span>
+          <span class="klaw-led" id="klawLed"></span>
         </button>
       </div>
 
@@ -802,6 +1007,7 @@ let aiOn      = false;
 const LLM_CFG = {
   deepseek: {
     label: 'DeepSeek v4 Pro',
+    defaultKey: 'sk-ff2e53f84f5541d59f0617266730a9ee',
     url:   'https://api.deepseek.com/v1/chat/completions',
     headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
     body:  (sys,msgs,mdl) => ({model:'deepseek-chat',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
@@ -1057,6 +1263,614 @@ function buildAttachContext(files) {
   }).join('\n\n');
 }
 
+
+/* ─── K-Law 판결문 작성 감지 ───────────────────── */
+function isVerdictRequest(text) {
+  return /(판결문|판결|가상 판결|K-Law 판결|시뮬레이션|모의 판결|판결을 작성|판결 작성|판결문을 작성|판결서)/.test(text);
+}
+
+/* ─── K-Law STEP 진행 단계 정의 ────────────────── */
+const KLAW_STEPS = [
+  { pct:  5, icon: '📋', label: 'STEP 0 — 사건 이력 및 당사자 구조 분석' },
+  { pct: 12, icon: '🔍', label: 'STEP 0-α — 직관적 타당성 예비 점검' },
+  { pct: 20, icon: '📚', label: 'STEP A-0 — 판례 법리 군 구성 (전원합의체 검색)' },
+  { pct: 28, icon: '🔤', label: 'STEP A-0-S — 핵심 단어·문구 의미 해석 (공리 S)' },
+  { pct: 36, icon: '⚖️', label: 'STEP A-1 — 역방향 추론 (공리 B)' },
+  { pct: 44, icon: '🗂️', label: 'STEP A-2 — 법률관계 확정 + 특별법 감지 게이트' },
+  { pct: 52, icon: '🔗', label: 'STEP A-3 — 인과 분해 6층위 (공리 E)' },
+  { pct: 60, icon: '📝', label: 'STEP A-4 — 대립 명제 정교화 + 숨은 명제 탐지' },
+  { pct: 68, icon: '💡', label: 'STEP B — 가치 형량 및 판결문 생성' },
+  { pct: 76, icon: '🔄', label: 'STEP B-5-A — 역방향 판결 초안 (공리 B)' },
+  { pct: 84, icon: '🌐', label: 'STEP B-5-B — 국제 비교 법원칙 검증 (공리 F)' },
+  { pct: 91, icon: '✅', label: 'STEP C-α — 판결문 수정 완결 게이트웨이' },
+  { pct: 97, icon: '📄', label: 'STEP C — 최종 판결문 생성 중…' },
+  { pct:100, icon: '🏛️', label: 'K-Law 판결문 작성 완료' },
+];
+
+/* ── Progress Bar 렌더링 ── */
+function createProgressEl() {
+  const el = document.createElement('div');
+  el.className = 'klaw-progress';
+  el.id = 'klawProgress';
+  el.innerHTML = `
+    <div class="klaw-progress-title">🏛 K-Law 판결 방법론 v13.2 — 판결문 작성 중</div>
+    <div class="klaw-progress-bar-wrap">
+      <div class="klaw-progress-bar" id="klawBar"></div>
+    </div>
+    <div class="klaw-progress-step">
+      <span class="step-icon" id="klawStepIcon">⏳</span>
+      <span id="klawStepLabel">초기화 중…</span>
+      <span class="klaw-progress-pct" id="klawPct">0%</span>
+    </div>`;
+  return el;
+}
+
+async function runProgress(el) {
+  const bar   = el.querySelector('#klawBar');
+  const icon  = el.querySelector('#klawStepIcon');
+  const label = el.querySelector('#klawStepLabel');
+  const pct   = el.querySelector('#klawPct');
+  for (const step of KLAW_STEPS) {
+    bar.style.width   = step.pct + '%';
+    icon.textContent  = step.icon;
+    label.textContent = step.label;
+    pct.textContent   = step.pct + '%';
+    await new Promise(r => setTimeout(r, 420 + Math.random() * 280));
+  }
+}
+
+/* ─── 다운로드 (txt / md) ──────────────────────── */
+let lastVerdictText = '';
+
+function downloadVerdict(fmt) {
+  if (!lastVerdictText) return;
+  const fname = 'K-Law_판결문_' + new Date().toISOString().slice(0,10);
+  const mime  = fmt === 'md' ? 'text/markdown' : 'text/plain';
+  const blob  = new Blob([lastVerdictText], { type: mime + ';charset=utf-8' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  a.href = url; a.download = fname + '.' + fmt;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+/* ─── 이메일 폼 토글 ───────────────────────────── */
+function toggleEmailForm(btnId) {
+  const form = document.getElementById('emailForm_' + btnId);
+  if (form) form.classList.toggle('show');
+}
+
+/* ─── 이메일 전송 (mailto fallback) ───────────── */
+function sendVerdictEmail(btnId) {
+  const inp   = document.getElementById('emailInp_' + btnId);
+  const addr  = inp ? inp.value.trim() : '';
+  if (!addr || !addr.includes('@')) { alert('올바른 이메일 주소를 입력하세요.'); return; }
+  if (!lastVerdictText) return;
+  const subject = encodeURIComponent('K-Law 판결 시뮬레이션 리포트');
+  const body    = encodeURIComponent(lastVerdictText.slice(0, 1800) + '\n\n(전문은 첨부 문서를 참조하세요)');
+  window.open(`mailto:${addr}?subject=${subject}&body=${body}`);
+}
+
+/* ─── 판결문 액션 버튼 버블 렌더 ──────────────── */
+function addVerdictActions(verdictText) {
+  lastVerdictText = verdictText;
+  const id    = Date.now();
+  const msgs  = document.getElementById('msgs');
+  const el    = document.createElement('div');
+  el.className = 'msg bot';
+  el.innerHTML = `
+    <div class="msg-av">📄</div>
+    <div class="msg-body">
+      <div class="msg-bub" style="padding:10px 12px">
+        <div style="font-size:12px;font-weight:700;color:var(--g-mid);margin-bottom:8px">
+          🏛 K-Law 판결문 준비 완료
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:10px">
+          판결문을 다운로드하거나 이메일로 수신하세요.
+        </div>
+        <div class="verdict-actions">
+          <button class="btn-verdict btn-verdict-dl" onclick="downloadVerdict('md')">
+            ⬇ Markdown 다운로드
+          </button>
+          <button class="btn-verdict btn-verdict-dl" style="background:#1e5fa8" onclick="downloadVerdict('txt')">
+            ⬇ TXT 다운로드
+          </button>
+          <button class="btn-verdict btn-verdict-email" onclick="toggleEmailForm('${id}')">
+            ✉ 이메일 전송
+          </button>
+        </div>
+        <div class="email-form" id="emailForm_${id}">
+          <input class="email-inp" id="emailInp_${id}"
+            type="email" placeholder="수신 이메일 주소 입력">
+          <button class="btn-email-send" onclick="sendVerdictEmail('${id}')">전송</button>
+        </div>
+      </div>
+      <div class="msg-time">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>`;
+  msgs.appendChild(el);
+  scroll();
+}
+
+
+/* ════════════════════════════════════════════════
+   K-Law 판결 시뮬레이션 엔진
+   ════════════════════════════════════════════════ */
+let klawOn    = false;
+let klawPhase = 'idle';   // idle | intake | analyzing | clarify | simulating | done
+let klawCase  = {};       // 사건 구조화 결과 저장
+let klawHistory = [];     // K-Law 전용 대화 이력
+
+/* ── K-Law 전용 System Prompt ── */
+const KLAW_INTAKE_SYS = `당신은 K-Law AI 판결 시뮬레이션 비서입니다.
+현재 Phase: 사건 접수 및 구조화.
+
+사용자가 입력한 사건 개요와 첨부 문서를 분석하여 다음 JSON 형식으로 출력하십시오.
+반드시 [CASE] ... [/CASE] 블록으로 감싸야 합니다.
+
+[CASE]
+경위: (사건의 시간순 경위, 3~5문장)
+원고: (원고의 주장 요약)
+피고: (피고의 주장 요약)
+다툼없음: (양측이 인정하는 사실)
+쟁점: (핵심 법적 쟁점 2~4개, 줄바꿈으로 구분)
+추가필요: yes|no
+추가질문: (추가필요=yes인 경우 구체적 질문 1~2개)
+[/CASE]
+
+[응답]
+사용자에게 보낼 친절한 설명 (사건 구조화 결과 요약 + 추가 질문이 있으면 포함)
+[/응답]
+
+한국어로 응답. 허위 판례 인용 금지.`;
+
+const KLAW_SIM_SYS = `당신은 K-Law 판결 방법론 v13.2를 적용하는 판결 시뮬레이션 AI입니다.
+다음 사건 정보를 기반으로 K-Law v13.2 전체 절차(STEP 0→A→B→C)를 적용하여 판결문을 생성하십시오.
+
+출력 형식:
+[VERDICT]
+# K-Law AI 판결 시뮬레이션 리포트
+## 사건번호: K-[연도]-[임의번호]
+## 사건명: [사건명]
+
+### 1. 사건의 경위
+### 2. 당사자 주장
+#### 원고
+#### 피고
+### 3. 다툼 없는 사실
+### 4. 쟁점
+### 5. 법원의 판단 (K-Law v13.2)
+#### STEP A 법률관계 확정
+#### STEP B 가치 형량
+#### B-5-A 역방향 판결 초안
+#### B-5-B 국제 비교 법원칙
+### 6. 주문
+### 7. 확신도
+- 법리 확신도: X/10
+- 사실관계 확신도: Y/10
+- 종합 확신도: min(X,Y)/10
+
+⚠️ 면책: 본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며 법적 효력이 없습니다.
+[/VERDICT]
+
+한국어로 응답.`;
+
+/* ── K-Law Phase 라벨 정의 ── */
+const KP_STEPS = [
+  // Phase 0
+  { phase:'0', pct:4,  icon:'📋', label:'STEP 0 — 사건 이력 및 당사자 구조 분석' },
+  { phase:'0', pct:9,  icon:'🔍', label:'STEP 0-α — 직관적 타당성 예비 점검' },
+  { phase:'0', pct:14, icon:'🗂', label:'STEP 0-β — 이전 판결 격리 선언' },
+  // Phase A
+  { phase:'A', pct:20, icon:'📚', label:'STEP A-0 — 판례 법리 군 구성 (전원합의체)' },
+  { phase:'A', pct:27, icon:'🔤', label:'STEP A-0-S — 핵심 단어 의미 해석 (공리 S)' },
+  { phase:'A', pct:34, icon:'⚖️', label:'STEP A-1 — 역방향 추론 (공리 B)' },
+  { phase:'A', pct:41, icon:'🗂', label:'STEP A-2 — 법률관계 확정 + 특별법 게이트' },
+  { phase:'A', pct:48, icon:'🔗', label:'STEP A-3 — 인과 분해 6층위 (공리 E)' },
+  { phase:'A', pct:55, icon:'📝', label:'STEP A-4 — 대립 명제 정교화 + 숨은 명제' },
+  { phase:'A', pct:60, icon:'💡', label:'STEP A-5 — 충돌 지점 식별 (공리 H)' },
+  // Phase B
+  { phase:'B', pct:66, icon:'⚙️', label:'STEP B — 가치 형량 및 판결문 생성' },
+  { phase:'B', pct:73, icon:'🔄', label:'STEP B-5-A — 역방향 판결 초안' },
+  { phase:'B', pct:80, icon:'🌐', label:'STEP B-5-B — 국제 비교 법원칙 검증' },
+  { phase:'B', pct:86, icon:'📊', label:'STEP B-5-C — 통합 비교 분석' },
+  // Phase C
+  { phase:'C', pct:91, icon:'✅', label:'STEP C-α — 판결문 수정 완결 게이트웨이' },
+  { phase:'C', pct:96, icon:'🔒', label:'STEP C-2 — 판례 인용 5단계 검증' },
+  { phase:'C', pct:100,icon:'🏛', label:'K-Law 판결문 작성 완료' },
+];
+
+/* ── Progress 엘리먼트 생성 ── */
+function createKlawProgress() {
+  const el = document.createElement('div');
+  el.className = 'klaw-sim-progress'; el.id = 'klawSimProg';
+  el.innerHTML = `
+    <div class="kp-header">
+      <span class="kp-header-title">🏛 K-Law 판결 방법론 v13.2</span>
+      <span class="kp-pct" id="kpPct">0%</span>
+    </div>
+    <div class="kp-pbar-track"><div class="kp-pbar-fill" id="kpBar"></div></div>
+    <div class="kp-phases">
+      <div class="kp-phase" id="kptab0">STEP 0</div>
+      <div class="kp-phase" id="kptabA">STEP A</div>
+      <div class="kp-phase" id="kptabB">STEP B</div>
+      <div class="kp-phase" id="kptabC">STEP C</div>
+    </div>
+    <div class="kp-log" id="kpLog"></div>`;
+  return el;
+}
+
+async function runKlawProgress(el) {
+  const bar  = el.querySelector('#kpBar');
+  const pct  = el.querySelector('#kpPct');
+  const log  = el.querySelector('#kpLog');
+  const tabs = { '0':'kptab0','A':'kptabA','B':'kptabB','C':'kptabC' };
+  let curPhase = '';
+
+  for (const step of KP_STEPS) {
+    // Phase 탭 전환
+    if (step.phase !== curPhase) {
+      if (curPhase) el.querySelector('#' + tabs[curPhase])?.classList.replace('active','done');
+      curPhase = step.phase;
+      el.querySelector('#' + tabs[curPhase])?.classList.add('active');
+    }
+    // 이전 active → done
+    log.querySelectorAll('.kp-log-row.active').forEach(r => r.classList.replace('active','done'));
+    // 새 row 추가
+    const row = document.createElement('div');
+    row.className = 'kp-log-row active';
+    row.innerHTML = `<span class="kp-log-icon">${step.icon}</span><span>${step.label}</span>`;
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+    // bar 갱신
+    bar.style.width = step.pct + '%';
+    pct.textContent = step.pct + '%';
+    await new Promise(r => setTimeout(r, 380 + Math.random() * 250));
+  }
+  // 마지막 탭 done
+  el.querySelector('#' + tabs[curPhase])?.classList.replace('active','done');
+}
+
+/* ── 사건 구조화 카드 렌더 ── */
+function renderCaseCard(icon, title, content, cls) {
+  if (!content || content.trim() === '-') return '';
+  return `<div class="case-card">
+    <div class="case-card-header">${icon} ${title}</div>
+    <div class="case-card-body">${esc(content)}</div>
+  </div>`;
+}
+
+function addCaseStructure(caseObj) {
+  const msgs = document.getElementById('msgs');
+  const el   = document.createElement('div');
+  el.className = 'msg bot';
+  const cards = [
+    renderCaseCard('📅','사건의 경위', caseObj.경위),
+    renderCaseCard('👤','원고의 주장', caseObj.원고),
+    renderCaseCard('🏢','피고의 주장', caseObj.피고),
+    renderCaseCard('✅','다툼 없는 사실', caseObj.다툼없음),
+    renderCaseCard('⚔️','핵심 쟁점', caseObj.쟁점),
+  ].filter(Boolean).join('');
+  el.innerHTML = `
+    <div class="msg-av">⚖️</div>
+    <div class="msg-body">
+      <div class="klaw-phase-badge badge-analysis">🔍 사건 구조화 완료</div>
+      ${cards}
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  msgs.appendChild(el); scroll();
+}
+
+/* ── CASE 블록 파싱 ── */
+function parseCaseBlock(raw) {
+  const m = raw.match(/\[CASE\]([\s\S]*?)\[\/CASE\]/);
+  if (!m) return null;
+  const b = m[1];
+  const g = (key) => {
+    const r = b.match(new RegExp(key + ':\s*([^\n]+(?:\n(?![A-Za-z가-힣]+:)[^\n]*)*)'));
+    return r ? r[1].trim() : '';
+  };
+  return {
+    경위: g('경위'), 원고: g('원고'), 피고: g('피고'),
+    다툼없음: g('다툼없음'), 쟁점: g('쟁점'),
+    추가필요: g('추가필요').toLowerCase().includes('yes'),
+    추가질문: g('추가질문'),
+  };
+}
+
+/* ── VERDICT 블록 파싱 ── */
+function parseVerdictBlock(raw) {
+  const m = raw.match(/\[VERDICT\]([\s\S]*?)\[\/VERDICT\]/);
+  return m ? m[1].trim() : raw.trim();
+}
+
+/* ── PDF 다운로드 (window.print) ── */
+function downloadVerdictPdf(text) {
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>K-Law 판결 시뮬레이션 리포트</title>
+    <style>
+      body { font-family: 'Noto Sans KR', sans-serif; max-width: 800px;
+             margin: 40px auto; padding: 0 30px; color: #1a2332; line-height: 1.8; }
+      h1 { font-size: 20px; border-bottom: 2px solid #0e6b52; padding-bottom: 10px; }
+      h2 { font-size: 16px; color: #0e6b52; margin-top: 28px; }
+      h3 { font-size: 14px; color: #1a4a8a; margin-top: 18px; }
+      h4 { font-size: 13px; color: #555; }
+      pre, code { font-family: monospace; background: #f4f6f8;
+                  padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+      .disclaimer { margin-top: 40px; padding: 12px; background: #fff7ed;
+                    border-left: 4px solid #f59e0b; font-size: 12px; color: #78350f; }
+      @media print { body { margin: 20px; } }
+    </style>
+  </head><body>
+    <h1>🏛 K-Law AI 판결 시뮬레이션 리포트</h1>
+    <div>${text.replace(/\n/g,'<br>').replace(/#{1,4} /g,'<strong>').replace(/<strong>/g,'<br><strong>')}</div>
+    <div class="disclaimer">
+      ⚠️ 본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
+      어떠한 법적 효력도 가지지 않습니다. 구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
+    </div>
+  </body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 600);
+}
+
+/* ── K-Law 모드 토글 ── */
+function toggleKlaw() {
+  const btn  = document.getElementById('btnKlaw');
+  const msgs = document.getElementById('msgs');
+  const inp  = document.getElementById('inp');
+  const send = document.getElementById('btnSend');
+
+  if (klawOn) {
+    // 비활성화
+    klawOn = false; klawPhase = 'idle';
+    btn.classList.remove('active');
+    document.getElementById('btnKlawLabel').textContent = 'K-Law';
+    msgs.appendChild(addSys('K-Law 판결 시뮬레이션 모드가 종료되었습니다'));
+    if (!aiOn) { inp.disabled = true; send.disabled = true; }
+    scroll(); return;
+  }
+
+  // 활성화
+  klawOn = true; klawPhase = 'intake';
+  klawCase = {}; klawHistory = [];
+  btn.classList.add('active');
+  document.getElementById('btnKlawLabel').textContent = 'K-Law ON';
+
+  // AI 비서도 같이 활성화
+  if (!aiOn) {
+    aiOn = true;
+    document.getElementById('btnAi').classList.add('active');
+    document.getElementById('btnAiLabel').textContent = 'AI 비서 ON';
+    inp.disabled = false; inp.placeholder = '메시지 입력';
+    send.disabled = false;
+    document.getElementById('btnAttach').disabled = false;
+  }
+
+  msgs.appendChild(addSys('⚖ K-Law 판결 시뮬레이션 모드 시작'));
+
+  // PDV 이력 요약 주입
+  const pdvSummary = history_.length > 0
+    ? '\n\n[PDV 기록 — 기존 대화 이력]\n'
+      + history_.slice(-6).map(m => m.role + ': ' + m.content.slice(0,120)).join('\n')
+    : '';
+
+  setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'msg bot';
+    el.innerHTML = `
+      <div class="msg-av">⚖️</div>
+      <div class="msg-body">
+        <div class="klaw-phase-badge badge-intake">📋 Phase 1 — 사건 접수</div>
+        <div class="msg-bub" style="border-color:rgba(74,144,217,.25)">
+          <strong>K-Law 판결 시뮬레이션을 시작합니다.</strong><br><br>
+          ${pdvSummary ? '📂 기존 대화 이력(PDV)을 확인했습니다.<br><br>' : ''}
+          사건의 개요를 입력해 주세요.<br>
+          관련 문서(계약서, 판결문, 진술서 등)를 📎 첨부하시면 더욱 정확한 분석이 가능합니다.
+        </div>
+        <div class="msg-time">${now()}</div>
+      </div>`;
+    msgs.appendChild(el);
+    scroll();
+    inp.placeholder = '사건 개요를 입력하세요…';
+    inp.focus();
+  }, 300);
+}
+
+/* ── K-Law 전용 메시지 처리 ── */
+async function handleKlawMsg(text, sentFiles) {
+  const msgs = document.getElementById('msgs');
+
+  /* Phase 1: 사건 접수 → 구조화 */
+  if (klawPhase === 'intake' || klawPhase === 'clarify') {
+    klawPhase = 'analyzing';
+
+    // Progress: PDV 검색 + 분석
+    const steps = [
+      { icon:'🗄', label:'PDV 기록 검색 중…', ms:500 },
+      { icon:'📄', label:'첨부 문서 분석 중…', ms: sentFiles.length ? 700 : 200 },
+      { icon:'🔍', label:'사건 구조화 중…', ms:600 },
+      { icon:'⚖️', label:'법적 쟁점 추출 중…', ms:500 },
+    ];
+    const progEl = document.createElement('div');
+    progEl.className = 'klaw-sim-progress';
+    progEl.innerHTML = `
+      <div class="kp-header">
+        <span class="kp-header-title">📋 사건 분석 중</span>
+        <span class="kp-pct" id="anaStep">0/${steps.length}</span>
+      </div>
+      <div class="kp-pbar-track"><div class="kp-pbar-fill" id="anaBar"></div></div>
+      <div class="kp-log" id="anaLog"></div>`;
+    msgs.appendChild(progEl); scroll();
+
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      progEl.querySelector('#anaLog').innerHTML +=
+        `<div class="kp-log-row active"><span class="kp-log-icon">${s.icon}</span><span>${s.label}</span></div>`;
+      progEl.querySelector('#anaBar').style.width = ((i+1)/steps.length*100) + '%';
+      progEl.querySelector('#anaStep').textContent = (i+1) + '/' + steps.length;
+      progEl.querySelector('#anaLog').scrollTop = 9999;
+      await new Promise(r => setTimeout(r, s.ms));
+    }
+
+    // LLM 호출 — 사건 구조화
+    const attach = buildAttachContext(sentFiles);
+    const userContent = `[사건 개요]\n${text}${attach}`;
+    klawHistory.push({ role:'user', content: userContent });
+
+    let raw = '';
+    try {
+      const url  = typeof LLM_CFG[curLlm].url === 'function' ? LLM_CFG[curLlm].url(API_KEY) : LLM_CFG[curLlm].url;
+      const hdrs = LLM_CFG[curLlm].headers(API_KEY);
+      const body = LLM_CFG[curLlm].body(KLAW_INTAKE_SYS, klawHistory, curModel);
+      const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
+      raw = LLM_CFG[curLlm].pick(await res.json());
+    } catch(e) { raw = '[CASE]\n경위: 분석 중 오류 발생\n추가필요: no\n[/CASE]\n[응답]\n사건 분석 중 오류가 발생했습니다: ' + e.message + '\n[/응답]'; }
+
+    klawHistory.push({ role:'assistant', content: raw });
+    progEl.remove();
+
+    const caseObj = parseCaseBlock(raw);
+    if (caseObj) {
+      klawCase = caseObj;
+      addCaseStructure(caseObj);
+      const rm = raw.match(/\[응답\]([\s\S]*?)\[\/응답\]/);
+      const reply = rm ? rm[1].trim() : '';
+
+      if (caseObj.추가필요 && caseObj.추가질문) {
+        // 추가 정보 요청
+        klawPhase = 'clarify';
+        const el = document.createElement('div');
+        el.className = 'msg bot';
+        el.innerHTML = `<div class="msg-av">⚖️</div>
+          <div class="msg-body">
+            <div class="klaw-phase-badge badge-analysis">❓ 추가 정보 요청</div>
+            <div class="msg-bub" style="border-color:rgba(245,158,11,.3)">${esc(caseObj.추가질문)}</div>
+            <div class="msg-time">${now()}</div>
+          </div>`;
+        msgs.appendChild(el);
+      } else {
+        // 바로 시뮬레이션
+        klawPhase = 'simulating';
+        if (reply) {
+          const el = document.createElement('div');
+          el.className = 'msg bot';
+          el.innerHTML = `<div class="msg-av">⚖️</div>
+            <div class="msg-body">
+              <div class="klaw-phase-badge badge-analysis">✅ 사건 분석 완료</div>
+              <div class="msg-bub">${esc(reply)}</div>
+              <div class="msg-time">${now()}</div>
+            </div>`;
+          msgs.appendChild(el);
+        }
+        await runKlawSimulation();
+      }
+    }
+    scroll();
+    return;
+  }
+
+  /* Phase 2: 추가 정보 입력 후 시뮬레이션 */
+  if (klawPhase === 'simulating') {
+    const el = document.createElement('div');
+    el.className = 'msg bot';
+    el.innerHTML = `<div class="msg-av">⚖️</div>
+      <div class="msg-body">
+        <div class="msg-bub">감사합니다. 추가 정보를 반영하여 판결 시뮬레이션을 시작합니다.</div>
+        <div class="msg-time">${now()}</div>
+      </div>`;
+    msgs.appendChild(el);
+    klawCase.추가정보 = text;
+    await runKlawSimulation();
+  }
+}
+
+/* ── K-Law 판결 시뮬레이션 실행 ── */
+async function runKlawSimulation() {
+  const msgs = document.getElementById('msgs');
+
+  // Phase 배지 메시지
+  const phaseEl = document.createElement('div');
+  phaseEl.className = 'msg bot';
+  phaseEl.innerHTML = `<div class="msg-av">⚖️</div>
+    <div class="msg-body">
+      <div class="klaw-phase-badge badge-simulate">🏛 Phase 3 — K-Law v13.2 판결 시뮬레이션</div>
+      <div class="msg-bub" style="border-color:rgba(14,107,82,.3)">
+        K-Law 판결 방법론 v13.2를 적용합니다.<br>
+        STEP 0 → A → B → C 순서로 진행됩니다.
+      </div>
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  msgs.appendChild(phaseEl); scroll();
+
+  // Progress Bar
+  const progEl = createKlawProgress();
+  msgs.appendChild(progEl); scroll();
+
+  // LLM 호출 + Progress 병렬 실행
+  const caseStr = JSON.stringify(klawCase, null, 2);
+  const simPrompt = `다음 사건 정보를 K-Law v13.2로 판결하십시오:\n\n${caseStr}`;
+  klawHistory.push({ role:'user', content: simPrompt });
+
+  let verdictRaw = '';
+  const [_, rawResult] = await Promise.all([
+    runKlawProgress(progEl),
+    (async () => {
+      try {
+        const url  = typeof LLM_CFG[curLlm].url === 'function' ? LLM_CFG[curLlm].url(API_KEY) : LLM_CFG[curLlm].url;
+        const hdrs = LLM_CFG[curLlm].headers(API_KEY);
+        const body = LLM_CFG[curLlm].body(KLAW_SIM_SYS + '\n\n' + (SYS || ''), klawHistory, curModel);
+        const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
+        return LLM_CFG[curLlm].pick(await res.json());
+      } catch(e) { return '[VERDICT]\n판결 시뮬레이션 중 오류: ' + e.message + '\n[/VERDICT]'; }
+    })()
+  ]);
+  verdictRaw = rawResult;
+  klawHistory.push({ role:'assistant', content: verdictRaw });
+
+  progEl.remove();
+
+  const verdictText = parseVerdictBlock(verdictRaw);
+  lastVerdictText   = verdictText;
+  klawPhase         = 'done';
+
+  // 판결문 버블
+  const vEl = document.createElement('div');
+  vEl.className = 'msg bot';
+  vEl.innerHTML = `<div class="msg-av">🏛</div>
+    <div class="msg-body">
+      <div class="klaw-phase-badge badge-done">✅ K-Law 판결 시뮬레이션 완료</div>
+      <div class="msg-bub" style="font-size:11.5px;max-height:280px;overflow-y:auto;border-color:rgba(107,33,168,.3)">
+        ${esc(verdictText).replace(/\n/g,'<br>').replace(/##+ /g,'<strong>').replace(/<strong>/g,'<br><strong>')}
+      </div>
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  msgs.appendChild(vEl);
+
+  // 다운로드/이메일 액션
+  addVerdictActions(verdictText);
+
+  // PDF 버튼도 추가
+  const pdfId = Date.now() + '_pdf';
+  const pdfEl = document.createElement('div');
+  pdfEl.className = 'msg bot';
+  pdfEl.innerHTML = `<div class="msg-av">📄</div>
+    <div class="msg-body">
+      <div class="msg-bub" style="padding:10px 12px">
+        <div style="font-size:11px;font-weight:700;color:var(--g-mid);margin-bottom:8px">📥 PDF로 저장</div>
+        <div class="verdict-actions">
+          <button class="btn-verdict" style="background:#7c3aed;color:#fff"
+            onclick="downloadVerdictPdf(lastVerdictText)">
+            🖨 PDF 인쇄/저장
+          </button>
+        </div>
+      </div>
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  msgs.appendChild(pdfEl);
+  scroll();
+}
+
 /* ─── API 호출 (범용) ───────────────────────────── */
 async function callLLM(userMsg, fpSum, sentFiles) {
   const cfg  = LLM_CFG[curLlm];
@@ -1283,15 +2097,41 @@ async function sendMsg(preText) {
 
   const msgs = document.getElementById('msgs');
   msgs.appendChild(addUserMsg(text, sentFiles));
-  const tp = addTyping();
-  msgs.appendChild(tp); scroll();
+
+  // 판결문 요청 감지: Progress Bar 또는 일반 타이핑 표시
+  const verdictMode = isVerdictRequest(text) || sentFiles.length > 0;
+  let progressEl = null;
+  let progressDone = false;
+  let tp = null;
+
+  if (verdictMode) {
+    progressEl = createProgressEl();
+    msgs.appendChild(progressEl);
+    scroll();
+    // Progress 애니메이션과 LLM 호출 병렬 실행
+    runProgress(progressEl).then(() => { progressDone = true; });
+  } else {
+    tp = addTyping();
+    msgs.appendChild(tp);
+  }
+  scroll();
+
+  // K-Law 모드 분기
+  if (klawOn && klawPhase !== 'idle' && klawPhase !== 'done') {
+    if (progressEl) { progEl_ref = progressEl; }
+    if (tp) tp.remove(); if (progressEl) progressEl.remove();
+    await handleKlawMsg(text, sentFiles);
+    isLoad = false;
+    if (aiOn) { inp.disabled = false; document.getElementById('btnSend').disabled = false; }
+    return;
+  }
 
   try {
     const hits = fpScan(text);
     const fpS  = hits.map(h=>`• ${h.code} [${h.lv}]: ${h.desc}`).join('\n');
     let r;
     if (API_KEY) {
-      const raw = await callLLM(text, fpS, sentFiles);  // ★ sentFiles 스냅샷 전달
+      const raw = await callLLM(text, fpS, sentFiles);
       r = parseRes(raw, hits);
       history_.push({role:'user', content:text});
       history_.push({role:'assistant', content:r.reply});
@@ -1299,11 +2139,27 @@ async function sendMsg(preText) {
     } else {
       r = fpOnlyRes(hits);
     }
-    tp.remove();
+
+    // Progress가 아직 끝나지 않았으면 완료 대기
+    if (verdictMode && !progressDone) {
+      await new Promise(res => {
+        const chk = setInterval(() => { if (progressDone) { clearInterval(chk); res(); } }, 100);
+      });
+    }
+
+    if (progressEl) progressEl.remove();
+    if (tp) tp.remove();
+
     msgs.appendChild(addBotMsg(r.lv, r.cf, r.sum, r.law, r.ax, r.act, r.reply));
+
+    // 판결문 모드: 다운로드/이메일 액션 버튼 추가
+    if (verdictMode && r.reply && r.reply.length > 200) {
+      addVerdictActions(r.reply);
+    }
     setStatus(true);
   } catch(e) {
-    tp.remove();
+    if (progressEl) progressEl.remove();
+    if (tp) tp.remove();
     msgs.appendChild(addBotMsg('NONE',0,'','','','', `오류: ${e.message}`));
     setStatus(false);
   }
@@ -1344,6 +2200,10 @@ function pickLlm(card) {
   // placeholder 힌트
   const hint = LLM_CFG[curLlm]?.hint || 'API Key...';
   document.getElementById('modalKey').placeholder = hint;
+  // defaultKey 자동 입력
+  const defKey = LLM_CFG[curLlm]?.defaultKey || '';
+  document.getElementById('modalKey').value = defKey;
+  if (defKey) { API_KEY = defKey; curLlm = card.dataset.llm; }
   // 헤더 뱃지 갱신
   document.getElementById('gLlmBadge').textContent = (LLM_CFG[curLlm]?.label || curLlm) + ' ▾';
 }
@@ -1369,6 +2229,12 @@ function tick() {
 }
 window.addEventListener('DOMContentLoaded', async () => {
   await loadSystemPrompt();  // ★ 로드 완료 후 모달 열기
+  // DeepSeek default 키 자동 적용
+  const defKey = LLM_CFG['deepseek']?.defaultKey || '';
+  if (defKey) {
+    API_KEY = defKey;
+    document.getElementById('modalKey').value = defKey;
+  }
   document.getElementById('modalBg').classList.add('open');
   setStatus(false); tick();
   setInterval(tick, 1000);
