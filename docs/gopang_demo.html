@@ -589,6 +589,13 @@ body {
   cursor: pointer; transition: all .15s;
 }
 .g-llm-badge:hover { background: rgba(14,107,82,.15); }
+.prompt-status {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 5px;
+}
+.prompt-ok   { color: var(--pri); }
+.prompt-warn { color: var(--cr); }
 
 /* ══════════════════════════════════════════════
    반응형
@@ -687,6 +694,7 @@ body {
     <span class="g-logo-ver">K-Law Gopang v1.0</span>
   </a>
   <div class="g-status">
+    <span class="prompt-status" id="promptStatus">System Prompt 대기 중</span>
     <span class="g-llm-badge" id="gLlmBadge" onclick="openModal()">DeepSeek v4 Pro ▾</span>
     <div class="g-dot" id="gDot"></div>
     <span id="gStatusTxt">대기 중</span>
@@ -927,52 +935,33 @@ function highest(hits) {
   return hits.reduce((a,b) => SEV[a.lv] >= SEV[b.lv] ? a : b).lv;
 }
 
-/* ─── System Prompt ─────────────────────────────── */
-const SYS = `당신은 K-Law AI 비서입니다. 고팡(Gopang) 플랫폼의 인격형 AI 비서 — 사용자의 법적 보호막이자 분쟁 예방 파트너.
+/* ─── System Prompt — 동적 로드 ─────────────────── */
+const SYS_PROMPT_URL =
+  'https://raw.githubusercontent.com/team-jupeter/openhash/main/docs/klaw_ai_secretary_system_prompt_v1_0.md';
 
-## 역할
-1. 친절한 생활 AI 비서: 일상 질문, 서면 작성, 기관 소통 등 모든 작업 수행.
-2. 법적 보호막: 모든 메시지를 K-Law IDDM v1.0으로 실시간 분석, 위험 탐지 시 경고.
+// Fallback: 네트워크 오류 시 사용할 최소 프롬프트
+const FALLBACK_SYS = `당신은 K-Law AI 비서입니다. 고팡(Gopang) 플랫폼의 법적 보호막이자 분쟁 예방 파트너입니다.
+모든 메시지를 K-Law IDDM v1.0으로 실시간 분석하여 위험(CR/CV/LB/CC)을 탐지하고 경고합니다.
+응답 형식: [IDDM] 등급/확신도/요약/법령/공리/조치/FP참고 [/IDDM] [응답] 내용 [/응답]
+확신도 4 미만 시 경고 금지. 허위 판례 인용 금지. 한국어로 응답.`;
 
-## 위험 등급 (IDDM v1.0)
-CR 🟡 계약 위험 | CV 🟠 법령 위반 | LB 🔴 법적 경계 | CC 🚫 형사 우려
+let SYS = FALLBACK_SYS;  // 로드 완료 전 fallback 유지
 
-## 공리 체계
-A: 발신자 의도(P) + 법적 쟁점(Q) 추출
-B: 역방향 검증 — 확신도 4 미만 시 경고 금지
-C: 실질 법률관계 우선
-D: 약자 보호 > 계약자유 / 생명·신체 > 재산권
-H §1: 형사규범 엄격해석
-
-## Fast-Path 탐지 결과 활용
-[Fast-Path 사전 탐지] 블록이 전달되면 참고하되, 최종 등급은 공리 체계로 독립 판단.
-FP 등급 > 자체 판단이면 FP 등급 채택. 오탐 판단 시 자체 등급 유지 후 FP참고: 기각 명시.
-
-## 멀티턴 흐름
-상황파악 → 서면초안 → 수정반영 → 전송확인 → 답변법적검토
-서면 작성 시 수신·발신·날짜·제목·본문·회신요청·근거법령 형식 사용.
-초안 후 "수정할 부분을 말씀해 주세요." 안내.
-
-## 응답 형식 (필수)
-[IDDM]
-등급: NONE|CR|CV|LB|CC
-확신도: 0-10
-요약: 1줄
-법령: 조항
-공리: 적용 공리
-조치: 1줄
-FP참고: 채택|기각|해당없음
-[/IDDM]
-
-[응답]
-실제 응답. 위험 시 경고 먼저. 일반 대화는 친근하게. 서면은 공식 형식으로.
-[/응답]
-
-## 금지
-- 허위 판례·법령 인용 금지
-- CC·LB 등급 시 "법적 자문 대체 불가" 명시
-- 확신도 4 미만 경고 금지
-- 한국어로 응답`;
+async function loadSystemPrompt() {
+  const indicator = document.getElementById('promptStatus');
+  try {
+    if (indicator) indicator.textContent = 'System Prompt 로딩 중…';
+    const res = await fetch(SYS_PROMPT_URL, { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    SYS = await res.text();
+    console.log('[K-Law] System prompt loaded:', SYS.length, 'chars');
+    if (indicator) { indicator.textContent = 'K-Law v1.0 로드 완료'; indicator.className = 'prompt-ok'; }
+  } catch (e) {
+    console.warn('[K-Law] Prompt fetch 실패, fallback 사용:', e.message);
+    SYS = FALLBACK_SYS;
+    if (indicator) { indicator.textContent = 'Fallback 모드'; indicator.className = 'prompt-warn'; }
+  }
+}
 
 
 /* ─── 파일 첨부 처리 ────────────────────────────── */
@@ -1371,7 +1360,8 @@ function tick() {
   document.getElementById('barTime').textContent =
     new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 }
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  loadSystemPrompt();  // 비동기 로드 시작 (모달과 병렬)
   document.getElementById('modalBg').classList.add('open');
   setStatus(false); tick();
   setInterval(tick, 1000);
