@@ -571,7 +571,7 @@ body {
   align-self: flex-start; width: 94%;
   background: #0d1a2e;
   border: 1px solid rgba(74,144,217,.3);
-  border-radius: 12px; overflow: hidden;
+  border-radius: 12px; overflow: visible;
   animation: msgIn .2s ease;
 }
 .kp-header {
@@ -607,9 +607,9 @@ body {
 .kp-phase.done   { color: rgba(110,231,183,.6); }
 /* Step 로그 */
 .kp-log {
-  padding: 8px 12px; max-height: 160px;
-  overflow-y: auto; font-family: var(--mono); font-size: 10px;
-  line-height: 1.9;
+  padding: 8px 12px;
+  font-family: var(--mono); font-size: 10px;
+  line-height: 1.85;
 }
 .kp-log::-webkit-scrollbar { width: 2px; }
 .kp-log-row {
@@ -1146,11 +1146,11 @@ const SYS_PROMPT_URL =
   'https://raw.githubusercontent.com/team-jupeter/openhash/main/docs/klaw_ai_secretary_system_prompt_v1_0.md';
 
 // Fallback: 네트워크 오류 시 사용할 최소 프롬프트
-const FALLBACK_SYS = `당신은 K-Law AI 비서입니다. 고팡(Gopang) 플랫폼의 법적 보호막이자 분쟁 예방 파트너입니다.
-모든 메시지를 K-Law IDDM v1.0으로 실시간 분석하여 위험(CR/CV/LB/CC)을 탐지하고 경고합니다.
-응답 형식: [IDDM] 등급/확신도/요약/법령/공리/조치/FP참고 [/IDDM] [응답] 내용 [/응답]
-확신도 4 미만 시 경고 금지. 허위 판례 인용 금지. 한국어로 응답.
-⛔ 웹 검색 금지: 사건 판결 결과를 인터넷에서 검색하지 마십시오. 제공된 정보와 법령 지식만 사용.`;
+const FALLBACK_SYS = `당신은 고팡(Gopang) 플랫폼의 친절한 AI 비서입니다.
+사용자의 일상적인 질문, 정보 요청, 서면 작성, 법률 정보 안내 등을 도와줍니다.
+법적 위험이 감지되면 간단히 주의를 안내하되, 판결문 작성이나 법리 분석은 수행하지 않습니다.
+판결 시뮬레이션이 필요하면 스마트폰 상단의 ⚖ K-Law 버튼을 사용하도록 안내하십시오.
+한국어로 응답. 친절하고 간결하게.`;
 
 let SYS = FALLBACK_SYS;  // 로드 완료 전 fallback 유지
 
@@ -1267,6 +1267,9 @@ function buildAttachContext(files) {
 
 /* ─── K-Law 판결문 작성 감지 ───────────────────── */
 function isVerdictRequest(text) {
+  // ★ K-Law 버튼이 활성화된 상태에서만 판결 모드 허용
+  // 일반 AI 비서 모드에서는 키워드와 무관하게 false
+  if (!klawOn) return false;
   return /(판결문|판결|가상 판결|K-Law 판결|시뮬레이션|모의 판결|판결을 작성|판결 작성|판결문을 작성|판결서)/.test(text);
 }
 
@@ -1592,7 +1595,7 @@ async function runKlawProgress(el) {
     row.className = 'kp-log-row active';
     row.innerHTML = `<span class="kp-log-icon">${step.icon}</span><span>${step.label}</span>`;
     log.appendChild(row);
-    log.scrollTop = log.scrollHeight;
+    // 전체 표시
     // bar 갱신
     bar.style.width = step.pct + '%';
     pct.textContent = step.pct + '%';
@@ -1826,7 +1829,7 @@ async function handleKlawMsg(text, sentFiles) {
         `<div class="kp-log-row active"><span class="kp-log-icon">${s.icon}</span><span>${s.label}</span></div>`;
       progEl.querySelector('#anaBar').style.width = ((i+1)/steps.length*100) + '%';
       progEl.querySelector('#anaStep').textContent = (i+1) + '/' + steps.length;
-      progEl.querySelector('#anaLog').scrollTop = 9999;
+      // 전체 표시 — 스크롤 불필요
       await new Promise(r => setTimeout(r, s.ms));
     }
 
@@ -2005,7 +2008,10 @@ async function callLLM(userMsg, fpSum, sentFiles) {
   ];
   const url  = typeof cfg.url === 'function' ? cfg.url(API_KEY) : cfg.url;
   const hdrs = cfg.headers(API_KEY);
-  const body = cfg.body(SYS, msgs, curModel);
+  // K-Law 버튼 OFF 상태: 일반 대화 시스템 프롬프트만 사용
+  // K-Law 버튼 ON 상태: K-Law 전체 방법론 프롬프트 사용
+  const activeSys = klawOn ? SYS : FALLBACK_SYS;
+  const body = cfg.body(activeSys, msgs, curModel);
   const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
   if (!res.ok) {
     const et = await res.text().catch(()=>'');
@@ -2217,8 +2223,9 @@ async function sendMsg(preText) {
   const msgs = document.getElementById('msgs');
   msgs.appendChild(addUserMsg(text, sentFiles));
 
-  // 판결문 요청 감지: Progress Bar 또는 일반 타이핑 표시
-  const verdictMode = isVerdictRequest(text) || sentFiles.length > 0;
+  // 판결문 모드: K-Law 버튼 활성화 + 명시적 판결 요청 키워드 동시 충족 시에만
+  // 파일 첨부 단독으로는 판결 모드 진입하지 않음
+  const verdictMode = klawOn && isVerdictRequest(text);
   let progressEl = null;
   let progressDone = false;
   let tp = null;
