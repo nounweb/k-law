@@ -694,7 +694,7 @@ body {
     <span class="g-logo-ver">K-Law Gopang v1.0</span>
   </a>
   <div class="g-status">
-    <span class="prompt-status" id="promptStatus">System Prompt 대기 중</span>
+    <span class="prompt-status" id="promptStatus">⏳ K-Law Prompt 로딩 중…</span>
     <span class="g-llm-badge" id="gLlmBadge" onclick="openModal()">DeepSeek v4 Pro ▾</span>
     <div class="g-dot" id="gDot"></div>
     <span id="gStatusTxt">대기 중</span>
@@ -953,9 +953,14 @@ async function loadSystemPrompt() {
     if (indicator) indicator.textContent = 'System Prompt 로딩 중…';
     const res = await fetch(SYS_PROMPT_URL, { cache: 'no-cache' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    SYS = await res.text();
+    const text = await res.text();
+    if (!text || text.length < 500) throw new Error('응답이 너무 짧음: ' + text.length + 'chars');
+    SYS = text;
     console.log('[K-Law] System prompt loaded:', SYS.length, 'chars');
-    if (indicator) { indicator.textContent = 'K-Law v1.0 로드 완료'; indicator.className = 'prompt-ok'; }
+    if (indicator) {
+      indicator.textContent = 'K-Law v1.0 로드 완료 (' + Math.round(SYS.length/1024) + 'KB)';
+      indicator.className = 'prompt-ok';
+    }
   } catch (e) {
     console.warn('[K-Law] Prompt fetch 실패, fallback 사용:', e.message);
     SYS = FALLBACK_SYS;
@@ -1039,24 +1044,26 @@ function updateAttachBar() {
   bar.classList.toggle('visible', attachedFiles.length > 0);
 }
 
-function buildAttachContext() {
-  if (!attachedFiles.length) return '';
-  return '\n\n[첨부 문서]\n' + attachedFiles.map(f => {
-    const isBase64 = f.text.startsWith('data:');
+function buildAttachContext(files) {
+  // files 인자를 받아 타이밍 버그 방지 (sentFiles 스냅샷 사용)
+  const list = files || attachedFiles;
+  if (!list.length) return '';
+  return '\n\n[첨부 문서]\n' + list.map(f => {
+    const isBase64 = f.text && f.text.startsWith('data:');
     const preview  = isBase64
-      ? `[바이너리 파일 — 텍스트 직접 추출 불가. 파일명: ${f.name}, 유형: ${f.type}]`
-      : f.text.slice(0, 8000) + (f.text.length > 8000 ? '\n...(이하 생략)' : '');
-    return `--- ${f.name} ---\n${preview}`;
+      ? `[바이너리 파일 — 파일명: ${f.name}, 유형: ${f.type}]`
+      : (f.text || '').slice(0, 8000) + ((f.text||'').length > 8000 ? '\n...(이하 생략)' : '');
+    return `--- ${f.name} (${fmtSize(f.size)}) ---\n${preview}`;
   }).join('\n\n');
 }
 
 /* ─── API 호출 (범용) ───────────────────────────── */
-async function callLLM(userMsg, fpSum) {
+async function callLLM(userMsg, fpSum, sentFiles) {
   const cfg  = LLM_CFG[curLlm];
   const msgs = [
     ...history_,
     { role:'user', content: (() => {
-        const attach = buildAttachContext();
+        const attach = buildAttachContext(sentFiles);  // ★ sentFiles 스냅샷 전달
         const base   = fpSum
           ? `[사용자 메시지]\n${userMsg}\n\n[Fast-Path 사전 탐지]\n${fpSum}\n위 결과를 참고하여 분석해 주세요.`
           : userMsg;
@@ -1284,7 +1291,7 @@ async function sendMsg(preText) {
     const fpS  = hits.map(h=>`• ${h.code} [${h.lv}]: ${h.desc}`).join('\n');
     let r;
     if (API_KEY) {
-      const raw = await callLLM(text, fpS);
+      const raw = await callLLM(text, fpS, sentFiles);  // ★ sentFiles 스냅샷 전달
       r = parseRes(raw, hits);
       history_.push({role:'user', content:text});
       history_.push({role:'assistant', content:r.reply});
@@ -1361,7 +1368,7 @@ function tick() {
     new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 }
 window.addEventListener('DOMContentLoaded', async () => {
-  loadSystemPrompt();  // 비동기 로드 시작 (모달과 병렬)
+  await loadSystemPrompt();  // ★ 로드 완료 후 모달 열기
   document.getElementById('modalBg').classList.add('open');
   setStatus(false); tick();
   setInterval(tick, 1000);
