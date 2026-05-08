@@ -1429,44 +1429,102 @@ const KLAW_INTAKE_SYS = `당신은 K-Law AI 판결 시뮬레이션 비서입니�
 정보와 학습된 법령·법리 지식만을 사용하여 분석하십시오.`;
 
 const KLAW_SIM_SYS = `당신은 K-Law 판결 방법론 v13.2를 적용하는 판결 시뮬레이션 AI입니다.
-다음 사건 정보를 기반으로 K-Law v13.2 전체 절차(STEP 0→A→B→C)를 적용하여 판결문을 생성하십시오.
+다음 사건 정보를 기반으로 K-Law v13.2 전체 절차(STEP 0→A→B→C)를 빠짐없이 적용하여 완전한 판결문을 생성하십시오.
 
-출력 형식:
+⛔ 웹 검색 절대 금지 [K-Law 성능 평가 원칙]:
+- 이 사건의 실제 판결 결과, 사건번호, 언론 보도, 법원 공개 자료를 인터넷에서 검색하거나 참조하는 행위를 엄격히 금지합니다.
+- 오직 사용자가 제공한 사건 정보, 첨부 문서, 그리고 학습된 법령·판례·법리 지식만을 사용하여 독립적으로 판단하십시오.
+- 해당 사건의 실제 판결을 이미 알고 있더라도 그 결과를 참조하지 말고 K-Law v13.2 공리 체계와 절차만으로 판단하십시오.
+- 이 원칙은 K-Law 방법론의 독립적·객관적 성능 평가를 위한 핵심 조건입니다.
+
+━━━ 필수 출력 구조 (모든 항목 반드시 포함) ━━━
+
 [VERDICT]
 # K-Law AI 판결 시뮬레이션 리포트
 ## 사건번호: K-[연도]-[임의번호]
 ## 사건명: [사건명]
+## K-Law Engine: v13.2 | STEP 0→A→B→C 전체 적용
+
+---
 
 ### 1. 사건의 경위
+[시간순 사실관계 기술]
+
 ### 2. 당사자 주장
-#### 원고
-#### 피고
+#### 원고의 주장
+[원고 청구 요지 및 근거 법령]
+
+#### 피고의 주장
+[피고 방어 요지 및 근거]
+
 ### 3. 다툼 없는 사실
-### 4. 쟁점
-### 5. 법원의 판단 (K-Law v13.2)
-#### STEP A 법률관계 확정
-#### STEP B 가치 형량
-#### B-5-A 역방향 판결 초안
-#### B-5-B 국제 비교 법원칙
+[양측 공통 인정 사실 목록]
+
+### 4. 핵심 쟁점
+[쟁점 1, 2 … 번호별 명시]
+
+---
+
+### 5. K-Law v13.2 법리 분석
+
+#### 5-1. 원고 측 최강 법리 (공리 B — 역방향 추론)
+[원고 승소를 뒷받침하는 가장 강력한 법리 논거 3개 이상]
+- 법리 1: [근거 법령·판례 명시]
+- 법리 2: [근거 법령·판례 명시]
+- 법리 3: [근거 법령·판례 명시]
+※ 인용 판례는 실제 존재하는 판례만 인용. 불확실하면 법리 원칙만 기술.
+
+#### 5-2. 피고 측 최강 법리 (공리 B — 역방향 검증)
+[피고 승소를 뒷받침하는 가장 강력한 법리 논거 3개 이상]
+- 법리 1: [근거 법령·판례 명시]
+- 법리 2: [근거 법령·판례 명시]
+- 법리 3: [근거 법령·판례 명시]
+※ 이 항목은 피고가 실제로 승소할 수 있는 가장 강한 논거를 구성하는 것임.
+
+#### 5-3. 법리 충돌 지점 및 해소 (공리 H — 해석 우선순위)
+[원고·피고 법리의 충돌 지점을 명시하고 공리 H 우선순위에 따라 해소]
+
+#### 5-4. STEP A — 법률관계 확정
+- 적용 법령: [관련 법령 조항]
+- 특별법 감지 게이트: [특별법·일반법 관계]
+- 핵심 단어 의미 해석 (공리 S): [쟁점 용어 해석]
+- 인과 분해 6층위 (공리 E): [①기초채권 ②이익귀속 ③제3자역할 ④사후행태 ⑤의무근원 ⑥처분연계]
+
+#### 5-5. STEP B — 가치 형량 및 판단
+[공리 D 가치 위계 적용, 각 쟁점별 판단 이유 상세 기술]
+
+**쟁점 1 판단:**
+[판단 이유 + 채택한 법리]
+
+**쟁점 2 판단 (해당 시):**
+[판단 이유 + 채택한 법리]
+
+#### 5-6. 역방향 판결 초안 (STEP B-5-A)
+> 만약 반대 결론이라면?
+[반대 결론을 지지하는 최강 단일 법리 + 그 논거가 최종 결론을 뒤집지 못하는 이유]
+
+#### 5-7. 최종 채택 법리 요약
+[K-Law가 최종적으로 채택한 핵심 법리를 3줄 이내로 요약]
+
+---
+
 ### 6. 주문
+[인용/기각/일부인용 등 주문 형식으로 기술]
+※ 파기환송 시 "승/패" 표현 금지
+
 ### 7. 확신도
 - 법리 확신도: X/10
 - 사실관계 확신도: Y/10
 - 종합 확신도: min(X,Y)/10
+- 확신도 근거: [감점·가산 요인 명시]
 
-⚠️ 면책: 본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며 법적 효력이 없습니다.
+---
+
+⚠️ 면책 고지: 본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
+어떠한 법적 효력도 가지지 않습니다. 구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
 [/VERDICT]
 
-한국어로 응답.
-
-⛔ 웹 검색 절대 금지 [K-Law 성능 평가 원칙]:
-- 이 사건의 실제 판결 결과, 사건번호, 언론 보도, 법원 공개 자료를
-  인터넷에서 검색하거나 참조하는 행위를 엄격히 금지합니다.
-- 오직 사용자가 제공한 사건 정보, 첨부 문서, 그리고 학습된
-  법령·판례·법리 지식만을 사용하여 독립적으로 판단하십시오.
-- 만약 해당 사건의 실제 판결을 알고 있더라도, 그 결과를 참조하지 말고
-  K-Law v13.2 공리 체계와 절차(STEP 0→A→B→C)만으로 판단하십시오.
-- 이 원칙은 K-Law 방법론의 독립적·객관적 성능 평가를 위한 핵심 조건입니다.`;
+한국어로 응답. 모든 항목을 반드시 포함할 것. 미완성 판결문 출력 금지.`;
 
 /* ── K-Law Phase 라벨 정의 ── */
 const KP_STEPS = [
@@ -1599,33 +1657,111 @@ function parseVerdictBlock(raw) {
 
 /* ── PDF 다운로드 (window.print) ── */
 function downloadVerdictPdf(text) {
+  // [VERDICT] 태그 및 마크다운 → HTML 변환
+  const clean = text
+    .replace(/\[VERDICT\]|\[\/VERDICT\]/g, '')
+    .trim();
+
+  // 마크다운 → HTML 변환
+  const html = clean
+    .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="main-title">$1</h1>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/\n{2,}/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+
   const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head>
-    <meta charset="UTF-8">
-    <title>K-Law 판결 시뮬레이션 리포트</title>
-    <style>
-      body { font-family: 'Noto Sans KR', sans-serif; max-width: 800px;
-             margin: 40px auto; padding: 0 30px; color: #1a2332; line-height: 1.8; }
-      h1 { font-size: 20px; border-bottom: 2px solid #0e6b52; padding-bottom: 10px; }
-      h2 { font-size: 16px; color: #0e6b52; margin-top: 28px; }
-      h3 { font-size: 14px; color: #1a4a8a; margin-top: 18px; }
-      h4 { font-size: 13px; color: #555; }
-      pre, code { font-family: monospace; background: #f4f6f8;
-                  padding: 2px 6px; border-radius: 3px; font-size: 12px; }
-      .disclaimer { margin-top: 40px; padding: 12px; background: #fff7ed;
-                    border-left: 4px solid #f59e0b; font-size: 12px; color: #78350f; }
-      @media print { body { margin: 20px; } }
-    </style>
-  </head><body>
-    <h1>🏛 K-Law AI 판결 시뮬레이션 리포트</h1>
-    <div>${text.replace(/\n/g,'<br>').replace(/#{1,4} /g,'<strong>').replace(/<strong>/g,'<br><strong>')}</div>
-    <div class="disclaimer">
-      ⚠️ 본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
-      어떠한 법적 효력도 가지지 않습니다. 구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
+  win.document.write(\`<!DOCTYPE html>
+<html lang="ko"><head>
+  <meta charset="UTF-8">
+  <title>K-Law 판결 시뮬레이션 리포트</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      max-width: 780px; margin: 0 auto;
+      padding: 40px 36px; color: #1a2332; line-height: 1.85;
+      font-size: 13px;
+    }
+    .cover {
+      border-bottom: 3px solid #0e6b52; padding-bottom: 18px;
+      margin-bottom: 28px;
+    }
+    .cover-title {
+      font-size: 20px; font-weight: 700; color: #0e6b52;
+      margin-bottom: 6px;
+    }
+    .cover-meta {
+      font-size: 11px; color: #6b7280;
+      font-family: 'Courier New', monospace;
+    }
+    h1.main-title { display: none; }  /* 커버로 대체 */
+    h2 {
+      font-size: 15px; font-weight: 700; color: #0e6b52;
+      margin: 28px 0 10px; padding-bottom: 5px;
+      border-bottom: 1px solid #d1fae5;
+    }
+    h3 {
+      font-size: 13.5px; font-weight: 700; color: #1a4a8a;
+      margin: 20px 0 8px;
+    }
+    h4 {
+      font-size: 12.5px; font-weight: 700; color: #374151;
+      margin: 14px 0 6px;
+    }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
+    p { margin-bottom: 8px; }
+    ul { margin: 6px 0 10px 20px; }
+    li { margin-bottom: 4px; }
+    blockquote {
+      border-left: 3px solid #4a90d9; margin: 10px 0;
+      padding: 8px 14px; background: #eff6ff;
+      color: #1e40af; border-radius: 0 6px 6px 0;
+    }
+    strong { font-weight: 700; }
+    .disclaimer {
+      margin-top: 40px; padding: 14px 16px;
+      background: #fff7ed; border-left: 4px solid #f59e0b;
+      border-radius: 0 6px 6px 0;
+      font-size: 11.5px; color: #78350f; line-height: 1.7;
+    }
+    @page {
+      margin: 18mm 15mm;
+      @top-center { content: 'K-Law AI 판결 시뮬레이션 리포트'; font-size: 9pt; color: #9ca3af; }
+      @bottom-center { content: counter(page) ' / ' counter(pages); font-size: 9pt; color: #9ca3af; }
+    }
+    @media print {
+      body { padding: 0; }
+      .disclaimer { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="cover-title">🏛 K-Law AI 판결 시뮬레이션 리포트</div>
+    <div class="cover-meta">
+      K-Law Gopang v1.0 &nbsp;|&nbsp; 판결 방법론 v13.2
+      &nbsp;|&nbsp; 생성일시: \${new Date().toLocaleString('ko-KR')}
     </div>
-  </body></html>`);
+  </div>
+  <div>\${html}</div>
+  <div class="disclaimer">
+    ⚠️ <strong>면책 고지</strong><br>
+    본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
+    어떠한 법적 효력도 가지지 않습니다.
+    구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
+  </div>
+</body></html>\`);
   win.document.close();
-  setTimeout(() => win.print(), 600);
+  setTimeout(() => win.print(), 800);
 }
 
 /* ── K-Law 모드 토글 ── */
@@ -1833,7 +1969,9 @@ async function runKlawSimulation() {
       try {
         const url  = typeof LLM_CFG[curLlm].url === 'function' ? LLM_CFG[curLlm].url(API_KEY) : LLM_CFG[curLlm].url;
         const hdrs = LLM_CFG[curLlm].headers(API_KEY);
-        const body = LLM_CFG[curLlm].body(KLAW_SIM_SYS + '\n\n' + (SYS || ''), klawHistory, curModel);
+        // 판결문 생성 시 max_tokens를 8000으로 오버라이드
+        const baseBody = LLM_CFG[curLlm].body(KLAW_SIM_SYS + '\n\n' + (SYS || ''), klawHistory, curModel);
+        const body = { ...baseBody, max_tokens: 8000, temperature: 0.15 };
         const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
         return LLM_CFG[curLlm].pick(await res.json());
       } catch(e) { return '[VERDICT]\n판결 시뮬레이션 중 오류: ' + e.message + '\n[/VERDICT]'; }
