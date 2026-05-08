@@ -1657,113 +1657,80 @@ function parseVerdictBlock(raw) {
 
 /* ── PDF 다운로드 (window.print) ── */
 function downloadVerdictPdf(text) {
-  // [VERDICT] 태그 및 마크다운 → HTML 변환
-  const clean = text
-    .replace(/\[VERDICT\]|\[\/VERDICT\]/g, '')
-    .trim();
+  // [VERDICT] 태그 제거
+  const clean = text.replace(/\[VERDICT\]|\[\/VERDICT\]/g, '').trim();
 
-  // 마크다운 → HTML 변환
-  const html = clean
+  // 마크다운 → HTML 변환 (단계적으로 처리)
+  let html = clean
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')  // XSS 방지
     .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="main-title">$1</h1>')
-    .replace(/^---$/gm, '<hr>')
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-    .replace(/\n{2,}/g, '</p><p>')
-    .replace(/\n/g, '<br>');
+    .replace(/^### (.+)$/gm,  '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,   '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,    '<h1 class="main-title">$1</h1>')
+    .replace(/^---$/gm,       '<hr>')
+    .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^- (.+)$/gm,    '<li>$1</li>')
+    .replace(/\n\n+/g,        '</p><p>')
+    .replace(/\n/g,           '<br>');
+
+  const now = new Date().toLocaleString('ko-KR');
+
+  const fullHtml = [
+    '<!DOCTYPE html>',
+    '<html lang="ko"><head>',
+    '<meta charset="UTF-8">',
+    '<title>K-Law 판결 시뮬레이션 리포트</title>',
+    '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">',
+    '<style>',
+    '* { box-sizing: border-box; margin: 0; padding: 0; }',
+    'body { font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;',
+    '  max-width: 780px; margin: 0 auto; padding: 40px 36px;',
+    '  color: #1a2332; line-height: 1.85; font-size: 13px; }',
+    '.cover { border-bottom: 3px solid #0e6b52; padding-bottom: 18px; margin-bottom: 28px; }',
+    '.cover-title { font-size: 20px; font-weight: 700; color: #0e6b52; margin-bottom: 6px; }',
+    '.cover-meta { font-size: 11px; color: #6b7280; font-family: monospace; }',
+    'h1.main-title { display: none; }',
+    'h2 { font-size: 15px; font-weight: 700; color: #0e6b52;',
+    '  margin: 28px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #d1fae5; }',
+    'h3 { font-size: 13.5px; font-weight: 700; color: #1a4a8a; margin: 20px 0 8px; }',
+    'h4 { font-size: 12.5px; font-weight: 700; color: #374151; margin: 14px 0 6px; }',
+    'hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }',
+    'p { margin-bottom: 8px; }',
+    'ul { margin: 6px 0 10px 20px; } li { margin-bottom: 4px; }',
+    'blockquote { border-left: 3px solid #4a90d9; margin: 10px 0;',
+    '  padding: 8px 14px; background: #eff6ff; color: #1e40af; border-radius: 0 6px 6px 0; }',
+    'strong { font-weight: 700; }',
+    '.disclaimer { margin-top: 40px; padding: 14px 16px; background: #fff7ed;',
+    '  border-left: 4px solid #f59e0b; border-radius: 0 6px 6px 0;',
+    '  font-size: 11.5px; color: #78350f; line-height: 1.7; }',
+    '@media print {',
+    '  body { padding: 0; }',
+    '  .disclaimer { page-break-inside: avoid; }',
+    '  h2, h3 { page-break-after: avoid; }',
+    '}',
+    '</style></head><body>',
+    '<div class="cover">',
+    '<div class="cover-title">&#x1F3DB; K-Law AI 판결 시뮬레이션 리포트</div>',
+    '<div class="cover-meta">K-Law Gopang v1.0 &nbsp;|&nbsp; 판결 방법론 v13.2 &nbsp;|&nbsp; 생성일시: ' + now + '</div>',
+    '</div>',
+    '<div>' + html + '</div>',
+    '<div class="disclaimer">',
+    '<strong>&#x26A0;&#xFE0F; 면책 고지</strong><br>',
+    '본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,',
+    '어떠한 법적 효력도 가지지 않습니다.',
+    '구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.',
+    '</div>',
+    '</body></html>'
+  ].join('\n');
 
   const win = window.open('', '_blank');
-  win.document.write(\`<!DOCTYPE html>
-<html lang="ko"><head>
-  <meta charset="UTF-8">
-  <title>K-Law 판결 시뮬레이션 리포트</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-      max-width: 780px; margin: 0 auto;
-      padding: 40px 36px; color: #1a2332; line-height: 1.85;
-      font-size: 13px;
-    }
-    .cover {
-      border-bottom: 3px solid #0e6b52; padding-bottom: 18px;
-      margin-bottom: 28px;
-    }
-    .cover-title {
-      font-size: 20px; font-weight: 700; color: #0e6b52;
-      margin-bottom: 6px;
-    }
-    .cover-meta {
-      font-size: 11px; color: #6b7280;
-      font-family: 'Courier New', monospace;
-    }
-    h1.main-title { display: none; }  /* 커버로 대체 */
-    h2 {
-      font-size: 15px; font-weight: 700; color: #0e6b52;
-      margin: 28px 0 10px; padding-bottom: 5px;
-      border-bottom: 1px solid #d1fae5;
-    }
-    h3 {
-      font-size: 13.5px; font-weight: 700; color: #1a4a8a;
-      margin: 20px 0 8px;
-    }
-    h4 {
-      font-size: 12.5px; font-weight: 700; color: #374151;
-      margin: 14px 0 6px;
-    }
-    hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
-    p { margin-bottom: 8px; }
-    ul { margin: 6px 0 10px 20px; }
-    li { margin-bottom: 4px; }
-    blockquote {
-      border-left: 3px solid #4a90d9; margin: 10px 0;
-      padding: 8px 14px; background: #eff6ff;
-      color: #1e40af; border-radius: 0 6px 6px 0;
-    }
-    strong { font-weight: 700; }
-    .disclaimer {
-      margin-top: 40px; padding: 14px 16px;
-      background: #fff7ed; border-left: 4px solid #f59e0b;
-      border-radius: 0 6px 6px 0;
-      font-size: 11.5px; color: #78350f; line-height: 1.7;
-    }
-    @page {
-      margin: 18mm 15mm;
-      @top-center { content: 'K-Law AI 판결 시뮬레이션 리포트'; font-size: 9pt; color: #9ca3af; }
-      @bottom-center { content: counter(page) ' / ' counter(pages); font-size: 9pt; color: #9ca3af; }
-    }
-    @media print {
-      body { padding: 0; }
-      .disclaimer { page-break-inside: avoid; }
-      h2, h3 { page-break-after: avoid; }
-    }
-  </style>
-</head>
-<body>
-  <div class="cover">
-    <div class="cover-title">🏛 K-Law AI 판결 시뮬레이션 리포트</div>
-    <div class="cover-meta">
-      K-Law Gopang v1.0 &nbsp;|&nbsp; 판결 방법론 v13.2
-      &nbsp;|&nbsp; 생성일시: \${new Date().toLocaleString('ko-KR')}
-    </div>
-  </div>
-  <div>\${html}</div>
-  <div class="disclaimer">
-    ⚠️ <strong>면책 고지</strong><br>
-    본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
-    어떠한 법적 효력도 가지지 않습니다.
-    구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
-  </div>
-</body></html>\`);
+  if (!win) { alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.'); return; }
+  win.document.open();
+  win.document.write(fullHtml);
   win.document.close();
-  setTimeout(() => win.print(), 800);
+  setTimeout(function() { win.print(); }, 900);
 }
-
 /* ── K-Law 모드 토글 ── */
 function toggleKlaw() {
   const btn  = document.getElementById('btnKlaw');
