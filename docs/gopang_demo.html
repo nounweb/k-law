@@ -4,305 +4,776 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>고팡(Gopang) 데모</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d0f14;
-    --surface: #161920;
-    --surface2: #1e2230;
-    --border: #2a2f3d;
-    --text: #e8eaf0;
-    --muted: #6b7280;
-    --accent: #3b7ddd;
-    --accent2: #5b9cf6;
-    --s0: #22c55e;
-    --s1: #facc15;
-    --s2: #f97316;
-    --s3: #ef4444;
-    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    --font-ui: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-ui);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+/* ═══════════════════════════════════════════════════
+   GOPANG DEMO — ERP × Telegram × Material Design 3
+   Pretendard · Light Theme · Professional Grade
+═══════════════════════════════════════════════════ */
 
-  /* ── 헤더 ── */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-  }
-  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent2); }
-  .badge {
-    font-size: 10px; font-weight: 600; letter-spacing: 1px;
-    background: var(--accent); color: #fff;
-    padding: 2px 8px; border-radius: 20px;
-  }
-  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-  .user-pill {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 13px; color: var(--accent2);
-  }
-  .server-status {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--s3); transition: background .3s;
-  }
-  .server-status.ok { background: var(--s0); }
+:root {
+  /* ── Surface ── */
+  --surface-0:    #f0f2f5;
+  --surface-1:    #ffffff;
+  --surface-2:    #f5f6f8;
+  --surface-3:    #eaedf2;
+  --chat-bg:      #eef1f6;
 
-  /* ── 레이아웃 ── */
-  .layout {
-    display: grid;
-    grid-template-columns: 220px 1fr 340px;
-    flex: 1;
-    overflow: hidden;
-  }
+  /* ── Border ── */
+  --border:       #d0d6e0;
+  --border2:      #b0bac8;
 
-  /* ── 사이드바 ── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .sidebar-section {
-    padding: 12px 14px 6px;
-    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
-    color: var(--muted); text-transform: uppercase;
-  }
-  .conv-list { flex: 1; overflow-y: auto; padding: 4px 8px; }
-  .conv-item {
-    padding: 9px 10px; border-radius: 6px; cursor: pointer;
-    font-size: 13px; color: var(--muted);
-    transition: all .15s;
-  }
-  .conv-item:hover { background: var(--surface2); color: var(--text); }
-  .conv-item.active { background: var(--accent); color: #fff; }
-  .sidebar-actions { padding: 12px; border-top: 1px solid var(--border); }
-  .btn {
-    display: block; width: 100%;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 12px; border-radius: 6px;
-    font-size: 12px; cursor: pointer; text-align: center;
-    transition: all .15s;
-  }
-  .btn:hover { border-color: var(--accent); color: var(--accent2); }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  /* ── Text ── */
+  --text:         #0a0f1a;
+  --text2:        #2c3a50;
+  --text3:        #5a6a80;
+  --text-inv:     #ffffff;
 
-  /* ── 채팅 영역 ── */
-  .chat-area {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .chat-header {
-    padding: 12px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    font-size: 14px; font-weight: 600;
-    display: flex; align-items: center; gap: 8px;
-    flex-shrink: 0;
-  }
-  .chat-header .ws-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--s3); flex-shrink: 0;
-  }
-  .chat-header .ws-dot.connected { background: var(--s0); }
-  .messages {
-    flex: 1; overflow-y: auto; padding: 16px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .msg-row { display: flex; gap: 8px; align-items: flex-start; }
-  .msg-row.mine { flex-direction: row-reverse; }
-  .msg-avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: var(--surface2); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: var(--accent2);
-    flex-shrink: 0;
-  }
-  .msg-body { max-width: 70%; }
-  .msg-name { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
-  .msg-row.mine .msg-name { text-align: right; }
-  .msg-bubble {
-    padding: 8px 12px; border-radius: 12px;
-    font-size: 14px; line-height: 1.5;
-    background: var(--surface2); border: 1px solid var(--border);
-    word-break: break-word;
-  }
-  .msg-row.mine .msg-bubble { background: var(--accent); border-color: var(--accent); }
-  .msg-grade {
-    margin-top: 4px;
-    display: flex; align-items: center; gap: 6px;
-    font-size: 10px; color: var(--muted);
-  }
-  .msg-row.mine .msg-grade { justify-content: flex-end; }
-  .grade-badge {
-    font-size: 10px; font-weight: 700; font-family: var(--font-mono);
-    padding: 1px 6px; border-radius: 4px;
-    cursor: pointer;
-  }
-  .grade-s0 { background: rgba(34,197,94,.15); color: var(--s0); }
-  .grade-s1 { background: rgba(250,204,21,.15); color: var(--s1); }
-  .grade-s2 { background: rgba(249,115,22,.15); color: var(--s2); }
-  .grade-s3 { background: rgba(239,68,68,.15); color: var(--s3); }
+  /* ── Brand ── */
+  --primary:      #1248a0;
+  --primary-h:    #0d3a82;
+  --primary-s:    #e2eaf8;
+  --primary-t:    rgba(18,72,160,0.10);
+  --primary-mid:  rgba(18,72,160,0.15);
 
-  /* 시스템 메시지 */
-  .sys-msg {
-    text-align: center; font-size: 11px; color: var(--muted);
-    padding: 4px 0;
-  }
-  .alert-msg {
-    background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25);
-    border-radius: 8px; padding: 10px 14px; font-size: 12px;
-  }
-  .alert-msg.s2 { background: rgba(249,115,22,.08); border-color: rgba(249,115,22,.25); }
+  /* ── Grade Semantic ── */
+  --s0:           #0a7a42;
+  --s0-bg:        #e0f3eb;
+  --s1:           #96420a;
+  --s1-bg:        #fdefd8;
+  --s2:           #b03208;
+  --s2-bg:        #fce8e0;
+  --s3:           #a80f0f;
+  --s3-bg:        #fce4e4;
+  --oh:           #4a18a0;
+  --oh-bg:        #ede8fb;
+  --oh-border:    rgba(74,24,160,0.25);
 
-  /* 입력 영역 */
-  .input-area {
-    padding: 12px 16px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    display: flex; gap: 8px; align-items: flex-end;
-    flex-shrink: 0;
-  }
-  .input-area textarea {
-    flex: 1; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 12px; color: var(--text);
-    font-family: var(--font-ui); font-size: 14px; resize: none;
-    max-height: 120px; min-height: 42px; line-height: 1.4;
-    transition: border-color .15s;
-  }
-  .input-area textarea:focus { outline: none; border-color: var(--accent); }
-  .input-area textarea::placeholder { color: var(--muted); }
-  .send-btn {
-    background: var(--accent); border: none; border-radius: 8px;
-    color: #fff; padding: 10px 16px; cursor: pointer;
-    font-size: 13px; font-weight: 600; transition: background .15s;
-    white-space: nowrap;
-  }
-  .send-btn:hover { background: var(--accent2); }
-  .send-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+  /* ── Chat bubble colors ── */
+  --bubble-in:    #ffffff;
+  --bubble-out:   #1248a0;
+  --bubble-in-border: rgba(10,15,26,0.08);
 
-  /* ── 디버그 패널 ── */
-  .debug-panel {
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
-  .debug-header {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 11px; font-weight: 700; letter-spacing: 1px;
-    color: var(--muted); text-transform: uppercase;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .debug-tabs {
-    display: flex; border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .debug-tab {
-    flex: 1; padding: 8px; text-align: center;
-    font-size: 11px; color: var(--muted); cursor: pointer;
-    border-bottom: 2px solid transparent; transition: all .15s;
-  }
-  .debug-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
-  .debug-content {
-    flex: 1; overflow-y: auto; padding: 12px;
-    font-family: var(--font-mono); font-size: 11px; line-height: 1.6;
-  }
-  .debug-empty { color: var(--muted); font-style: italic; font-family: var(--font-ui); }
-  .debug-json { color: #a8b4c8; white-space: pre-wrap; word-break: break-all; }
-  .json-key { color: #7dd3fc; }
-  .json-str { color: #86efac; }
-  .json-num { color: #fbbf24; }
-  .json-bool { color: #c084fc; }
+  /* ── Typography ── */
+  --sans:         'Pretendard', system-ui, -apple-system, sans-serif;
 
-  /* PDV 로그 */
-  .pdv-item {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 6px; padding: 8px 10px; margin-bottom: 8px;
-    font-size: 11px;
-  }
-  .pdv-item .pdv-grade { font-weight: 700; }
-  .pdv-item .pdv-hash { color: var(--muted); word-break: break-all; }
-  .pdv-item .pdv-anchor { color: var(--accent2); }
+  /* ── Elevation (Material) ── */
+  --elev-1: 0 1px 2px rgba(10,15,26,.06), 0 0 0 1px rgba(10,15,26,.04);
+  --elev-2: 0 2px 8px rgba(10,15,26,.09), 0 1px 3px rgba(10,15,26,.05);
+  --elev-3: 0 4px 16px rgba(10,15,26,.11), 0 2px 6px rgba(10,15,26,.06);
+  --elev-chat: 0 1px 3px rgba(10,15,26,.10), 0 0 0 1px rgba(10,15,26,.05);
 
-  /* ── 인증 화면 ── */
-  #auth-screen {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
-  }
-  .auth-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 32px; width: 340px;
-  }
-  .auth-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .auth-title span { color: var(--accent2); }
-  .auth-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
-  .auth-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
-  .auth-tab {
-    flex: 1; padding: 8px; text-align: center;
-    border-radius: 6px; cursor: pointer;
-    font-size: 13px; font-weight: 600;
-    background: var(--surface2); color: var(--muted);
-    border: 1px solid var(--border); transition: all .15s;
-  }
-  .auth-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; font-weight: 600; letter-spacing: .5px; }
-  .field input {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 6px; padding: 9px 12px; color: var(--text);
-    font-size: 14px; font-family: var(--font-ui);
-    transition: border-color .15s;
-  }
-  .field input:focus { outline: none; border-color: var(--accent); }
-  .auth-btn {
-    width: 100%; background: var(--accent); border: none;
-    border-radius: 6px; color: #fff; padding: 11px;
-    font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px;
-    transition: background .15s;
-  }
-  .auth-btn:hover { background: var(--accent2); }
-  .auth-error { color: var(--s3); font-size: 12px; margin-top: 10px; text-align: center; }
+  /* ── Radius ── */
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-full: 999px;
 
-  /* ── 모달 ── */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.6);
-    display: flex; align-items: center; justify-content: center; z-index: 200;
-  }
-  .modal-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 24px; width: 320px;
-  }
-  .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
-  .modal-close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; }
+  /* ── Header height ── */
+  --header-h: 50px;
+}
 
-  /* 스크롤바 */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+/* ── Reset & Base ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--surface-0);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 13px; /* 기준 폰트 크기 — 전체 통일 */
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+/* ══════════════════════════════════════════════════
+   AUTH SCREEN — Material Design Login Card
+══════════════════════════════════════════════════ */
+#auth-screen {
+  position: fixed; inset: 0;
+  background: var(--surface-0);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500;
+}
+#auth-screen::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 30%, rgba(18,72,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 80% 70%, rgba(74,24,160,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.auth-box {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-3);
+  padding: 36px 32px 28px;
+  width: 360px;
+  position: relative;
+}
+.auth-title {
+  font-size: 26px; font-weight: 800; letter-spacing: -0.8px;
+  color: var(--text); text-align: center; margin-bottom: 4px;
+}
+.auth-title span { color: var(--primary); }
+.auth-sub {
+  font-size: 13px; color: var(--text3); text-align: center;
+  margin-bottom: 24px; font-weight: 500;
+}
+.auth-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.auth-tab {
+  flex: 1; padding: 8px 0; text-align: center;
+  font-size: 13px; font-weight: 600; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: all .18s;
+}
+.auth-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.field { margin-bottom: 14px; }
+.field label {
+  display: block; font-size: 13px; color: var(--text2);
+  margin-bottom: 5px; font-weight: 700; letter-spacing: .2px;
+}
+.field input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: var(--sans); font-size: 13px;
+  transition: border-color .18s, box-shadow .18s;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-t);
+  background: var(--surface-1);
+}
+.auth-btn {
+  width: 100%;
+  background: var(--primary); border: none;
+  border-radius: var(--r-sm); color: #fff;
+  padding: 11px; font-family: var(--sans);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; margin-top: 6px;
+  transition: background .18s, box-shadow .18s;
+  box-shadow: 0 2px 6px rgba(18,72,160,.35);
+}
+.auth-btn:hover {
+  background: var(--primary-h);
+  box-shadow: 0 4px 12px rgba(18,72,160,.4);
+}
+.auth-error { color: var(--s3); font-size: 13px; margin-top: 10px; text-align: center; font-weight: 500; }
+
+/* ══════════════════════════════════════════════════
+   TOP HEADER — Telegram-style App Bar
+══════════════════════════════════════════════════ */
+header {
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  height: var(--header-h);
+  padding: 0 16px;
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+  box-shadow: var(--elev-1);
+  position: relative; z-index: 10;
+}
+/* Primary color top bar (ERP accent) */
+header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--primary);
+}
+.logo {
+  font-size: 17px; font-weight: 800; letter-spacing: -0.6px;
+  color: var(--text);
+}
+.logo span { color: var(--primary); }
+.badge {
+  font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  background: var(--primary); color: #fff;
+  padding: 2px 7px; border-radius: var(--r-xs);
+}
+.badge-oh {
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  background: var(--oh-bg); color: var(--oh);
+  border: 1px solid var(--oh-border);
+  padding: 2px 7px; border-radius: var(--r-xs);
+}
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.user-pill {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-full); padding: 3px 12px;
+  font-size: 13px; color: var(--text2); font-weight: 600;
+}
+.server-status {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--s3); transition: background .3s;
+  box-shadow: 0 0 0 2px rgba(168,15,15,.15);
+}
+.server-status.ok {
+  background: var(--s0);
+  box-shadow: 0 0 0 2px rgba(10,122,66,.15);
+}
+
+/* ══════════════════════════════════════════════════
+   LAYOUT — Three Columns
+══════════════════════════════════════════════════ */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 340px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════
+   SIDEBAR — WhatsApp/Telegram Conversation List
+══════════════════════════════════════════════════ */
+.sidebar {
+  background: var(--surface-1);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-section {
+  padding: 12px 14px 8px;
+  font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--text3); text-transform: uppercase;
+  border-bottom: 1px solid var(--surface-3);
+}
+.conv-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+.conv-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--r-md);
+  cursor: pointer; transition: background .15s;
+  font-size: 13px; color: var(--text2);
+  position: relative;
+}
+.conv-item:hover { background: var(--surface-2); }
+.conv-item.active { background: var(--primary-s); color: var(--primary); font-weight: 600; }
+
+/* Chat avatar in sidebar */
+.conv-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface-3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--primary);
+  flex-shrink: 0;
+}
+.conv-item.active .conv-avatar {
+  background: var(--primary); color: #fff;
+}
+
+.sidebar-actions {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.btn {
+  display: block; width: 100%;
+  border-radius: var(--r-sm);
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; padding: 7px 12px; text-align: center;
+  transition: all .15s;
+}
+.btn-primary {
+  background: var(--primary); border: none;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(18,72,160,.3);
+}
+.btn-primary:hover { background: var(--primary-h); }
+.btn-default {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+.btn-default:hover { border-color: var(--border2); background: var(--surface-3); }
+.btn-danger {
+  background: var(--s3-bg);
+  border: 1px solid rgba(168,15,15,.25);
+  color: var(--s3); font-weight: 700;
+}
+.btn-danger:hover { background: #f8d5d5; border-color: var(--s3); }
+
+/* ══════════════════════════════════════════════════
+   CHAT AREA — Telegram Light Mode
+══════════════════════════════════════════════════ */
+.chat-area {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--chat-bg);
+}
+.chat-header {
+  padding: 0 14px;
+  height: 48px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+  box-shadow: var(--elev-1);
+}
+.ws-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--s3); flex-shrink: 0;
+  transition: background .3s;
+}
+.ws-dot.connected { background: var(--s0); }
+#chat-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.chat-header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* Analyzing badge */
+.analyzing-badge {
+  background: var(--primary-s); border: 1px solid rgba(18,72,160,.2);
+  color: var(--primary); border-radius: var(--r-sm); padding: 4px 10px;
+  font-size: 13px; font-weight: 700; display: none; align-items: center; gap: 6px;
+}
+.spinner {
+  width: 11px; height: 11px; border: 2px solid rgba(18,72,160,.2);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Exit button */
+.exit-btn {
+  background: var(--s3-bg); border: 1px solid rgba(168,15,15,.25);
+  color: var(--s3); border-radius: var(--r-sm); padding: 4px 12px;
+  font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.exit-btn:hover { background: #f8d5d5; border-color: var(--s3); }
+.exit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Analysis banner */
+.analysis-banner {
+  display: none; margin: 10px 14px 0; flex-shrink: 0;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 10px 14px;
+  box-shadow: var(--elev-1);
+}
+.analysis-banner.visible { display: block; }
+.analysis-banner .banner-title {
+  font-weight: 700; font-size: 13px; margin-bottom: 5px;
+  display: flex; align-items: center; gap: 8px; color: var(--text);
+}
+.analysis-banner .banner-summary { color: var(--text3); line-height: 1.5; font-size: 13px; }
+.analysis-banner .banner-rec {
+  margin-top: 7px; padding: 7px 10px;
+  background: var(--primary-s); border: 1px solid rgba(18,72,160,.15);
+  border-radius: var(--r-sm); color: var(--primary); font-size: 13px; font-weight: 500;
+}
+
+/* OpenHash mini banner */
+.oh-mini-banner {
+  display: none; margin: 6px 14px 0; flex-shrink: 0;
+  padding: 6px 12px;
+  background: var(--oh-bg); border: 1px solid var(--oh-border);
+  border-radius: var(--r-sm); font-size: 13px; color: var(--oh);
+  align-items: center; gap: 8px; font-weight: 500;
+}
+.oh-mini-banner.visible { display: flex; }
+
+/* ── Messages ── */
+.messages {
+  flex: 1; overflow-y: auto; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+
+/* System message — centered, Telegram style */
+.sys-msg {
+  text-align: center; font-size: 13px; color: var(--text3);
+  padding: 4px 12px; font-weight: 500;
+}
+.sys-msg-pill {
+  display: inline-block;
+  background: rgba(18,72,160,0.07);
+  border: 1px solid rgba(18,72,160,0.10);
+  border-radius: var(--r-full);
+  padding: 3px 12px; font-size: 13px;
+  color: var(--text3); font-weight: 500;
+}
+
+/* Alert message */
+.alert-msg {
+  background: var(--s3-bg); border: 1px solid rgba(168,15,15,.2);
+  border-radius: var(--r-md); padding: 9px 13px;
+  font-size: 13px; font-weight: 500; color: var(--s3);
+  margin: 2px 0;
+}
+.alert-msg.s1 { background: var(--s1-bg); border-color: rgba(150,66,10,.2); color: var(--s1); }
+.alert-msg.s2 { background: var(--s2-bg); border-color: rgba(176,50,8,.2); color: var(--s2); }
+
+/* ── Message rows — Telegram bubble style ── */
+.msg-row { display: flex; gap: 8px; align-items: flex-end; }
+.msg-row.mine { flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--primary-s); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--primary);
+  flex-shrink: 0; margin-bottom: 20px; /* offset for grade row */
+}
+.msg-row.mine .msg-avatar {
+  background: var(--primary); color: #fff;
+  border-color: var(--primary);
+}
+
+.msg-body { max-width: 68%; display: flex; flex-direction: column; }
+.msg-name {
+  font-size: 13px; color: var(--primary); margin-bottom: 2px;
+  font-weight: 700; padding-left: 12px;
+}
+.msg-row.mine .msg-name { text-align: right; padding-right: 12px; padding-left: 0; }
+
+/* Telegram-style bubble with tail effect */
+.msg-bubble {
+  padding: 8px 12px 7px;
+  background: var(--bubble-in);
+  border: 1px solid var(--bubble-in-border);
+  border-radius: var(--r-lg) var(--r-lg) var(--r-lg) 3px;
+  box-shadow: var(--elev-chat);
+  font-size: 13px; line-height: 1.5;
+  word-break: break-word; color: var(--text);
+  position: relative;
+}
+.msg-row.mine .msg-bubble {
+  background: var(--bubble-out);
+  color: #fff; border-color: transparent;
+  border-radius: var(--r-lg) var(--r-lg) 3px var(--r-lg);
+  box-shadow: 0 1px 4px rgba(18,72,160,.25);
+}
+
+.msg-grade {
+  margin-top: 3px; padding: 0 4px;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--text3);
+}
+.msg-row.mine .msg-grade { justify-content: flex-end; }
+
+/* ── Grade badges (Material chip style) ── */
+.grade-badge {
+  font-size: 13px; font-weight: 700; font-family: var(--sans);
+  padding: 1px 6px; border-radius: var(--r-xs);
+  cursor: pointer; letter-spacing: .3px;
+  display: inline-flex; align-items: center;
+}
+.grade-s0 { background: var(--s0-bg); color: var(--s0); }
+.grade-s1 { background: var(--s1-bg); color: var(--s1); }
+.grade-s2 { background: var(--s2-bg); color: var(--s2); }
+.grade-s3 { background: var(--s3-bg); color: var(--s3); }
+
+/* ── Fast-Path warning bar ── */
+.fast-warn-bar {
+  display: none; padding: 6px 16px;
+  background: var(--s2-bg); border-top: 1px solid rgba(176,50,8,.2);
+  font-size: 13px; color: var(--s2); font-weight: 500;
+  flex-shrink: 0; align-items: center; gap: 8px;
+}
+.fast-warn-bar.s3 {
+  background: var(--s3-bg); border-color: rgba(168,15,15,.2); color: var(--s3);
+}
+.fast-warn-bar.visible { display: flex; }
+.fast-warn-icon { font-size: 13px; flex-shrink: 0; }
+.fast-warn-text { flex: 1; line-height: 1.4; }
+.fast-warn-kw {
+  background: rgba(176,50,8,.12); padding: 0 5px; border-radius: 3px;
+  margin: 0 1px; font-weight: 700;
+}
+.fast-warn-kw.s3 { background: rgba(168,15,15,.12); }
+
+/* ── Message input (Material outlined) ── */
+.input-area {
+  padding: 10px 14px;
+  background: var(--surface-1);
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: flex-end;
+  flex-shrink: 0;
+}
+.attach-btn {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-md); color: var(--text3);
+  width: 40px; height: 40px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all .15s;
+}
+.attach-btn:hover {
+  background: var(--primary-s); border-color: var(--primary);
+  color: var(--primary);
+}
+.attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.attach-btn svg { width: 18px; height: 18px; }
+.attach-preview {
+  display: none; padding: 4px 14px;
+  background: var(--surface-2); border-top: 1px solid var(--border);
+  font-size: 13px; color: var(--text2); flex-shrink: 0;
+  align-items: center; gap: 8px;
+}
+.attach-preview.visible { display: flex; }
+.attach-preview-name { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attach-preview-size { color: var(--text3); flex-shrink: 0; }
+.attach-preview-remove {
+  cursor: pointer; color: var(--text3); font-size: 16px; flex-shrink: 0;
+  line-height: 1; transition: color .15s;
+}
+.attach-preview-remove:hover { color: var(--s3); }
+.input-area textarea {
+  flex: 1;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 9px 12px;
+  color: var(--text); font-family: var(--sans);
+  font-size: 13px; resize: none;
+  max-height: 120px; min-height: 40px; line-height: 1.4;
+  transition: border-color .18s, box-shadow .18s;
+}
+.input-area textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-t);
+  background: var(--surface-1);
+}
+.input-area textarea::placeholder { color: var(--text3); }
+.input-area textarea.warn-s1 { border-color: var(--s1); box-shadow: 0 0 0 2px rgba(150,66,10,.12); }
+.input-area textarea.warn-s2 { border-color: var(--s2); box-shadow: 0 0 0 2px rgba(176,50,8,.12); }
+.input-area textarea.warn-s3 { border-color: var(--s3); box-shadow: 0 0 0 2px rgba(168,15,15,.12); }
+
+.send-btn {
+  background: var(--primary); border: none;
+  border-radius: var(--r-md); color: #fff;
+  padding: 9px 16px; cursor: pointer;
+  font-family: var(--sans); font-size: 13px; font-weight: 700;
+  transition: background .15s, box-shadow .15s; white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(18,72,160,.3);
+}
+.send-btn:hover { background: var(--primary-h); box-shadow: 0 3px 10px rgba(18,72,160,.35); }
+.send-btn:disabled {
+  background: var(--surface-3); color: var(--text3);
+  cursor: not-allowed; box-shadow: none;
+}
+.debug-panel {
+  background: var(--surface-1);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.debug-header {
+  padding: 0 14px;
+  height: 48px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  color: var(--text2); text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0; background: var(--surface-2);
+}
+.debug-header-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--primary); opacity: .6;
+}
+.debug-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--surface-1);
+  overflow-x: auto;
+}
+.debug-tab {
+  flex: 1; padding: 9px 4px; text-align: center;
+  font-size: 13px; font-weight: 700; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all .15s; white-space: nowrap;
+  min-width: 54px; letter-spacing: .3px;
+}
+.debug-tab:hover { color: var(--text2); background: var(--surface-2); }
+.debug-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.debug-tab.oh-tab.active { color: var(--oh); border-bottom-color: var(--oh); }
+.debug-content {
+  flex: 1; overflow-y: auto; padding: 12px;
+  font-family: var(--sans); font-size: 13px; line-height: 1.6;
+  background: var(--surface-1);
+}
+
+/* Debug sub-components */
+.debug-empty {
+  color: var(--text3); font-style: italic;
+  text-align: center; padding: 20px 8px;
+  line-height: 1.7;
+}
+.debug-json {
+  color: var(--text2); white-space: pre-wrap; word-break: break-all;
+  font-family: 'Pretendard', 'Courier New', monospace; font-size: 13px;
+  background: var(--surface-2); border-radius: var(--r-sm);
+  padding: 10px; border: 1px solid var(--border);
+}
+.json-key  { color: var(--primary); font-weight: 600; }
+.json-str  { color: var(--s0); }
+.json-num  { color: var(--s1); }
+.json-bool { color: var(--oh); }
+
+/* PDV record card */
+.pdv-record-card {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 11px 12px; margin-bottom: 10px;
+}
+.pdv-record-title {
+  font-size: 13px; font-weight: 700; color: var(--text2);
+  margin-bottom: 9px; display: flex; align-items: center; gap: 7px;
+}
+.drawer-chip {
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  padding: 1px 6px; border-radius: var(--r-xs);
+  background: var(--primary-s); color: var(--primary); border: 1px solid var(--primary-mid);
+}
+.retention-chip {
+  font-size: 13px; font-weight: 700;
+  padding: 1px 6px; border-radius: var(--r-xs);
+  background: var(--s0-bg); color: var(--s0);
+}
+.retention-chip.long {
+  background: var(--s2-bg); color: var(--s2);
+}
+
+/* PDV log items */
+.pdv-item {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 10px; margin-bottom: 6px;
+  font-size: 13px;
+}
+.pdv-item .pdv-grade { font-weight: 700; margin-bottom: 3px; }
+.pdv-item .pdv-hash { color: var(--text3); word-break: break-all; font-size: 13px; }
+.pdv-item .pdv-anchor { color: var(--oh); margin-top: 3px; font-size: 13px; }
+.pdv-item .pdv-drawer {
+  display: inline-block; font-size: 13px; font-weight: 700;
+  padding: 1px 5px; border-radius: var(--r-xs);
+  background: var(--primary-s); color: var(--primary);
+  margin-left: 6px; vertical-align: middle;
+}
+
+/* Batch analysis result */
+.batch-result {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 11px 12px; margin-bottom: 8px;
+}
+.batch-result .batch-title {
+  font-weight: 700; font-size: 13px; margin-bottom: 8px;
+  color: var(--text); display: flex; align-items: center; gap: 7px;
+}
+.batch-result .batch-row {
+  font-size: 13px; margin-bottom: 3px; color: var(--text3);
+}
+.batch-result .batch-row strong { color: var(--text2); font-weight: 700; }
+.msg-result-item {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-xs); padding: 6px 8px; margin-bottom: 4px;
+  font-size: 13px;
+}
+
+/* ── oh-row shared by PDV & OpenHash panels ── */
+.oh-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-bottom: 5px; font-size: 13px;
+}
+.oh-label {
+  color: var(--text3); width: 72px; flex-shrink: 0;
+  font-size: 13px; font-weight: 700; letter-spacing: .4px;
+  text-transform: uppercase; padding-top: 1px;
+}
+.oh-val { color: var(--text2); word-break: break-all; }
+.oh-val.mono {
+  font-family: 'Pretendard', 'Courier New', monospace;
+  font-size: 13px; color: var(--s0); font-weight: 600;
+}
+.oh-val.purple { color: var(--oh); font-weight: 700; }
+
+/* OpenHash anchor card */
+.oh-anchor-card {
+  background: var(--oh-bg); border: 1px solid var(--oh-border);
+  border-radius: var(--r-md); padding: 11px 12px; margin-bottom: 10px;
+}
+.oh-anchor-title {
+  font-size: 13px; font-weight: 700; color: var(--oh);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+
+/* Propagation path */
+.oh-propagation {
+  display: flex; align-items: center; gap: 4px;
+  margin: 4px 0; flex-wrap: wrap;
+}
+.oh-node-pill {
+  font-size: 13px; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--r-full);
+  background: var(--oh-bg); color: var(--oh);
+  border: 1px solid var(--oh-border);
+}
+.oh-node-pill.primary { background: var(--oh); color: #fff; border-color: var(--oh); }
+.oh-arrow { color: var(--text3); font-size: 13px; }
+
+/* OpenHash network grid */
+.oh-network-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 4px; margin-top: 8px;
+}
+.oh-tier-col { display: flex; flex-direction: column; gap: 3px; }
+.oh-tier-header {
+  font-size: 13px; font-weight: 700; color: var(--oh);
+  text-align: center; padding: 3px;
+  background: var(--oh-bg); border-radius: var(--r-xs);
+  letter-spacing: .4px;
+}
+.oh-node-box {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-xs); padding: 4px 3px;
+  text-align: center; font-size: 13px; color: var(--text3);
+  transition: all .15s;
+}
+.oh-node-box.active {
+  background: var(--oh-bg); border-color: var(--oh-border);
+  color: var(--oh); font-weight: 700;
+}
+.oh-node-count { font-size: 13px; color: var(--text3); margin-top: 1px; }
+.oh-node-box.active .oh-node-count { color: var(--oh); }
+
+/* ══════════════════════════════════════════════════
+   MODAL — New conversation
+══════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,15,26,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; backdrop-filter: blur(2px);
+}
+.modal-box {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 24px; width: 320px;
+  box-shadow: var(--elev-3);
+}
+.modal-title { font-size: 15px; font-weight: 800; margin-bottom: 16px; color: var(--text); }
+.modal-close {
+  float: right; cursor: pointer; color: var(--text3);
+  font-size: 18px; line-height: 1; transition: color .15s;
+}
+.modal-close:hover { color: var(--text); }
+
+/* ══════════════════════════════════════════════════
+   SCROLLBAR — Minimal Material
+══════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
 </style>
 </head>
 <body>
 
-<!-- ── 인증 화면 ── -->
+<!-- ══════════════════════════════════════════════════
+     인증 화면
+══════════════════════════════════════════════════ -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-title">고<span>팡</span></div>
@@ -318,89 +789,204 @@
   </div>
 </div>
 
-<!-- ── 메인 UI ── -->
+<!-- ══════════════════════════════════════════════════
+     상단 헤더
+══════════════════════════════════════════════════ -->
 <header>
   <div class="logo">고<span>팡</span></div>
   <div class="badge">DEMO</div>
+  <div class="badge-oh">🔗 OpenHash SIM</div>
   <div class="header-right">
     <div class="user-pill" id="header-username">—</div>
     <div class="server-status" id="server-dot" title="서버 상태"></div>
   </div>
 </header>
 
+<!-- ══════════════════════════════════════════════════
+     메인 레이아웃 (3열)
+══════════════════════════════════════════════════ -->
 <div class="layout">
 
-  <!-- 사이드바 -->
+  <!-- ── 사이드바 ── -->
   <div class="sidebar">
-    <div class="sidebar-section">대화</div>
+    <div class="sidebar-section">대화 목록</div>
     <div class="conv-list" id="conv-list">
-      <div class="sys-msg" style="padding:16px 0;font-size:12px;">대화방이 없습니다</div>
+      <div class="sys-msg" style="padding:16px 0;font-size:12px;color:var(--text3)">대화방이 없습니다</div>
     </div>
     <div class="sidebar-actions">
       <button class="btn btn-primary" onclick="showNewConv()">+ 새 대화</button>
-      <button class="btn" style="margin-top:6px" onclick="logout()">로그아웃</button>
+      <button class="btn btn-default" onclick="logout()">로그아웃</button>
     </div>
   </div>
 
-  <!-- 채팅 -->
+  <!-- ── 채팅 영역 ── -->
   <div class="chat-area">
+
+    <!-- 채팅 헤더 -->
     <div class="chat-header">
       <div class="ws-dot" id="ws-dot"></div>
-      <span id="chat-title">대화방을 선택하세요</span>
+      <span id="chat-title" style="color:var(--text3);font-weight:500;font-size:13px">대화방을 선택하세요</span>
+      <div class="chat-header-right">
+        <div class="analyzing-badge" id="analyzing-badge">
+          <div class="spinner"></div>
+          <span id="analyzing-label">K-Law 분석 중...</span>
+        </div>
+        <button class="exit-btn" id="exit-btn" onclick="exitConv()" disabled
+          title="대화 종료 → K-Law 배치분석 → PDV 저장 → OpenHash 등록">
+          ⏹ 대화 종료
+        </button>
+      </div>
     </div>
+
+    <!-- 배치 분석 결과 배너 -->
+    <div class="analysis-banner" id="analysis-banner">
+      <div class="banner-title">
+        <span id="banner-grade-badge"></span>
+        <span>K-Law 배치 분석 완료</span>
+      </div>
+      <div class="banner-summary" id="banner-summary"></div>
+      <div class="banner-rec" id="banner-rec"></div>
+    </div>
+
+    <!-- OpenHash 등록 완료 배너 -->
+    <div class="oh-mini-banner" id="oh-mini-banner">
+      <span>🔗</span>
+      <span id="oh-mini-text"></span>
+    </div>
+
+    <!-- 메시지 목록 -->
     <div class="messages" id="messages">
-      <div class="sys-msg">고팡 데모에 오신 것을 환영합니다.<br>좌측에서 대화를 시작하세요.</div>
+      <div class="sys-msg">
+        <span class="sys-msg-pill">고팡 데모에 오신 것을 환영합니다. 좌측에서 대화를 시작하세요.</span>
+      </div>
     </div>
+
+    <!-- Fast-Path 경고 바 -->
+    <div class="fast-warn-bar" id="fast-warn-bar">
+      <span class="fast-warn-icon">⚠️</span>
+      <span class="fast-warn-text" id="fast-warn-text"></span>
+    </div>
+
+    <!-- 파일 첨부 미리보기 바 -->
+    <div class="attach-preview" id="attach-preview">
+      <span>📎</span>
+      <span class="attach-preview-name" id="attach-preview-name"></span>
+      <span class="attach-preview-size" id="attach-preview-size"></span>
+      <span class="attach-preview-remove" onclick="removeAttachment()" title="첨부 파일 제거">✕</span>
+    </div>
+
+    <!-- 입력 영역 -->
     <div class="input-area">
-      <textarea id="msg-input" placeholder="메시지 입력 (Shift+Enter: 줄바꿈, Enter: 전송)" rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <input type="file" id="file-input" style="display:none" onchange="handleFileAttach(this)">
+      <button class="attach-btn" id="attach-btn" onclick="document.getElementById('file-input').click()" disabled title="파일 첨부">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+        </svg>
+      </button>
+      <textarea id="msg-input"
+        placeholder="메시지 입력 (Shift+Enter: 줄바꿈, Enter: 전송)"
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="handleInput(this)"></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>전송</button>
     </div>
   </div>
 
-  <!-- 디버그 패널 -->
+  <!-- ── 디버그 패널 ── -->
   <div class="debug-panel">
     <div class="debug-header">
-      🔍 디버그
+      <span class="debug-header-dot"></span>
+      분석 패널
     </div>
     <div class="debug-tabs">
-      <div class="debug-tab active" onclick="switchDebug('pipeline')">파이프라인</div>
-      <div class="debug-tab" onclick="switchDebug('pdv')">PDV 로그</div>
-      <div class="debug-tab" onclick="switchDebug('raw')">원시 JSON</div>
+      <div class="debug-tab active"  onclick="switchDebug('pipeline')">Fast-Path</div>
+      <div class="debug-tab"         onclick="switchDebug('batch')">배치분석</div>
+      <div class="debug-tab"         onclick="switchDebug('pdv')">PDV</div>
+      <div class="debug-tab oh-tab"  onclick="switchDebug('openhash')">🔗 Hash</div>
+      <div class="debug-tab"         onclick="switchDebug('raw')">JSON</div>
     </div>
     <div class="debug-content" id="debug-content">
-      <div class="debug-empty">메시지를 전송하면 분석 결과가 여기 표시됩니다.</div>
+      <div class="debug-empty">
+        메시지를 전송하면 Fast-Path 스캔 결과가 표시됩니다.<br><br>
+        대화 종료 시 배치 분석(DeepSeek) → PDV 저장 → OpenHash 등록이 순차 실행됩니다.
+      </div>
     </div>
   </div>
 
-</div>
+</div><!-- /.layout -->
 
-<!-- 새 대화 모달 -->
+<!-- ── 새 대화 모달 ── -->
 <div class="modal-overlay" id="new-conv-modal" style="display:none">
   <div class="modal-box">
     <span class="modal-close" onclick="closeModal()">✕</span>
     <div class="modal-title">새 대화 시작</div>
-    <div class="field"><label>상대방 사용자명</label><input id="new-conv-target" placeholder="username" autocomplete="off"></div>
+    <div class="field">
+      <label>상대방 사용자명</label>
+      <input id="new-conv-target" placeholder="username" autocomplete="off">
+    </div>
     <button class="auth-btn" onclick="createConv()">대화 시작</button>
     <div id="conv-error" class="auth-error"></div>
   </div>
 </div>
 
 <script>
-// ── 상태 ──
-const API  = `http://144.24.90.233:8000`;
-const WS   = `ws://144.24.90.233:8000`;
-
+// ══════════════════════════════════════════════════
+// 상태
+// ══════════════════════════════════════════════════
+const API  = `https://gopang.net`;
+const WS   = `wss://gopang.net`;
 let token  = localStorage.getItem('gopang_token') || '';
 let myUser = JSON.parse(localStorage.getItem('gopang_user') || 'null');
 let ws     = null;
-let currentConv = null;
+let currentConv     = null;
+let currentWithUser = null;
 let debugMode   = 'pipeline';
 let lastPacket  = null;
+let lastBatch   = null;    // 최근 배치 분석 결과 (K-Law)
+let lastOpenHash = null;   // ★ 최근 OpenHash 등록 결과
+let lastPdvRecord = null;  // ★ 최근 PDV 레코드
+let lastOhStatus  = null;  // ★ 최근 OpenHash 네트워크 현황
 let pdvLog      = [];
 let authMode    = 'login';
+let knownConvs  = new Set();
+let wsPool      = {};
+let unreadCount = {};
 
-// ── 유틸 ──
+// ══════════════════════════════════════════════════
+// Fast-Path 클라이언트 키워드 (서버와 동일)
+// ══════════════════════════════════════════════════
+const FP_KEYWORDS = [
+  "검사","검찰","경찰","수사관","형사","법원","판사","수사",
+  "입금","이체","송금","계좌","안전계좌","공탁금","보증금",
+  "범죄","연루","체포","구속","영장","기소","피의자",
+  "금융감독원","금융위원회","국세청","국정원","인터폴",
+  "주민번호","주민등록","비밀번호","카드번호","계좌번호",
+  "즉시 이체","지금 바로","오늘 안에","오늘까지","내일까지",
+  "피해예방","명의도용","자금세탁","가상계좌"
+];
+const S3_COMBOS = [
+  ["검사","계좌"],["검사","입금"],["경찰","이체"],
+  ["경찰","계좌"],["수사","계좌"],["검찰","송금"],
+  ["법원","이체"],["수사관","입금"],["안전계좌","입금"],
+  ["구속","이체"],["금융감독원","계좌"]
+];
+
+function clientFastScan(text) {
+  const found = FP_KEYWORDS.filter(kw => text.includes(kw));
+  if (!found.length) return { grade: 'S0', keywords: [], warning: false };
+  const fSet = new Set(found);
+  for (const combo of S3_COMBOS) {
+    if (combo.every(k => fSet.has(k)))
+      return { grade: 'S3', keywords: found, warning: true };
+  }
+  const count = found.length;
+  const grade = count >= 4 ? 'S3' : count >= 2 ? 'S2' : 'S1';
+  return { grade, keywords: found, warning: true };
+}
+
+// ══════════════════════════════════════════════════
+// 유틸
+// ══════════════════════════════════════════════════
 async function api(method, path, body) {
   const opts = {
     method,
@@ -413,22 +999,31 @@ async function api(method, path, body) {
   return data;
 }
 
-function gradeClass(g) { return `grade-${g.toLowerCase()}`; }
+function gradeClass(g) { return `grade-${(g||'S0').toLowerCase()}`; }
 function gradeColor(g) {
-  return { S0: '#22c55e', S1: '#facc15', S2: '#f97316', S3: '#ef4444' }[g] || '#6b7280';
+  return { S0: '#0a7a42', S1: '#96420a', S2: '#b03208', S3: '#a80f0f' }[g] || '#5a6a80';
 }
 
 function syntaxHL(obj) {
   return JSON.stringify(obj, null, 2)
-    .replace(/("[\w\u3131-\uD79D]+")\s*:/g, '<span class="json-key">$1</span>:')
-    .replace(/:\s*(".*?")/g, ': <span class="json-str">$1</span>')
+    .replace(/(\"[\w\u3131-\uD79D\-_]+\")\s*:/g, '<span class="json-key">$1</span>:')
+    .replace(/:\s*(\".*?\")/g, ': <span class="json-str">$1</span>')
     .replace(/:\s*(\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
     .replace(/:\s*(true|false|null)/g, ': <span class="json-bool">$1</span>');
 }
 
 function scrollBottom(el) { el.scrollTop = el.scrollHeight; }
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
-// ── 인증 ──
+function shortHash(h) {
+  return h && h.length > 16 ? h.slice(0,8)+'…'+h.slice(-6) : (h||'—');
+}
+
+// ══════════════════════════════════════════════════
+// 인증
+// ══════════════════════════════════════════════════
 function switchAuth(mode) {
   authMode = mode;
   document.querySelectorAll('.auth-tab').forEach((t, i) => {
@@ -456,18 +1051,22 @@ function showAuthErr(msg) { document.getElementById('auth-error').textContent = 
 function onLogin() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('header-username').textContent = myUser.username;
+  if (Notification.permission === 'default') Notification.requestPermission();
   checkServer();
-  loadConvs();
+  loadConvs().then(startAutoRefresh);
 }
 
 function logout() {
   token = ''; myUser = null; ws && ws.close();
+  Object.values(wsPool).forEach(w => w.close());
   localStorage.removeItem('gopang_token');
   localStorage.removeItem('gopang_user');
   location.reload();
 }
 
-// ── 서버 상태 ──
+// ══════════════════════════════════════════════════
+// 서버 상태
+// ══════════════════════════════════════════════════
 async function checkServer() {
   try {
     await fetch(API + '/health');
@@ -476,31 +1075,127 @@ async function checkServer() {
   setTimeout(checkServer, 10000);
 }
 
-// ── 대화 목록 ──
+// ══════════════════════════════════════════════════
+// 대화 목록
+// ══════════════════════════════════════════════════
 async function loadConvs() {
   try {
     const convs = await api('GET', '/conversations');
     const list = document.getElementById('conv-list');
     if (!convs.length) {
-      list.innerHTML = '<div class="sys-msg" style="padding:16px 0;font-size:12px;">대화방이 없습니다</div>';
+      list.innerHTML = '<div class="sys-msg" style="padding:16px 0;font-size:12px;color:var(--text3)">대화방이 없습니다</div>';
       return;
     }
-    list.innerHTML = convs.map(c => `
-      <div class="conv-item" id="conv-${c.conv_id}" onclick="openConv('${c.conv_id}','${c.with}')">
-        💬 ${c.with}
-      </div>`).join('');
+    convs.forEach(c => {
+      if (!knownConvs.has(c.conv_id)) {
+        knownConvs.add(c.conv_id);
+        if (c.conv_id !== currentConv) connectBgWS(c.conv_id, c.with);
+        if (knownConvs.size > 1) showToast(`💬 ${c.with}님과 새 대화가 시작되었습니다`);
+      }
+    });
+    list.innerHTML = convs.map(c => {
+      const u = unreadCount[c.conv_id] || 0;
+      const badge = u > 0
+        ? `<span style="background:var(--s3);color:#fff;border-radius:var(--r-full);padding:1px 6px;font-size:13px;font-weight:700;margin-left:auto;flex-shrink:0">${u}</span>`
+        : '';
+      const initials = (c.with || '?').charAt(0).toUpperCase();
+      return `<div class="conv-item${c.conv_id===currentConv?' active':''}"
+        id="conv-${c.conv_id}"
+        onclick="openConv('${c.conv_id}','${c.with}')">
+        <div class="conv-avatar">${initials}</div>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(c.with)}</span>
+        ${badge}
+      </div>`;
+    }).join('');
   } catch (e) { console.error(e); }
 }
 
+function startAutoRefresh() { setInterval(loadConvs, 5000); }
+
+// ══════════════════════════════════════════════════
+// 백그라운드 WS
+// ══════════════════════════════════════════════════
+function connectBgWS(convId, withUser) {
+  if (wsPool[convId]) return;
+  const bgWs = new WebSocket(`${WS}/ws/${convId}?token=${token}`);
+  bgWs.onmessage = e => {
+    const pkt = JSON.parse(e.data);
+    if (pkt.type === 'message' && pkt.sender !== myUser.username) {
+      if (convId === currentConv && ws === null) {
+        appendMessage(pkt);
+        updateDebug(pkt);
+        scrollBottom(document.getElementById('messages'));
+      } else if (convId !== currentConv) {
+        unreadCount[convId] = (unreadCount[convId] || 0) + 1;
+        showToast(`📨 ${pkt.sender}: ${pkt.content.slice(0, 30)}${pkt.content.length > 30 ? '...' : ''}`);
+        sendBrowserNotif(pkt.sender, pkt.content);
+        loadConvs();
+      }
+    }
+  };
+  bgWs.onclose = () => {
+    delete wsPool[convId];
+    setTimeout(() => { if (myUser) connectBgWS(convId, withUser); }, 3000);
+  };
+  wsPool[convId] = bgWs;
+}
+
+// ══════════════════════════════════════════════════
+// 토스트 / 브라우저 알림
+// ══════════════════════════════════════════════════
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `
+      position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+      background:var(--surface-1);border:1px solid var(--border);
+      border-radius:var(--r-md);
+      padding:9px 18px;font-size:13px;color:var(--text);z-index:999;
+      box-shadow:var(--elev-3);transition:opacity .3s;
+      font-family:var(--sans);font-weight:500;`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+}
+
+function sendBrowserNotif(sender, content) {
+  if (Notification.permission === 'granted') {
+    new Notification(`고팡 — ${sender}`, {
+      body: content.slice(0, 60),
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><text y="28" font-size="28">💬</text></svg>'
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════
+// 대화방 열기
+// ══════════════════════════════════════════════════
 async function openConv(convId, withUser) {
   currentConv = convId;
+  currentWithUser = withUser;
+  unreadCount[convId] = 0;
+  hideFastWarn();
+  hideAnalysisBanner();
+  hideOhMiniBanner();
+
   document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
   const el = document.getElementById(`conv-${convId}`);
   if (el) el.classList.add('active');
-  document.getElementById('chat-title').textContent = withUser;
-  document.getElementById('send-btn').disabled = false;
 
-  // 메시지 로드
+  const titleEl = document.getElementById('chat-title');
+  titleEl.textContent = withUser;
+  titleEl.style.color = 'var(--text)';
+  titleEl.style.fontWeight = '700';
+
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('exit-btn').disabled = false;
+  document.getElementById('attach-btn').disabled = false;
+
   const msgs = document.getElementById('messages');
   msgs.innerHTML = '';
   try {
@@ -509,50 +1204,183 @@ async function openConv(convId, withUser) {
       sender: m.sender_name,
       content: m.content,
       grade: m.phase_grade || 'S0',
-      timestamp: m.timestamp,
-      pipeline: m.phase_json ? JSON.parse(m.phase_json) : {},
-      pdv: { hash: m.hash_sha256, anchor_l0: m.anchor_l0 }
+      fast_keywords: JSON.parse(m.fast_keywords || '[]'),
+      timestamp: m.timestamp
     }));
     scrollBottom(msgs);
   } catch (e) { console.error(e); }
 
-  // WebSocket 연결
+  if (wsPool[convId]) { wsPool[convId].close(); delete wsPool[convId]; }
   if (ws) ws.close();
+
   ws = new WebSocket(`${WS}/ws/${convId}?token=${token}`);
   ws.onopen = () => document.getElementById('ws-dot').classList.add('connected');
-  ws.onclose = () => document.getElementById('ws-dot').classList.remove('connected');
+  ws.onclose = () => {
+    ws = null;
+    document.getElementById('ws-dot').classList.remove('connected');
+    if (currentConv === convId) connectBgWS(convId, withUser);
+  };
   ws.onmessage = e => {
     const pkt = JSON.parse(e.data);
     if (pkt.type === 'message') {
       appendMessage(pkt);
       updateDebug(pkt);
       scrollBottom(msgs);
-    } else if (pkt.type === 'alert') {
-      appendAlert(pkt);
+    } else if (pkt.type === 'fast_warning') {
+      appendAlert({ grade: pkt.grade, notice: pkt.notice });
       scrollBottom(msgs);
+    } else if (pkt.type === 'fast_block') {
+      appendAlert({ grade: 'S3', notice: pkt.notice });
+      scrollBottom(msgs);
+      showToast(`🚫 메시지가 차단되었습니다: ${pkt.keywords.join(', ')}`);
     }
   };
 }
 
-// ── 메시지 렌더 ──
+// ══════════════════════════════════════════════════
+// ★ 대화 종료 + 배치 분석 + PDV 저장 + OpenHash 등록
+// ══════════════════════════════════════════════════
+async function exitConv() {
+  if (!currentConv) return;
+  const convId = currentConv;
+
+  document.getElementById('exit-btn').style.display = 'none';
+  const badge = document.getElementById('analyzing-badge');
+  const label = document.getElementById('analyzing-label');
+  badge.style.display = 'flex';
+  label.textContent = 'K-Law 분석 중...';
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('msg-input').disabled = true;
+
+  if (ws) { ws.close(); ws = null; }
+
+  let result = null;
+  try {
+    label.textContent = 'K-Law 분석 중...';
+    result = await api('POST', `/pdv/analyze/${convId}`);
+
+    lastBatch     = result;
+    lastOpenHash  = result.openhash  || null;
+    lastPdvRecord = result.pdv       || null;
+
+    pdvLog.unshift(...(result.messages || []).map(m => ({
+      grade:     m.grade,
+      hash:      m.msg_id,
+      score:     m.score,
+      reason:    m.reason,
+      anchor_l0: result.anchor_l0,
+      drawer:    result.pdv ? result.pdv.drawer : 'GENERAL',
+    })));
+
+    label.textContent = 'OpenHash 등록 확인 중...';
+    try {
+      lastOhStatus = await api('GET', '/openhash/status');
+    } catch (_) {}
+
+  } catch (e) {
+    showToast(`❌ 배치 분석 실패: ${e.message}`);
+    console.error(e);
+  }
+
+  badge.style.display = 'none';
+
+  if (result) {
+    showAnalysisBanner(result);
+    if (lastOpenHash) {
+      showOhMiniBanner(lastOpenHash);
+    }
+    switchDebug('openhash');
+  }
+
+  currentConv = null;
+  currentWithUser = null;
+  document.getElementById('chat-title').textContent = '대화방을 선택하세요';
+  document.getElementById('chat-title').style.color = 'var(--text3)';
+  document.getElementById('chat-title').style.fontWeight = '500';
+  document.getElementById('exit-btn').style.display = '';
+  document.getElementById('exit-btn').disabled = true;
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('msg-input').disabled = false;
+  document.getElementById('ws-dot').classList.remove('connected');
+  hideFastWarn();
+  loadConvs();
+
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'sys-msg';
+  div.style.paddingTop = '12px';
+  div.innerHTML = `<span class="sys-msg-pill">대화가 종료되었습니다. K-Law 분석 → PDV 저장 → OpenHash 등록 완료</span>`;
+  msgs.appendChild(div);
+  scrollBottom(msgs);
+}
+
+// ── 배너 표시 ──
+function showAnalysisBanner(result) {
+  const banner = document.getElementById('analysis-banner');
+  const grade = result.overall_grade || 'S0';
+  document.getElementById('banner-grade-badge').innerHTML =
+    `<span class="grade-badge ${gradeClass(grade)}" style="font-size:13px;padding:2px 8px">${grade}</span>`;
+  document.getElementById('banner-summary').textContent = result.summary || '분석 완료';
+  const rec = result.recommendation || '';
+  document.getElementById('banner-rec').textContent = rec ? `💡 ${rec}` : '';
+  document.getElementById('banner-rec').style.display = rec ? 'block' : 'none';
+  banner.classList.add('visible');
+}
+function hideAnalysisBanner() {
+  document.getElementById('analysis-banner').classList.remove('visible');
+}
+
+function showOhMiniBanner(oh) {
+  const el = document.getElementById('oh-mini-banner');
+  const text = document.getElementById('oh-mini-text');
+  text.innerHTML =
+    `OpenHash 등록 완료 &nbsp;|&nbsp; ` +
+    `<strong style="color:var(--oh)">${escHtml(oh.node_name)}</strong> (${oh.tier}) &nbsp;|&nbsp; ` +
+    `Anchor: <code style="color:var(--s0);font-size:13px">${shortHash(oh.anchor_id)}</code>`;
+  el.classList.add('visible');
+}
+function hideOhMiniBanner() {
+  document.getElementById('oh-mini-banner').classList.remove('visible');
+}
+
+// ── Fast-Path 경고 바 ──
+function showFastWarn(scan) {
+  const bar = document.getElementById('fast-warn-bar');
+  const txt = document.getElementById('fast-warn-text');
+  const textarea = document.getElementById('msg-input');
+  const isS3 = scan.grade === 'S3';
+  const kwHtml = scan.keywords.map(k =>
+    `<span class="fast-warn-kw${isS3?' s3':''}">${escHtml(k)}</span>`).join(' ');
+  txt.innerHTML = isS3
+    ? `🚫 <strong>전송 차단</strong> — 보이스피싱 패턴 감지: ${kwHtml}`
+    : `탐지된 키워드: ${kwHtml} — 전송 시 서버에서 재확인합니다`;
+  bar.className = `fast-warn-bar visible${isS3 ? ' s3' : ''}`;
+  textarea.className = `warn-${scan.grade.toLowerCase()}`;
+}
+function hideFastWarn() {
+  document.getElementById('fast-warn-bar').className = 'fast-warn-bar';
+  document.getElementById('msg-input').className = '';
+}
+
+// ══════════════════════════════════════════════════
+// 메시지 렌더
+// ══════════════════════════════════════════════════
 function appendMessage(pkt) {
   const msgs = document.getElementById('messages');
   const isMine = pkt.sender === myUser.username;
   const avatar = pkt.sender.charAt(0).toUpperCase();
   const grade = pkt.grade || 'S0';
-  const elapsed = pkt.elapsed_ms ? `${pkt.elapsed_ms}ms` : '';
+  const kwList = (pkt.fast_keywords || []);
   const div = document.createElement('div');
   div.className = `msg-row${isMine ? ' mine' : ''}`;
   div.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
     <div class="msg-body">
-      <div class="msg-name">${pkt.sender}</div>
+      <div class="msg-name">${escHtml(pkt.sender)}</div>
       <div class="msg-bubble">${escHtml(pkt.content)}</div>
       <div class="msg-grade">
-        <span class="grade-badge ${gradeClass(grade)}" title="클릭: 파이프라인 보기"
-          onclick='showPipeline(${JSON.stringify(pkt.pipeline || {})})'>${grade}</span>
-        ${elapsed ? `<span>${elapsed}</span>` : ''}
-        ${pkt.pdv && pkt.pdv.hash ? `<span style="color:var(--accent2);cursor:pointer" title="${pkt.pdv.hash}">🔒</span>` : ''}
+        <span class="grade-badge ${gradeClass(grade)}" title="${escHtml(pkt.fast_reason||'')}">${grade}</span>
+        ${kwList.length ? `<span style="color:var(--text3);font-size:13px">🔑 ${kwList.slice(0,3).join(', ')}</span>` : ''}
       </div>
     </div>`;
   msgs.appendChild(div);
@@ -560,38 +1388,46 @@ function appendMessage(pkt) {
 
 function appendAlert(pkt) {
   const msgs = document.getElementById('messages');
-  const cls = pkt.grade === 'S3' ? '' : ' s2';
+  const gradeKey = (pkt.grade || 'S3').toLowerCase();
+  const cls = gradeKey === 's3' ? '' : ` ${gradeKey}`;
   const div = document.createElement('div');
   div.className = `alert-msg${cls}`;
   div.innerHTML = `
-    <strong>${pkt.grade === 'S3' ? '🚫 차단' : '⚠️ 경고'} [${pkt.grade}]</strong><br>
-    ${escHtml(pkt.notice || '위법성이 감지되어 처리되었습니다.')}
-    ${pkt.legal_basis ? `<br><small style="color:var(--muted)">${escHtml(pkt.legal_basis)}</small>` : ''}`;
+    <strong>${pkt.grade === 'S3' ? '🚫 차단' : pkt.grade === 'S2' ? '⚠️ 경고' : '💡 주의'} [${pkt.grade}]</strong><br>
+    ${escHtml(pkt.notice || '위험 메시지가 감지되었습니다.')}`;
   msgs.appendChild(div);
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// ── 입력 처리 ──
+function handleInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  const content = el.value.trim();
+  if (!content || !currentConv) { hideFastWarn(); return; }
+  const scan = clientFastScan(content);
+  if (scan.warning) showFastWarn(scan);
+  else hideFastWarn();
 }
 
-// ── 메시지 전송 ──
 function sendMessage() {
   if (!ws || ws.readyState !== 1) { alert('WebSocket 미연결'); return; }
   const inp = document.getElementById('msg-input');
   const content = inp.value.trim();
   if (!content) return;
+  const scan = clientFastScan(content);
+  if (scan.grade === 'S3') {
+    appendAlert({ grade: 'S3', notice: '보이스피싱 패턴이 감지되어 전송이 차단되었습니다.' });
+    scrollBottom(document.getElementById('messages'));
+    return;
+  }
   ws.send(JSON.stringify({ content }));
   inp.value = '';
   inp.style.height = '';
+  hideFastWarn();
 }
 
 function handleKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
 // ── 새 대화 ──
@@ -616,91 +1452,258 @@ async function createConv() {
   }
 }
 
-// ── 디버그 패널 ──
+// ══════════════════════════════════════════════════
+// 디버그 패널 (5개 탭)
+// ══════════════════════════════════════════════════
 function switchDebug(mode) {
   debugMode = mode;
+  const tabs = ['pipeline', 'batch', 'pdv', 'openhash', 'raw'];
   document.querySelectorAll('.debug-tab').forEach((t, i) => {
-    t.classList.toggle('active', ['pipeline','pdv','raw'][i] === mode);
+    t.classList.toggle('active', tabs[i] === mode);
   });
   renderDebug();
 }
 
 function updateDebug(pkt) {
   lastPacket = pkt;
-  if (pkt.pdv && pkt.pdv.pdv_id) pdvLog.unshift(pkt.pdv);
-  renderDebug();
+  if (debugMode === 'pipeline' || debugMode === 'raw') renderDebug();
 }
 
 function renderDebug() {
   const el = document.getElementById('debug-content');
+
+  // ── 원시 JSON ──────────────────────────────────────
   if (debugMode === 'raw') {
     el.innerHTML = lastPacket
       ? `<div class="debug-json">${syntaxHL(lastPacket)}</div>`
       : '<div class="debug-empty">메시지를 전송하면 표시됩니다.</div>';
     return;
   }
+
+  // ── PDV 탭 ─────────────────────────────────────────
   if (debugMode === 'pdv') {
-    el.innerHTML = pdvLog.length
-      ? pdvLog.map(p => `
+    if (lastPdvRecord) {
+      const r = lastPdvRecord;
+      const isLong = r.retention_days > 90;
+      el.innerHTML = `
+        <div class="pdv-record-card">
+          <div class="pdv-record-title">
+            📁 PDV 레코드
+            <span class="drawer-chip">${r.drawer||'GENERAL'}</span>
+          </div>
+          <div class="oh-row">
+            <div class="oh-label">등급</div>
+            <div class="oh-val"><span class="grade-badge ${gradeClass(r.grade)}">${r.grade}</span></div>
+          </div>
+          <div class="oh-row">
+            <div class="oh-label">보존 기간</div>
+            <div class="oh-val">
+              <span class="retention-chip${isLong?' long':''}">${isLong ? '5년 (S1~S3)' : '90일 (S0)'}</span>
+            </div>
+          </div>
+          <div class="oh-row">
+            <div class="oh-label">만료일</div>
+            <div class="oh-val">${r.expires_at ? r.expires_at.slice(0,10) : '—'}</div>
+          </div>
+          <div class="oh-row">
+            <div class="oh-label">Content Hash</div>
+            <div class="oh-val mono">${shortHash(r.content_hash)}</div>
+          </div>
+          <div class="oh-row">
+            <div class="oh-label">Anchor ID</div>
+            <div class="oh-val mono" style="color:var(--oh)">${shortHash(r.anchor_id||'—')}</div>
+          </div>
+          <div class="oh-row">
+            <div class="oh-label">원문 저장</div>
+            <div class="oh-val">${isLong ? '✅ 전체 저장 (S1~S3)' : '⬜ 간소 저장 (S0)'}</div>
+          </div>
+        </div>
+        ${pdvLog.length ? pdvLog.slice(0,8).map(p => `
           <div class="pdv-item">
-            <div class="pdv-grade" style="color:${gradeColor(p.grade)}">${p.grade} — PDV 기록</div>
-            <div class="pdv-hash">SHA256: ${p.hash ? p.hash.slice(0,32) + '...' : '—'}</div>
-            <div class="pdv-anchor">L0: ${p.anchor_l0 || '—'}</div>
-          </div>`).join('')
-      : '<div class="debug-empty">PDV 기록이 없습니다.</div>';
+            <div class="pdv-grade" style="color:${gradeColor(p.grade||'S0')}">${p.grade||'S0'} — 메시지 기록
+              ${p.drawer ? `<span class="pdv-drawer">${p.drawer}</span>` : ''}
+            </div>
+            <div class="pdv-hash">${p.reason||p.hash||'—'}</div>
+            <div class="pdv-anchor">🔗 ${shortHash(p.anchor_l0||'—')}</div>
+          </div>`).join('') : ''}`;
+    } else {
+      el.innerHTML = pdvLog.length
+        ? pdvLog.map(p => `
+            <div class="pdv-item">
+              <div class="pdv-grade" style="color:${gradeColor(p.grade||'S0')}">${p.grade||'S0'} — PDV 기록
+                ${p.drawer ? `<span class="pdv-drawer">${p.drawer}</span>` : ''}
+              </div>
+              <div class="pdv-hash">${p.reason||p.hash||'—'}</div>
+              <div class="pdv-anchor">🔗 ${shortHash(p.anchor_l0||'—')}</div>
+            </div>`).join('')
+        : '<div class="debug-empty">PDV 기록이 없습니다.<br>대화 종료 시 생성됩니다.</div>';
+    }
     return;
   }
-  // pipeline
-  if (!lastPacket || !lastPacket.pipeline) {
-    el.innerHTML = '<div class="debug-empty">메시지를 전송하면 분석 결과가 표시됩니다.</div>';
+
+  // ── ★ OpenHash 탭 ──────────────────────────────────
+  if (debugMode === 'openhash') {
+    if (!lastOpenHash) {
+      el.innerHTML = `<div class="debug-empty">
+        OpenHash 등록 결과가 없습니다.<br><br>
+        <strong style="color:var(--text2)">⏹ 대화 종료</strong> 버튼을 클릭하면<br>
+        K-Law 분석 완료 후 OpenHash 시뮬레이션 네트워크에<br>
+        해시가 자동 등록됩니다.<br><br>
+        <span style="color:var(--oh)">📐 PLSM</span>으로 등록 계층(L1~L5)이 확률적으로 결정됩니다.<br>
+        등록 후 상위 계층으로 Merkle 루트가 자동 전파됩니다.
+      </div>`;
+      return;
+    }
+    const oh = lastOpenHash;
+    const propagated = oh.propagated_to || [];
+
+    const pathNodes = [oh.node_id, ...propagated];
+    const pathHtml = pathNodes.map((nid, i) => {
+      const isPrimary = i === 0;
+      return `<span class="oh-node-pill${isPrimary ? ' primary' : ''}">${nid}</span>${i < pathNodes.length-1 ? '<span class="oh-arrow">→</span>' : ''}`;
+    }).join('');
+
+    let gridHtml = '';
+    if (lastOhStatus && lastOhStatus.nodes) {
+      const tiers = ['L1','L2','L3','L4','L5'];
+      const byTier = {};
+      tiers.forEach(t => { byTier[t] = lastOhStatus.nodes.filter(n => n.tier === t); });
+
+      gridHtml = `
+        <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px">
+          📊 네트워크 현황 — ${lastOhStatus.node_count}개 노드 / 총 ${lastOhStatus.total_entries}건 등록
+        </div>
+        <div class="oh-network-grid">
+          ${tiers.map(tier => `
+            <div class="oh-tier-col">
+              <div class="oh-tier-header">${tier}</div>
+              ${(byTier[tier]||[]).map(n => {
+                const isActive = n.node_id === oh.node_id || propagated.includes(n.node_id);
+                return `<div class="oh-node-box${isActive ? ' active' : ''}" title="${n.name}">
+                  <div>${n.node_id.split('-')[1]}</div>
+                  <div class="oh-node-count">${n.entry_count}</div>
+                </div>`;
+              }).join('')}
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:4px;font-size:13px;color:var(--text3)">
+          숫자 = 등록 건수 / 보라색 강조 = 이번 대화 등록 경로
+        </div>`;
+    }
+
+    el.innerHTML = `
+      <div class="oh-anchor-card">
+        <div class="oh-anchor-title">🔗 OpenHash 등록 결과</div>
+        <div class="oh-row">
+          <div class="oh-label">Anchor ID</div>
+          <div class="oh-val mono" style="color:var(--oh)">${escHtml(oh.anchor_id||'—')}</div>
+        </div>
+        <div class="oh-row">
+          <div class="oh-label">등록 계층</div>
+          <div class="oh-val purple">${oh.tier} — ${escHtml(oh.node_name||'—')}</div>
+        </div>
+        <div class="oh-row">
+          <div class="oh-label">체인 해시</div>
+          <div class="oh-val mono">${shortHash(oh.chain_hash)}</div>
+        </div>
+        <div class="oh-row">
+          <div class="oh-label">Merkle 루트</div>
+          <div class="oh-val mono">${shortHash(oh.merkle_root)}</div>
+        </div>
+        <div class="oh-row">
+          <div class="oh-label">전파 경로</div>
+          <div class="oh-val">
+            <div class="oh-propagation">${pathHtml}</div>
+          </div>
+        </div>
+        <div class="oh-row">
+          <div class="oh-label">등록 시각</div>
+          <div class="oh-val">${oh.timestamp ? oh.timestamp.replace('T',' ').slice(0,19)+' UTC' : '—'}</div>
+        </div>
+        <div class="oh-row">
+          <div class="oh-label">시뮬레이션</div>
+          <div class="oh-val" style="color:var(--text3);font-size:13px">
+            단일 서버 인메모리 에뮬레이션 (L1×10 + L2×4 + L3×3 + L4×2 + L5×1 = 20노드)
+          </div>
+        </div>
+      </div>
+      ${gridHtml}`;
     return;
   }
-  const p = lastPacket.pipeline;
-  const grade = lastPacket.grade || 'S0';
-  const score = p.phase3?.score ?? '—';
+
+  // ── 배치 분석 탭 ────────────────────────────────────
+  if (debugMode === 'batch') {
+    if (!lastBatch) {
+      el.innerHTML = `<div class="debug-empty">배치 분석 결과가 없습니다.<br><br>
+        <strong style="color:var(--text2)">⏹ 대화 종료</strong> 버튼을 클릭하면<br>
+        전체 대화가 DeepSeek API로 일괄 분석됩니다.<br><br>
+        매 메시지마다 API를 호출하지 않으므로<br>비용과 지연이 최소화됩니다.</div>`;
+      return;
+    }
+    const b = lastBatch;
+    const grade = b.overall_grade || 'S0';
+    const msgItems = (b.messages || []).map(m => `
+      <div class="msg-result-item">
+        <span class="grade-badge ${gradeClass(m.grade||'S0')}" style="font-size:13px">${m.grade||'S0'}</span>
+        <span style="color:var(--text3);margin-left:6px">score: ${(m.score||0).toFixed(2)}</span>
+        <div style="color:var(--text2);margin-top:3px">${escHtml(m.reason||'')}</div>
+      </div>`).join('');
+    const legalItems = (b.legal_findings || []).map(l =>
+      `<div style="color:var(--text3);margin-bottom:3px">• ${escHtml(l)}</div>`).join('');
+    el.innerHTML = `
+      <div class="batch-result">
+        <div class="batch-title">
+          <span class="grade-badge ${gradeClass(grade)}">${grade}</span>
+          종합 분석 결과
+        </div>
+        <div class="batch-row">분석 건수: <strong>${b.analyzed_count||0}개</strong></div>
+        <div class="batch-row">종합 점수: <strong>${(b.overall_score||0).toFixed(2)}</strong></div>
+        <div class="batch-row" style="margin-top:8px;color:var(--text2)">${escHtml(b.summary||'')}</div>
+        ${legalItems ? `<div style="margin-top:8px;font-size:13px">${legalItems}</div>` : ''}
+        ${b.recommendation ? `<div style="margin-top:8px;padding:8px;background:var(--primary-s);border:1px solid rgba(18,72,160,.15);border-radius:var(--r-sm);font-size:13px;color:var(--primary)">💡 ${escHtml(b.recommendation)}</div>` : ''}
+        <div style="margin-top:8px;font-size:13px;color:var(--text3)">앵커: <span style="color:var(--oh)">${escHtml(shortHash(b.anchor_l0||'—'))}</span></div>
+      </div>
+      ${msgItems ? `<div style="font-size:13px;color:var(--text3);margin-bottom:6px">메시지별 분석</div>${msgItems}` : ''}`;
+    return;
+  }
+
+  // ── Fast-Path 탭 ────────────────────────────────────
+  if (!lastPacket) {
+    el.innerHTML = '<div class="debug-empty">메시지를 전송하면<br>Fast-Path 스캔 결과가 표시됩니다.</div>';
+    return;
+  }
+  const p = lastPacket;
+  const grade = p.grade || 'S0';
+  const kws = (p.fast_keywords || []);
   el.innerHTML = `
     <div style="margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <span class="grade-badge ${gradeClass(grade)}" style="font-size:13px;padding:3px 10px">${grade}</span>
-        <span style="color:var(--muted);font-size:11px">점수: <strong style="color:var(--text)">${score}</strong></span>
-        <span style="color:var(--muted);font-size:11px">${lastPacket.elapsed_ms || '—'}ms</span>
+        <span style="color:var(--text3);font-size:13px">Fast-Path 스캔</span>
       </div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">처리 지시</div>
-      <div style="font-size:12px;color:var(--text)">${p.phase5?.action || '—'}</div>
-      ${p.phase5?.notice ? `<div style="font-size:11px;color:var(--s2);margin-top:4px">${p.phase5.notice}</div>` : ''}
-      ${p.phase5?.legal_basis ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">${p.phase5.legal_basis}</div>` : ''}
+      <div style="font-size:13px;color:var(--text3);margin-bottom:3px">발신자</div>
+      <div style="font-size:13px;margin-bottom:10px;color:var(--text2)">${escHtml(p.sender||'—')}</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:3px">탐지 판정</div>
+      <div style="font-size:13px;margin-bottom:10px;color:var(--text2)">${escHtml(p.fast_reason||'정상')}</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:3px">탐지된 키워드</div>
+      <div style="font-size:13px;margin-bottom:10px;color:${gradeColor(grade)}">
+        ${kws.length ? kws.map(k=>`<span style="background:${gradeColor(grade)}18;padding:1px 6px;border-radius:3px;margin:2px;display:inline-block;border:1px solid ${gradeColor(grade)}30">${escHtml(k)}</span>`).join('') : '<span style="color:var(--text3)">없음</span>'}
+      </div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:3px">처리</div>
+      <div style="font-size:13px;margin-bottom:10px;color:var(--text2)">
+        ${grade === 'S3' ? '🚫 서버에서 전송 차단됨' : grade === 'S2' ? '⚠️ 전송됨 — 대화 종료 시 정밀 분석' : grade === 'S1' ? '💡 전송됨 — 주의 플래그' : '✅ 정상 전송됨'}
+      </div>
     </div>
-    <hr style="border-color:var(--border);margin:8px 0">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 0 — 소통 객체</div>
-    <div style="font-size:12px;margin-bottom:10px">
-      유형: ${p.phase0?.sender_type || '—'}<br>
-      목적: ${p.phase0?.purpose || '—'}
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 1 — 탐지 패턴</div>
-    <div style="font-size:12px;margin-bottom:10px">
-      키워드: ${(p.phase1?.keywords || []).join(', ') || '없음'}<br>
-      패턴: ${(p.phase1?.patterns || []).join(', ') || '없음'}
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 2 — 법령 분류</div>
-    <div style="font-size:12px;margin-bottom:10px">
-      유형: ${p.phase2?.law_type || '—'}<br>
-      조항: ${(p.phase2?.articles || []).join(', ') || '없음'}
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 3~4 — 점수/등급</div>
-    <div style="font-size:12px;margin-bottom:4px">
-      점수: <strong>${score}</strong><br>
-      이유: ${p.phase3?.reason || '—'}
-    </div>
-  `;
+    <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+    <div style="font-size:13px;color:var(--text3);margin-top:8px;line-height:1.7">
+      ※ 메시지 전송 시 API 미호출 (0ms, 비용 0)<br>
+      ※ 배치 분석 → PDV 저장 → OpenHash 등록은 대화 종료 시 1회 실행
+    </div>`;
 }
 
-function showPipeline(pipeline) {
-  if (!pipeline || !Object.keys(pipeline).length) return;
-  lastPacket = { ...(lastPacket || {}), pipeline };
-  switchDebug('pipeline');
-}
-
-// ── 초기화 ──
+// ══════════════════════════════════════════════════
+// 초기화
+// ══════════════════════════════════════════════════
 if (token && myUser) onLogin();
 
 document.getElementById('new-conv-target').addEventListener('keydown', e => {
@@ -712,6 +1715,33 @@ document.getElementById('auth-username').addEventListener('keydown', e => {
 document.getElementById('auth-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') doAuth();
 });
+
+// ══════════════════════════════════════════════════
+// 파일 첨부
+// ══════════════════════════════════════════════════
+let attachedFile = null;
+
+function handleFileAttach(input) {
+  const file = input.files[0];
+  if (!file) return;
+  attachedFile = file;
+  const preview = document.getElementById('attach-preview');
+  const nameEl  = document.getElementById('attach-preview-name');
+  const sizeEl  = document.getElementById('attach-preview-size');
+  nameEl.textContent = file.name;
+  const kb = file.size / 1024;
+  sizeEl.textContent = kb >= 1024
+    ? `${(kb/1024).toFixed(1)} MB`
+    : `${Math.round(kb)} KB`;
+  preview.classList.add('visible');
+  // reset input so same file can be re-selected
+  input.value = '';
+}
+
+function removeAttachment() {
+  attachedFile = null;
+  document.getElementById('attach-preview').classList.remove('visible');
+}
 </script>
 </body>
 </html>
