@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gopang — K-Law & OpenHash Monitor</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM — Professional ERP / Enterprise
+   Pretendard · Crisp Text · Business Grade
+═══════════════════════════════════════════════════ */
+
+:root {
+  /* Surface */
+  --surface-0: #f0f2f5;
+  --surface-1: #ffffff;
+  --surface-2: #f5f6f8;
+  --surface-3: #eaedf2;
+
+  /* Border */
+  --border:    #d0d6e0;
+  --border2:   #b0bac8;
+
+  /* Text — 대폭 강화 */
+  --text:      #0a0f1a;
+  --text2:     #2c3a50;
+  --text3:     #5a6a80;
+  --text-inv:  #ffffff;
+
+  /* Brand */
+  --primary:   #1248a0;
+  --primary-h: #0d3a82;
+  --primary-s: #e2eaf8;
+  --primary-t: rgba(18,72,160,0.10);
+
+  /* Semantic — 채도 강화 */
+  --green:     #0a7a42;
+  --green-s:   #e0f3eb;
+  --yellow:    #96420a;
+  --yellow-s:  #fdefd8;
+  --orange:    #b03208;
+  --orange-s:  #fce8e0;
+  --red:       #a80f0f;
+  --red-s:     #fce4e4;
+  --violet:    #4a18a0;
+  --violet-s:  #ebe5fb;
+
+  /* Mono */
+  --mono: 'Pretendard', 'Courier New', monospace;
+  --sans: 'Pretendard', system-ui, sans-serif;
+
+  /* Elevation — 절제된 그림자 */
+  --shadow-1: 0 1px 2px rgba(10,15,26,.07), 0 0 0 1px rgba(10,15,26,.04);
+  --shadow-2: 0 3px 8px rgba(10,15,26,.09), 0 1px 3px rgba(10,15,26,.05);
+  --shadow-3: 0 6px 20px rgba(10,15,26,.11), 0 2px 6px rgba(10,15,26,.06);
+
+  /* Radius — ERP 스타일: 작게 */
+  --r-sm: 3px;
+  --r-md: 5px;
+  --r-lg: 6px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--surface-0);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* ── TOP NAV BAR ── */
+.top-nav {
+  background: var(--primary);
+  height: 3px;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 16px 20px 28px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-mark {
+  width: 34px; height: 34px;
+  border-radius: var(--r-md);
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-weight: 700; font-size: 12px; color: #fff;
+  letter-spacing: -.3px;
+  flex-shrink: 0;
+}
+.logo-text {
+  font-weight: 700; font-size: 15px; color: var(--text);
+  letter-spacing: -.3px;
+}
+.logo-sub {
+  font-size: 11px; color: var(--text3);
+  letter-spacing: .1px; margin-top: 1px; font-weight: 400;
+}
+.badge-sim {
+  background: var(--surface-2); color: var(--text2);
+  border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 3px;
+  font-size: 10px; font-family: var(--sans); font-weight: 600;
+  letter-spacing: .3px;
+}
+.server-url { font-family: var(--sans); font-size: 11px; color: var(--text3); font-weight: 500; }
+
+/* ── STAT CARDS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.stat-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-1);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card:nth-child(1)::before { background: var(--primary); }
+.stat-card:nth-child(2)::before { background: var(--green); }
+.stat-card:nth-child(3)::before { background: var(--yellow); }
+.stat-card:nth-child(4)::before { background: var(--orange); }
+.stat-card:nth-child(5)::before { background: var(--red); }
+.stat-val {
+  font-family: var(--sans); font-size: 24px; font-weight: 700;
+  line-height: 1; margin-bottom: 4px; margin-top: 3px;
+  letter-spacing: -.02em;
+}
+.stat-lbl { font-size: 11px; color: var(--text2); font-weight: 600; letter-spacing: .02em; }
+
+/* ── CSV UPLOAD ── */
+.csv-upload-area {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+  transition: border-color .2s, background .2s;
+}
+.csv-upload-area.has-files {
+  border-color: var(--green);
+  background: var(--green-s);
+}
+.csv-upload-area.drag-over {
+  border-color: var(--primary);
+  background: var(--primary-s);
+}
+.btn-upload {
+  padding: 4px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border2);
+  background: var(--surface-0); color: var(--text2);
+  font-family: var(--sans); font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.btn-upload:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-s); }
+#csv-file-input { display: none; }
+.csv-file-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--green-s); border: 1px solid rgba(10,122,66,.25);
+  border-radius: 3px; padding: 2px 7px;
+  font-family: var(--sans); font-size: 10px; color: var(--green); font-weight: 600;
+}
+
+/* ── CONTROLS ── */
+.controls {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; flex-wrap: wrap;
+  box-shadow: var(--shadow-1);
+}
+.ctrl-group { display: flex; align-items: center; gap: 5px; }
+.ctrl-label { font-size: 11px; color: var(--text2); font-weight: 600; white-space: nowrap; }
+.ctrl-select, .ctrl-input {
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  font-family: var(--sans); font-size: 12px; font-weight: 500; outline: none;
+  transition: border-color .15s;
+}
+.ctrl-select:focus, .ctrl-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-t); }
+.ctrl-input { width: 68px; text-align: center; }
+
+.btn {
+  padding: 6px 14px; border-radius: var(--r-sm);
+  border: none; font-family: var(--sans);
+  font-weight: 700; font-size: 12px;
+  cursor: pointer; transition: all .15s;
+  letter-spacing: .01em; white-space: nowrap;
+}
+.btn-start {
+  background: var(--primary); color: #fff;
+  box-shadow: 0 1px 4px rgba(18,72,160,.3);
+}
+.btn-start:hover { background: var(--primary-h); }
+.btn-stop {
+  background: var(--red-s); color: var(--red);
+  border: 1px solid rgba(168,15,15,.2);
+}
+.btn-stop:hover { background: #f8d0d0; }
+.btn-clear {
+  background: var(--surface-0); color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-clear:hover { background: var(--surface-2); color: var(--text); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border2); display: inline-block; flex-shrink: 0;
+}
+.status-dot.running { background: var(--green); animation: pulse 1.5s ease-in-out infinite; }
+.status-dot.waiting { background: var(--yellow); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.divider { flex:1; height:1px; background: var(--border); }
+
+/* ── MAIN GRID ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 330px 1fr 284px;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── PANEL BASE ── */
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.panel-header {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface-2);
+}
+.panel-title {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase;
+  color: var(--text);
+  display: flex; align-items: center; gap: 7px;
+}
+.panel-title .dot { width: 5px; height: 5px; border-radius: 50%; }
+.panel-body { padding: 12px 14px; }
+
+/* ── CONVERSATION FEED ── */
+.conv-feed { max-height: 520px; overflow-y: auto; }
+.conv-feed::-webkit-scrollbar { width: 3px; }
+.conv-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.conv-item {
+  padding: 9px 11px;
+  border-radius: var(--r-md);
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  transition: all .2s; cursor: default;
+  background: var(--surface-0);
+}
+.conv-item.active {
+  background: var(--primary-s);
+  border-color: rgba(18,72,160,.3);
+  box-shadow: 0 0 0 1px rgba(18,72,160,.07);
+}
+.conv-item.done { background: var(--surface-0); border-color: var(--border); }
+.conv-item.error { border-color: rgba(168,15,15,.25); background: var(--red-s); }
+
+.conv-id {
+  font-family: var(--sans); font-size: 11px; font-weight: 700;
+  color: var(--primary); margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.conv-dialog {
+  font-size: 12px; color: var(--text2); line-height: 1.6;
+  max-height: 56px; overflow: hidden; position: relative;
+}
+.conv-dialog::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 18px; background: linear-gradient(transparent, var(--surface-0));
+  pointer-events: none;
+}
+.conv-item.active .conv-dialog::after { background: linear-gradient(transparent, var(--primary-s)); }
+.conv-dialog strong { color: var(--text); font-weight: 700; }
+
+.grade-badge {
+  display: inline-flex; align-items: center;
+  padding: 1px 6px; border-radius: 2px;
+  font-family: var(--sans); font-size: 10px; font-weight: 800;
+  letter-spacing: .4px;
+}
+.grade-s0 { background: var(--green-s);  color: var(--green);  border: 1px solid rgba(10,122,66,.2); }
+.grade-s1 { background: var(--yellow-s); color: var(--yellow); border: 1px solid rgba(150,66,10,.2); }
+.grade-s2 { background: var(--orange-s); color: var(--orange); border: 1px solid rgba(176,50,8,.2); }
+.grade-s3 { background: var(--red-s);    color: var(--red);    border: 1px solid rgba(168,15,15,.2); }
+
+/* ── PROGRESS BAR ── */
+.progress-wrap { margin-top: 7px; }
+.progress-bar { height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+.progress-fill {
+  height: 100%; border-radius: 1px;
+  background: linear-gradient(90deg, var(--primary) 0%, #4b8fe8 50%, var(--primary) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  width: 65%;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── CENTER PANEL ── */
+.center-panel { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── K-LAW RESULT ── */
+.klaw-result {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 14px;
+  box-shadow: var(--shadow-1);
+}
+.klaw-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.klaw-title {
+  font-size: 11px; font-weight: 700; color: var(--text);
+  letter-spacing: .5px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
+}
+.klaw-title::before {
+  content: ''; display: inline-block;
+  width: 4px; height: 14px; border-radius: 2px;
+  background: var(--primary);
+}
+.klaw-grade-display { display: flex; align-items: center; gap: 10px; }
+.grade-big {
+  font-family: var(--sans); font-size: 30px; font-weight: 800; line-height: 1;
+  letter-spacing: -.02em;
+}
+.grade-score { font-size: 11px; color: var(--text3); margin-top: 3px; font-weight: 600; }
+
+.klaw-summary {
+  font-size: 12px; color: var(--text); line-height: 1.7; margin-bottom: 10px;
+  padding: 9px 12px; background: var(--surface-2); border-radius: var(--r-sm);
+  border-left: 3px solid var(--primary);
+}
+.legal-findings { margin-bottom: 10px; }
+.legal-item {
+  font-size: 11px; color: var(--text2); padding: 5px 9px;
+  border-left: 2px solid var(--border2); margin-bottom: 3px;
+  font-family: var(--sans); line-height: 1.5; font-weight: 500;
+  background: var(--surface-0); border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.klaw-rec {
+  font-size: 12px; padding: 9px 12px; font-weight: 500;
+  background: var(--green-s); border: 1px solid rgba(10,122,66,.18);
+  border-radius: var(--r-sm); color: var(--green); line-height: 1.6;
+}
+
+/* ── MSG TABLE ── */
+.msg-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.msg-table th {
+  text-align: left; padding: 6px 8px;
+  color: var(--text); font-weight: 700; letter-spacing: .4px;
+  border-bottom: 2px solid var(--border);
+  background: var(--surface-2); font-size: 10px; text-transform: uppercase;
+}
+.msg-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--surface-3);
+  color: var(--text2); font-weight: 500;
+}
+.msg-table td:first-child { font-family: var(--sans); color: var(--text3); font-size: 10px; font-weight: 600; }
+.msg-table tr:hover td { background: var(--surface-0); }
+
+.score-bar {
+  height: 3px; border-radius: 2px; background: var(--surface-3);
+  display: inline-block; width: 52px; vertical-align: middle; margin-right: 4px; overflow: hidden;
+}
+.score-fill { height: 100%; border-radius: 2px; }
+
+/* ── OPENHASH PANEL ── */
+.oh-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+.oh-stat {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 9px 11px;
+}
+.oh-stat-label {
+  font-size: 10px; color: var(--text2); letter-spacing: .4px;
+  text-transform: uppercase; margin-bottom: 3px; font-weight: 700;
+}
+.oh-stat-val { font-family: var(--sans); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -.02em; }
+
+.oh-node-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.oh-tier-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.oh-tier-label {
+  font-family: var(--sans);
+  font-size: 9px; font-weight: 800;
+  color: var(--text3);
+  letter-spacing: .4px;
+  width: 18px; flex-shrink: 0;
+  text-align: right;
+  padding-right: 3px;
+}
+.oh-node {
+  flex: 1;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-size: 8px; color: var(--text2);
+  transition: background .25s, border-color .25s, color .25s;
+  cursor: default;
+  font-weight: 700;
+  min-width: 0;
+}
+
+/* ── Tier base colours (idle) ── */
+.oh-node[data-tier="L1"] { background:#eef3fb; border-color:#c8d8f0; color:#2a4a80; }
+.oh-node[data-tier="L2"] { background:#edf7f1; border-color:#b8dfc8; color:#1a6040; }
+.oh-node[data-tier="L3"] { background:#fdf6e8; border-color:#e8d090; color:#705010; }
+.oh-node[data-tier="L4"] { background:#f5eefb; border-color:#d0b0e8; color:#5a1880; }
+.oh-node[data-tier="L5"] { background:#fdeef0; border-color:#e8b0b8; color:#880a18; }
+
+/* ── Active (selected node) ── */
+.oh-node.active[data-tier="L1"] { background:#1248a0; border-color:#0d3a82; color:#fff; }
+.oh-node.active[data-tier="L2"] { background:#0a7a42; border-color:#085e32; color:#fff; }
+.oh-node.active[data-tier="L3"] { background:#96420a; border-color:#7a3208; color:#fff; }
+.oh-node.active[data-tier="L4"] { background:#4a18a0; border-color:#380e82; color:#fff; }
+.oh-node.active[data-tier="L5"] { background:#a80f0f; border-color:#880a0a; color:#fff; }
+
+/* ── Propagated nodes ── */
+.oh-node.propagated[data-tier="L1"] { background:#bdd0f0; border-color:#8ab0e0; color:#0d2e6a; }
+.oh-node.propagated[data-tier="L2"] { background:#b8e8cc; border-color:#80c8a0; color:#084830; }
+.oh-node.propagated[data-tier="L3"] { background:#f0d890; border-color:#d0a840; color:#503008; }
+.oh-node.propagated[data-tier="L4"] { background:#d8b8f0; border-color:#b080d8; color:#380e68; }
+.oh-node.propagated[data-tier="L5"] { background:#f0b8c0; border-color:#d87880; color:#680610; }
+
+/* ── Blink animation for selected active node ── */
+.oh-node.selected-blink {
+  animation: nodeBlink 0.7s ease-in-out infinite;
+}
+@keyframes nodeBlink {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.94); }
+}
+.oh-node-glow { animation: nodeGlow .9s ease-out forwards; }
+@keyframes nodeGlow {
+  0%  { box-shadow: 0 0 0 0 rgba(18,72,160,0); }
+  40% { box-shadow: 0 0 14px 5px rgba(18,72,160,.55); }
+  100%{ box-shadow: 0 0 0 0 rgba(18,72,160,0); }
+}
+
+.oh-anchor {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 9px 11px; margin-bottom: 7px;
+}
+.oh-anchor-id {
+  font-family: var(--sans); font-size: 10px; color: var(--primary);
+  word-break: break-all; margin-bottom: 5px; font-weight: 700;
+}
+.oh-anchor-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+.oh-anchor-key { font-size: 10px; color: var(--text3); font-weight: 600; }
+.oh-anchor-val { font-family: var(--sans); font-size: 10px; color: var(--text2); font-weight: 600; }
+.oh-chain {
+  font-family: var(--sans); font-size: 9px; color: var(--text3);
+  word-break: break-all; margin-top: 5px; padding-top: 5px;
+  border-top: 1px solid var(--border); font-weight: 500;
+}
+
+.propagation-path {
+  display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-top: 7px;
+}
+.prop-pill {
+  padding: 2px 7px; border-radius: 2px; font-size: 9px;
+  font-family: var(--sans); font-weight: 800;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text3);
+  transition: all .3s;
+}
+.prop-pill.active { background: var(--primary-s); border-color: var(--primary); color: var(--primary); }
+.prop-pill.done { background: var(--violet-s); border-color: rgba(74,24,160,.3); color: var(--violet); }
+.prop-arrow { color: var(--text3); font-size: 9px; }
+
+/* ── LOG TAIL ── */
+.log-tail {
+  background: #0d1117;
+  border: 1px solid #1e2733;
+  border-radius: var(--r-lg); padding: 9px 12px;
+  max-height: 120px; overflow-y: auto;
+  font-family: var(--sans); font-size: 11px; font-weight: 500;
+}
+.log-tail::-webkit-scrollbar { width: 3px; }
+.log-tail::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); }
+.log-line { margin-bottom: 2px; line-height: 1.55; }
+.log-ts   { color: rgba(255,255,255,.25); }
+.log-ok   { color: #3dd68c; }
+.log-warn { color: #f0b429; }
+.log-err  { color: #f56565; }
+.log-info { color: #63b3ed; }
+.log-hash { color: #b794f4; }
+
+/* ── SPINNER ── */
+.spinner {
+  width: 13px; height: 13px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .8s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── EMPTY ── */
+.empty {
+  text-align: center; padding: 28px 16px;
+  color: var(--text3); font-size: 12px; line-height: 2; font-weight: 500;
+}
+.empty-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+
+/* ── TIER LEGEND ── */
+.tier-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.tier-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text2); font-weight: 600; }
+.tier-dot { width: 7px; height: 7px; border-radius: 2px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── TOAST ── */
+.toast-wrap {
+  position: fixed; bottom: 20px; right: 20px;
+  z-index: 100; display: flex; flex-direction: column; gap: 6px;
+}
+.toast {
+  background: #0d1117; color: #e2e8f0;
+  border-radius: var(--r-md); padding: 9px 14px;
+  font-size: 12px; font-family: var(--sans); font-weight: 500;
+  box-shadow: var(--shadow-3); border: 1px solid #1e2733;
+  animation: slideIn .2s ease; max-width: 280px;
+}
+@keyframes slideIn { from{transform:translateX(12px);opacity:0} to{transform:none;opacity:1} }
+
+/* ── URL STATUS ── */
+.url-status {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--sans); font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 2px; border: 1px solid transparent; white-space: nowrap;
+}
+.url-status.checking { background: var(--yellow-s); border-color: rgba(150,66,10,.25); color: var(--yellow); }
+.url-status.ok       { background: var(--green-s);  border-color: rgba(10,122,66,.25); color: var(--green); }
+.url-status.fail     { background: var(--red-s);    border-color: rgba(168,15,15,.25); color: var(--red); }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 10px; color: var(--text2); letter-spacing: .5px;
+  text-transform: uppercase; font-weight: 800; margin-bottom: 5px;
+}
+</style>
+</head>
+<body>
+<div class="top-nav"></div>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">GP</div>
+    <div>
+      <div class="logo-text">Gopang Monitor</div>
+      <div class="logo-sub">K-Law 분석 파이프라인 · OpenHash 네트워크</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="server-url">gopang.net</span>
+    <span class="badge-sim">SIM PANEL v3</span>
+  </div>
+</div>
+
+<!-- STATISTICS ROW -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-val" id="st-total" style="color:var(--primary)">0</div>
+    <div class="stat-lbl">총 분석</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val" id="st-s0" style="color:var(--green)">0</div>
+    <div class="stat-lbl">S0 정상</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val" id="st-s1" style="color:var(--yellow)">0</div>
+    <div class="stat-lbl">S1 주의</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val" id="st-s2" style="color:var(--orange)">0</div>
+    <div class="stat-lbl">S2 경고</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val" id="st-s3" style="color:var(--red)">0</div>
+    <div class="stat-lbl">S3 차단</div>
+  </div>
+</div>
+
+<!-- CSV UPLOAD -->
+<div class="csv-upload-area" id="csv-upload-area">
+  <input type="file" id="csv-file-input" accept=".txt,.csv" multiple>
+  <button class="btn-upload" onclick="document.getElementById('csv-file-input').click()">CSV 업로드</button>
+  <div id="csv-tags" style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
+    <span style="font-size:11px;color:var(--text3)">대화 CSV 파일을 업로드하면 내장 데이터를 대체합니다 (D001~D020, D021~D050, D051~D100)</span>
+  </div>
+  <button class="btn-upload" id="btn-csv-clear" onclick="clearCsvFiles()" style="display:none">✕ 초기화</button>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div style="display:flex;align-items:center;gap:6px">
+    <span class="status-dot" id="status-dot"></span>
+    <span id="status-text" style="font-size:12px;color:var(--text2);font-weight:600">대기 중</span>
+  </div>
+  <div class="divider"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">서버</span>
+    <input class="ctrl-input" id="server-url-input" value="https://gopang.net" style="width:180px"
+      oninput="scheduleUrlCheck()">
+    <span class="url-status checking" id="url-status">⋯ 미확인</span>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">사용자A</span>
+    <input class="ctrl-input" id="user-a" value="monitor_a" style="width:100px">
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">사용자B</span>
+    <input class="ctrl-input" id="user-b" value="monitor_b" style="width:100px">
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">대화 간격(초)</span>
+    <input class="ctrl-input" id="interval" type="number" value="8" min="3" max="60">
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">유형 비율</span>
+    <select class="ctrl-select" id="dataset">
+      <option value="auto">기본 (피싱30·법률20·일상50)</option>
+      <option value="phishing_heavy">피싱 집중 (60·20·20)</option>
+      <option value="legal_heavy">법률 집중 (15·55·30)</option>
+      <option value="normal_heavy">일상 집중 (10·10·80)</option>
+    </select>
+  </div>
+  <button class="btn btn-start" id="btn-start" onclick="startSim()">시뮬레이션 시작</button>
+  <button class="btn btn-stop" id="btn-stop" onclick="stopSim()" disabled>중지</button>
+  <button class="btn btn-clear" onclick="clearAll()">초기화</button>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+  <!-- LEFT: CONVERSATION FEED -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="dot" style="background:var(--primary)"></span>
+        대화 피드
+      </div>
+      <span id="feed-count" style="font-size:11px;color:var(--text3);font-family:var(--mono)">0 / 0</span>
+    </div>
+    <div class="panel-body" style="padding:10px">
+      <div class="conv-feed" id="conv-feed">
+        <div class="empty">
+          <span class="empty-icon"></span>
+          시뮬레이션 시작 시<br>랜덤 대화가 재생됩니다
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center-panel">
+
+    <!-- K-LAW RESULT -->
+    <div class="klaw-result" id="klaw-panel">
+      <div class="klaw-header">
+        <span class="klaw-title">K-LAW 분석 결과</span>
+        <div class="klaw-grade-display" id="klaw-grade-display">
+          <span style="font-size:12px;color:var(--text3)">분석 대기</span>
+        </div>
+      </div>
+      <div id="klaw-content">
+        <div class="empty" style="padding:20px">
+          <span class="empty-icon"></span>
+          대화 종료 후 DeepSeek API<br>배치 분석 결과가 표시됩니다
+        </div>
+      </div>
+    </div>
+
+    <!-- MSG ANALYSIS TABLE -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="dot" style="background:var(--yellow)"></span>
+          메시지별 위험도 분석
+        </div>
+        <span id="msg-conv-id" style="font-size:10px;color:var(--text3);font-family:var(--mono)"></span>
+      </div>
+      <div class="panel-body" style="padding:10px;overflow-x:auto">
+        <div id="msg-table-wrap">
+          <div class="empty" style="padding:20px">메시지 분석 결과 대기 중</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG TAIL -->
+    <div class="log-tail" id="log-tail">
+      <div class="log-line"><span class="log-ts">[00:00:00]</span> <span class="log-info">Gopang Monitor v3 초기화 완료</span></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: OPENHASH -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="dot" style="background:var(--violet)"></span>
+        OpenHash 네트워크
+      </div>
+      <span id="oh-total" style="font-size:11px;color:var(--text3);font-family:var(--mono)">0 앵커</span>
+    </div>
+    <div class="panel-body">
+      <!-- Stats -->
+      <div class="oh-stats">
+        <div class="oh-stat">
+          <div class="oh-stat-label">최근 계층</div>
+          <div class="oh-stat-val" id="oh-tier">-</div>
+        </div>
+        <div class="oh-stat">
+          <div class="oh-stat-label">총 노드 수</div>
+          <div class="oh-stat-val">25</div>
+        </div>
+      </div>
+
+      <!-- Node Grid (25 nodes) -->
+      <div class="section-label">노드 맵 (L1×10 · L2×6 · L3×4 · L4×3 · L5×2)</div>
+      <div class="oh-node-grid" id="oh-node-grid">
+        <!-- JS will populate -->
+      </div>
+
+      <!-- Tier Legend -->
+      <div class="tier-legend">
+        <div class="tier-item"><div class="tier-dot" style="background:#eef3fb;border:1px solid #c8d8f0"></div><span style="color:#2a4a80">L1</span></div>
+        <div class="tier-item"><div class="tier-dot" style="background:#edf7f1;border:1px solid #b8dfc8"></div><span style="color:#1a6040">L2</span></div>
+        <div class="tier-item"><div class="tier-dot" style="background:#fdf6e8;border:1px solid #e8d090"></div><span style="color:#705010">L3</span></div>
+        <div class="tier-item"><div class="tier-dot" style="background:#f5eefb;border:1px solid #d0b0e8"></div><span style="color:#5a1880">L4</span></div>
+        <div class="tier-item"><div class="tier-dot" style="background:#fdeef0;border:1px solid #e8b0b8"></div><span style="color:#880a18">L5</span></div>
+        <div class="tier-item" style="margin-left:2px"><div class="tier-dot" style="background:#1248a0"></div><span style="color:var(--text3)">선택</span></div>
+        <div class="tier-item"><div class="tier-dot" style="background:#bdd0f0;border:1px solid #8ab0e0"></div><span style="color:var(--text3)">전파</span></div>
+      </div>
+
+      <!-- Propagation Path -->
+      <div style="margin-top:12px;margin-bottom:6px" class="section-label">전파 경로</div>
+      <div class="propagation-path" id="prop-path">
+        <span class="prop-pill">L1</span>
+        <span class="prop-arrow">→</span>
+        <span class="prop-pill">L2</span>
+        <span class="prop-arrow">→</span>
+        <span class="prop-pill">L3</span>
+        <span class="prop-arrow">→</span>
+        <span class="prop-pill">L4</span>
+        <span class="prop-arrow">→</span>
+        <span class="prop-pill">L5</span>
+      </div>
+
+      <!-- Merkle Root -->
+      <div style="margin-top:12px">
+        <div class="section-label">Merkle Root</div>
+        <div class="oh-chain" id="oh-merkle">—</div>
+      </div>
+
+      <!-- Latest Anchor -->
+      <div style="margin-top:12px">
+        <div class="section-label" style="margin-bottom:6px">최근 앵커</div>
+        <div class="oh-anchor" id="oh-anchor-card">
+          <div style="text-align:center;color:var(--text3);font-size:11px;padding:8px 0">앵커 없음</div>
+        </div>
+      </div>
+
+      <!-- Mini bar chart -->
+      <div style="margin-top:12px">
+        <div class="section-label" style="margin-bottom:6px">계층별 등록 현황</div>
+        <div id="tier-bars"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main-grid -->
+</div><!-- /container -->
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA — 100 conversations embedded
+═══════════════════════════════════════════════════ */
+const CONVERSATIONS = [
+{"id":"D001","dialog":"A: 이번에 아파트 단체 보험 가입하는데, 추가로 특약 넣으시겠어요?\nB: 어떤 특약인가요?\nA: 화재·침수 특약인데, 관리비에 5천원만 추가하시면 됩니다. 개인 계좌로 저한테 입금하시면 제가 대신 처리해드려요.\nB: 관리사무소에 직접 납부하는 게 맞지 않나요?","ref":"집합건물법 제45조(관리비 징수)"},
+{"id":"D002","dialog":"A: 중고나라에 시계를 팔려고 하는데, 구매자가 택배 보내기 전에 계약금 3만원을 먼저 보내달래요.\nB: 그거 사기 아니에요? 보통 선입금 요구하면 조심해야 한다고 들었어요.\nA: 그런데 상대방이 가격도 높게 불러주고, 가까운 동네라고 하네요. 믿어도 될까요?\nB: 일단 반값이라도 보내보고 판단해요.","ref":"전자상거래법 제17조"},
+{"id":"D003","dialog":"A: 우리 회사 팀장님이 점심시간에 개인 심부름을 시켜요. 자식 병원 예약을 대신 해달라고 하면서 주민번호를 불러 달래요.\nB: 거절하면 인사고과에 불이익이 있을까 봐 두려워요.","ref":"근로기준법 제76조의2"},
+{"id":"D004","dialog":"A: 주민센터에서 지역 행사 기념품 수령하려면 신분증 사진을 카카오톡으로 보내라고 하네요. 공식 번호가 아닌 개인 번호예요.\nB: 믿어도 될까요?","ref":"개인정보보호법 제24조"},
+{"id":"D005","dialog":"A: 모 금융회사에서 대환대출 상담 문자가 왔어요. 기존 대출보다 금리가 3% 낮다고 하면서, 먼저 기존 대출 잔액을 상환할 자금 200만원을 가상계좌로 입금하면 바로 실행해준대요.\nB: 대환대출은 대출금이 바로 통장에 들어오는 게 순서 아닌가요?","ref":"여신전문금융업법 제13조"},
+{"id":"D006","dialog":"A: 헬스장에서 개인 트레이닝 10회 패키지를 추천받았는데, 계약서 쓰기 전에 선약금 5만원을 현금으로 달래요. 헬스장 대표 개인 명의 계좌로 보내래요.","ref":"방문판매법 제9조"},
+{"id":"D007","dialog":"A: 지인이 부동산 경매 투자를 권유하는데, 저는 돈만 대면 수익의 20%를 주겠대요.\nB: 그거 불법 사금융 아니에요?\nA: 그런데 그 지인은 부동산 중개사 자격증이 있고, 법무사 사무실도 같이 운영한대요.","ref":"유사수신행위규제법"},
+{"id":"D008","dialog":"A: 아이 학원비를 카드로 결제하려는데, 학원 원장님이 현금으로 달라고 해요. 대신 5% 할인해준대요.\nB: 그러면 카드 매출 누락되는 거 아닌가요?","ref":"조세범 처벌법 제9조"},
+{"id":"D009","dialog":"A: 쿠팡 플렉스 배송 기사를 하고 있는데, 계약이 프리랜서라서 4대 보험도 없고, 배송 중 다쳐도 보상이 안 된대요.\nB: 회사는 '특수고용직'이라서 근로기준법 적용 안 된다고 하고, 하지만 배송 시간이랑 복장은 다 통제해요.","ref":"특수고용직 근로자 보호법"},
+{"id":"D010","dialog":"A: 전세 계약할 때 집주인이 '가계약금 500만원을 먼저 주면 다른 사람에게 안 보여주겠다'고 해요. 계약서는 그 다음에 작성하자고 합니다.\nB: 법적으로 효력이 있나요?","ref":"민법 제564조"},
+{"id":"D011","dialog":"A: 아파트 경비원에게 명절 선물로 5만원 상품권을 드렸는데, 다른 입주민이 '그건 뇌물 아니냐'고 하네요.","ref":"형법 제129조"},
+{"id":"D012","dialog":"A: 퇴사한 회사에서 퇴직금을 3개월째 안 주네요. 노동청에 신고하려는데, 대표가 '신고하면 경력 증명서에 불이익이 간다'고 협박해요.","ref":"근로기준법 제36조"},
+{"id":"D013","dialog":"A: 전셋집이 곧 만료되는데, 집주인이 복비를 반반 내자고 해요. 중개사는 이미 집주인이 다 내기로 했대요.","ref":"부동산 중개보수 규칙"},
+{"id":"D014","dialog":"A: 모바일 게임에서 현금 거래로 아이템을 샀는데, 판매자가 나중에 '내 계좌로 입금해주면 더 싸게 팔겠다'고 해요.","ref":"게임산업법 제32조"},
+{"id":"D015","dialog":"A: 페이스북에서 낯선 사람이 '당첨됐다'고 연락왔는데, 제세공과금 5만원을 먼저 입금하면 선물세트를 보내준대요.","ref":"방문판매법 제17조"},
+{"id":"D016","dialog":"A: 자동차 보험 갱신 문자인데, 발신자가 공식 번호랑 달라요. 전화해보니 실제 보험사 직원 맞는 것 같고, 개인정보도 몇 개 물어보긴 하는데...","ref":"개인정보보호법 제15조"},
+{"id":"D017","dialog":"A: 아르바이트 면접 봤는데, 사장님이 '계약서 대신 신분증과 계좌번호, 통장 사본을 찍어서 보내달라'고 해요.","ref":"근로기준법 제17조"},
+{"id":"D018","dialog":"A: 아이 학교에서 학부모 설문조사라고 메일이 왔는데, 아이 이름, 주소, 학교 이름, 가정 수입까지 묻네요.","ref":"개인정보보호법 제16조"},
+{"id":"D019","dialog":"A: 퇴직 후 창업을 준비 중인데, 지인이 '전세 대출을 받아서 그 돈으로 사업 자금에 쓰는 게 어떤가'라고 조언해줬어요.","ref":"주택금융법 제63조"},
+{"id":"D020","dialog":"A: 교통사고가 났는데, 상대방이 '합의금을 현금으로 주겠다, 보험사 불러서 할증시키지 말자'고 해요.","ref":"교통사고처리특례법 제4조"},
+{"id":"D021","dialog":"A: 법무법인 광장입니다. 고객님의 상속 포기 신청이 접수됐습니다. 오늘까지 50만원 수수료를 계좌로 입금해 주셔야 신청이 진행됩니다.","ref":"상속세 및 증여세법 제45조"},
+{"id":"D022","dialog":"A: 경찰청 디지털포렌식팀입니다. 당신의 휴대폰에서 아동음란물 정황이 발견됐습니다. 해명하려면 공탁금 200만원을 아래 안전계좌로 먼저 입금하세요.","ref":"보이스피싱 — 수사기관 사칭"},
+{"id":"D023","dialog":"A: 국민연금공단입니다. 당신의 연금 수령 계좌가 압류되었습니다. 해제하려면 공탁금 30만원을 가상계좌로 입금하세요.","ref":"국민연금법 제86조"},
+{"id":"D024","dialog":"A: 제주지방검찰청입니다. 당신 명의의 가상자산 계좌가 북한 해커에 해킹됐습니다. 지금 당장 모든 암호화폐를 저희 안전 지갑으로 이체하세요.","ref":"특금법 제7조"},
+{"id":"D025","dialog":"A: 신한은행 사기예방팀입니다. 방금 420만원 해외송금 시도가 있었습니다. 계좌번호 뒷자리와 카드 CVC 번호를 알려주세요.","ref":"금융회사 고객정보 보호 가이드라인"},
+{"id":"D026","dialog":"A: 당첨되셨습니다! 자동차 경품 당첨 – 1천만원 예치금만 입금하시면 경차를 드립니다. 현대 캐스퍼입니다. 오늘까지 100만원만 먼저 입금하세요.","ref":"방문판매 등에 관한 법률 제16조"},
+{"id":"D027","dialog":"A: 신용정보회사 직원입니다. 당신의 신용등급이 급락했습니다. 저희 프리미엄 서비스 가입비로 230만원을 입금하시면 바로 해결해드립니다.","ref":"신용정보의 이용 및 보호에 관한 법률"},
+{"id":"D028","dialog":"A: 어머니, 저 핸드폰 떨어뜨려서 액정 깨졌어요. 지금 수리 맡기려는데 35만원이 필요해요. 빨리 이체해주세요.","ref":"보이스피싱 — 가족 사칭"},
+{"id":"D029","dialog":"A: 국회의원 김철수 보좌관입니다. 당신이 지난주 민원 낸 건 처리됐습니다. 수수료 12만원만 보내주세요.","ref":"국민권익위원회 민원 처리 규정"},
+{"id":"D030","dialog":"A: 저는 법무사입니다. 전세 계약서 작성 의뢰하셨죠? 계약금 20만원만 보내주시면 당일 작성해드립니다.","ref":"전세 계약 시 법무사 확인 요령"},
+{"id":"D031","dialog":"A: 대법원 전자소송 담당입니다. 당신이 제기한 민사소송에서 가압류 결정이 났습니다. 보증금 500만원을 아래 공탁계좌로 납부하세요.","ref":"민사집행법 제278조"},
+{"id":"D032","dialog":"A: 의료분쟁조정중재원에 상담해드릴 수 있어요. 수수료 18만원이 필요합니다. 오늘까지 입금하세요.","ref":"의료분쟁 조정 등에 관한 법률 제4조"},
+{"id":"D033","dialog":"A: 국세청 지능형 조사팀입니다. 당신의 해외 계좌(홍콩)에 3억 원이 숨겨져 있습니다. 과태료 면제를 원하면 공탁금 1,000만원을 안전계좌로 이체하세요.","ref":"국제조세조정에 관한 법률 제14조"},
+{"id":"D034","dialog":"A: 우리 아파트 관리소장입니다. 주차장 방범 카메라 교체 비용으로 세대당 8만원을 추가로 걷으려고 합니다. 내일까지 입금 부탁드려요.","ref":"집합건물법 제45조"},
+{"id":"D035","dialog":"A: 한국전력공사입니다. 전기요금 체납으로 내일 정전 예정입니다. 가상계좌로 즉시 24만원을 납부하세요.","ref":"전기사업법 제47조"},
+{"id":"D036","dialog":"A: 30대 여성 – 핸드폰 액정 수리비 25만원 빌려주실 수 있나요? 주말에 바로 갚을게요. 오늘까지 이체만 되면 정말 감사하겠습니다.","ref":"보이스피싱 — 긴급 금전 대출 사기"},
+{"id":"D037","dialog":"A: 대학 등록금을 아직 안 내셨습니다. 오늘이 마지막 날입니다. 가상계좌 3333-1234-5678로 480만원 넣어주세요.","ref":"고등교육법 시행령 제9조"},
+{"id":"D038","dialog":"A: 고용노동부입니다. 퇴직금 체불 신고하셨죠? 심사 통과되었고 980만원 지급 예정입니다. 수수료 15만원만 먼저 입금해주세요.","ref":"근로자퇴직급여 보장법 제7조"},
+{"id":"D039","dialog":"A: 안녕, 나야. 휴대폰 바꿨어. 이게 새 번호야. 그런데 계좌에 있는 돈 좀 빌려줄 수 있어? 친구 수술 때문에 70만원이 필요해.","ref":"메신저 피싱"},
+{"id":"D040","dialog":"A: 집주인입니다. 이번 달 월세를 다른 계좌로 보내주세요. 농협 302-1234-5678-90으로 입금 부탁드려요.","ref":"월세 사기 수법"},
+{"id":"D041","dialog":"A: 신혼부부 특별공급 당첨되셨습니다! 계약금 1,200만원을 아래 가상계좌로 입금하시면 3일 내로 등기까지 해드립니다.","ref":"주택공급에 관한 규칙 제12조"},
+{"id":"D042","dialog":"A: 카드값이 연체되어 신용등급 폭락 직전입니다. 저희 채무조정 대행팀에서 해결해드릴 수 있어요. 선처리비 33만원만 입금하세요.","ref":"채무자 대리인 사기 주의"},
+{"id":"D043","dialog":"A: 코로나19 방역지원금이 지급됩니다. 신청 수수료 5만원을 먼저 입금해야 받을 수 있습니다. 오늘까지 하면 85만원 받습니다.","ref":"정부 지원금 사기"},
+{"id":"D044","dialog":"A: 대한민국 재판매권 특허 경매 당첨! 낙찰 정산금 450만원을 아래 계좌로 입금하시면 권리증을 발급해드립니다.","ref":"상표법·특허법"},
+{"id":"D045","dialog":"A: 차량 견인됐습니다. 견인료 17만원을 계좌로 입금하시면 위치 알려드립니다. 돈 먼저 입금해야 알려줄 수 있습니다.","ref":"도로교통법 제37조"},
+{"id":"D046","dialog":"A: KBS 방송국입니다. 고객님께서 생방송 퀴즈쇼에 실시간 당첨되셨어요. 상금 2천만원 수령을 위해 제세공과금 93만원을 송금해주세요.","ref":"방송통신심의위원회 경품 사기 예방"},
+{"id":"D047","dialog":"A: 관세청입니다. 귀하의 해외 직구 물품이 통관 보류됐습니다. 관세 27만원을 가상계좌로 입금하시면 배송 시작됩니다.","ref":"관세법 제112조"},
+{"id":"D048","dialog":"A: 변호사입니다. 이혼 소송 위임하셨죠? 소장 접수 수수료 45만원이 필요합니다. 오늘 입금하셔야 다음 재판 일정이 잡힙니다.","ref":"변호사 수임 계약 수칙"},
+{"id":"D049","dialog":"A: 저는 경찰 사칭범에게 6개월치 월급을 모두 잃었습니다. 절대 검사나 경찰이 계좌이체를 요구하면 안 됩니다.\nB: '안전계좌'라는 말이 나오면 무조건 끊고 112로 신고하세요.","ref":"보이스피싱 피해 후기"},
+{"id":"D050","dialog":"A: XX부동산 중개사입니다. 지난주 보셨던 아파트 계약 포기하셨다면서요? 위약금 880만원을 아래 계좌로 납부하셔야 합니다.","ref":"부동산 중개 사기 — 가짜 위약금"},
+{"id":"D051","dialog":"A: 주말에 뭐 했어요?\nB: 아이랑 놀이공원 다녀왔어요. 줄이 너무 길었지만 아이가 좋아하니까 만족했어요.\nA: 저는 집에서 넷플릭스 보면서 쉬었어요.","ref":"여가활동 촉진법 제3조"},
+{"id":"D052","dialog":"A: 회사에서 점심 뭐 먹을까요?\nB: 근처 새로 생긴 샌드위치 가게 가볼래요?\nA: 좋아요. 저는 베지터블로 주문할게요.","ref":"식품위생법 제36조"},
+{"id":"D053","dialog":"A: 운동 시작한 지 한 달 됐는데 3kg 뺐어요.\nB: 대단하다! 같이 주말에 등산 가는 건 어때요?","ref":"국민체육진흥법 제2조"},
+{"id":"D054","dialog":"A: 이번에 중고차를 사려고 하는데, 어떤 절차가 필요할까요?\nB: 먼저 성능점검 기록부와 보험 이력 확인이 필수예요.","ref":"자동차관리법 제58조"},
+{"id":"D055","dialog":"A: 아이가 학교에서 친구랑 싸웠다고 선생님이 연락 주셨어요.\nB: 우선 아이 이야기를 끝까지 듣고, 내일 학교에 가서 담임 선생님과 상담하기로 했어요.","ref":"초·중등교육법 제18조"},
+{"id":"D056","dialog":"A: 아파트 관리비에 갑자기 10만원이 올랐는데 이유를 모르겠어요.\nB: 관리사무소에 청구내역을 요청해보세요.","ref":"집합건물법 제45조"},
+{"id":"D057","dialog":"A: 이번에 전세 계약 갱신하는데 집주인이 보증금을 1억에서 1억 3천으로 올리자네요.\nB: 계약 갱신 청구권을 행사하세요. 법적으로 5% 초과 증액은 못 합니다.","ref":"주택임대차보호법 제6조의2"},
+{"id":"D058","dialog":"A: 카드값이 너무 많이 나왔는데, 분할 납부가 가능한가요?\nB: 신용카드사에 요청하면 2~3개월 분할이 가능한 상품이 있어요.","ref":"여신전문금융업법 제21조"},
+{"id":"D059","dialog":"A: 어머니 생신 선물로 무얼 사면 좋을까요?\nB: 건강기능식품이나 안마의자가 요즘 인기예요.","ref":"건강기능식품에 관한 법률 제10조"},
+{"id":"D060","dialog":"A: 이직을 고민 중인데, 퇴직금을 중간정산 받을 수 있나요?\nB: 무주택자나 천재지변 등 법정 사유가 아니면 중간정산은 어려워요.","ref":"근로자퇴직급여 보장법 제8조"},
+{"id":"D061","dialog":"A: 아기가 밤에 자주 깨서 너무 힘들어요.\nB: 몇 개월이에요? 6개월 이전에는 불규칙한 수면이 정상이라고 해요.","ref":"영유아보육법 제4조"},
+{"id":"D062","dialog":"A: 반려견이 자꾸 가구를 긁어서 고민입니다.\nB: 스크래처를 여러 개 배치하고 긁을 때마다 간식으로 유도해보세요.","ref":"동물보호법 제9조"},
+{"id":"D063","dialog":"A: 주식 투자 처음 시작하는데, 어떤 책을 추천하시나요?\nB: 먼저 경제 신문 읽는 법부터 익히시고, 장기 투자 관점의 입문서가 좋아요.","ref":"자본시장과 금융투자업에 관한 법률 제47조"},
+{"id":"D064","dialog":"A: 내일 제주도 가는데 날씨가 좋다고 하니 기대되네요.\nB: 우천 시 대비 우산 챙기세요. 렌터카도 예약 완료했어요.","ref":"관광진흥법 제38조"},
+{"id":"D065","dialog":"A: 자기 전에 핸드폰 보는 습관 때문에 잠을 잘 못 자요.\nB: 취침 1시간 전에는 블루라이트 차단 모드로 전환하거나 독서하는 게 좋아요.","ref":"국민건강증진법 제10조"},
+{"id":"D066","dialog":"A: 요즘 등산 동호회에 가입했어요. 다음 주에 설악산 가기로 했습니다.\nB: 쉬운 코스로 골랐고, 회장님이 안전 교육도 미리 해주신대요.","ref":"자연공원법 제26조"},
+{"id":"D067","dialog":"A: 기부하고 싶은데 어떤 단체가 신뢰할 수 있을까요?\nB: 기부금 모집 단체 등록 여부와 투명성 보고서를 먼저 확인하세요.","ref":"기부금품의 모집 및 사용에 관한 법률 제5조"},
+{"id":"D068","dialog":"A: 다이어트 중인데 식단 조절이 너무 힘들어요.\nB: 급격히 줄이지 말고 한 끼를 단백질 위주로 바꾸는 것부터 시작하세요.","ref":"국민영양관리법 제7조"},
+{"id":"D069","dialog":"A: 이번 주말에 자원봉사 다녀왔어요. 노인복지관에서 밑반찬 배달했어요.\nB: 저도 한 달에 한 번이라도 꼭 하려고 해요.","ref":"자원봉사활동 기본법 제3조"},
+{"id":"D070","dialog":"A: 영어 회화 스터디를 시작하려고 하는데 어떻게 모집하면 좋을까요?\nB: 동네 카페나 온라인 커뮤니티에 올리면 관심 있는 분들이 모일 거예요.","ref":"평생교육법 제12조"},
+{"id":"D071","dialog":"A: 핸드폰 약정이 끝나서 기기 변경하려는데, 자급제가 좋을까요 통신사 공기계가 좋을까요?\nB: 알뜰폰 요금제와 자급제 조합이 가장 저렴해요.","ref":"전기통신사업법 제31조"},
+{"id":"D072","dialog":"A: 아파트 경비원분이 퇴직하신대요. 같이 감사 편지라도 쓰는 게 어떨까요?\nB: 좋은 생각이에요. 이번 달 관리비 고지서에 넣어서 전달하면 되겠네요.","ref":"근로기준법 제33조"},
+{"id":"D073","dialog":"A: 갤러리에서 사진 전시회를 열었는데 사람들이 많이 왔으면 좋겠어요.\nB: SNS에 홍보하고 지역 커뮤니티에 올리면 효과 좋아요.","ref":"문화예술진흥법 제22조"},
+{"id":"D074","dialog":"A: 아침에 일어나기 너무 힘들어요. 기상 어플 깔아도 소용없네요.\nB: 자기 전에 카페인 줄이고, 취침 시간을 일정하게 하는 게 가장 중요해요.","ref":"공중보건관리법 시행규칙 제18조"},
+{"id":"D075","dialog":"A: 부모님 댁에서 반찬을 잔뜩 받아왔는데 너무 많아서 고민이에요.\nB: 냉동실에 소분해서 넣어두세요.","ref":"식품위생법 제44조"},
+{"id":"D076","dialog":"A: 버스에서 지갑을 잃어버렸는데, 어떻게 찾을 수 있을까요?\nB: 먼저 해당 버스 회사에 연락하시고, 경찰서 분실물센터에도 신고하세요.","ref":"유실물법 제2조"},
+{"id":"D077","dialog":"A: 집에서 화분을 키우는데 잎이 누렇게 변했어요.\nB: 물을 너무 자주 주지 않으셨나요? 과습이나 일조 부족일 수 있어요.","ref":"식물방역법 제8조"},
+{"id":"D078","dialog":"A: 중고나라에서 물건을 팔았는데, 구매자가 일주일이 지나서 환불을 요구해요. 하자는 없고, 그냥 맘에 안 든다네요.","ref":"전자상거래법 제17조"},
+{"id":"D079","dialog":"A: 독서모임을 만들고 싶어요. 처음에 몇 명으로 시작하는 게 좋을까요?\nB: 4~5명이 가장 대화하기 좋고 운영도 쉬워요.","ref":"문화기본법 제12조"},
+{"id":"D080","dialog":"A: 어제 치과에서 충치 치료 받았는데, 앞으로 어떻게 관리해야 하나요?\nB: 6개월마다 정기 검진을 받고, 불소 치약을 사용하는 게 좋아요.","ref":"구강보건법 제3조"},
+{"id":"D081","dialog":"A: 연말 정산 환급금이 생각보다 적게 나왔어요.\nB: 의료비, 교육비, 기부금 등 추가 공제 대상이 있는지 확인해보세요.","ref":"소득세법 제59조"},
+{"id":"D082","dialog":"A: 아이 유치원 오픈카톡방에서 학부모 간 다툼이 있어서 너무 피곤하네요.\nB: 담임 선생님께 조정을 요청하는 게 좋겠어요.","ref":"유아교육법 제21조"},
+{"id":"D083","dialog":"A: 이사 갈 집에 도배가 오래되었는데, 집주인이 바꿔주지 않네요.\nB: 도배 상태가 심각하면 집주인의 유지보수 책임입니다.","ref":"민법 제623조"},
+{"id":"D084","dialog":"A: 쓰레기 종량제 봉투에 폐기물을 넣었는데, 수거되지 않았어요.\nB: 재활용 가능 품목이 잘못 섞였거나 배출 시간을 지키지 않았을 수 있어요.","ref":"폐기물관리법 제15조"},
+{"id":"D085","dialog":"A: 쿠팡에서 주문한 물건이 3일째 도착하지 않아서 불편해요.\nB: 배송 지연 시 쿠팡 고객센터에 문의하면 할인 쿠폰을 주기도 해요.","ref":"전자상거래법 제21조"},
+{"id":"D086","dialog":"A: 혼자 사니까 밥 해먹는 게 너무 귀찮아요.\nB: 밀키트나 냉동 건강식도 좋지만, 일주일에 2~3일은 직접 요리하는 게 경제적이에요.","ref":"식생활교육지원법 제3조"},
+{"id":"D087","dialog":"A: 신혼여행으로 유럽을 가려고 하는데, 비행기표가 너무 비싸네요.\nB: 환절기나 주중 출발이 저렴하니까 날짜를 조정해보세요.","ref":"관광진흥개발기금법 제18조"},
+{"id":"D088","dialog":"A: 수제맥주 동호회에서 만든 맥주가 맛있어서 작게 창업을 고민 중이에요.\nB: 주류 제조는 면허가 필요하니까 먼저 지자체에 문의하세요.","ref":"주세법 제8조"},
+{"id":"D089","dialog":"A: 실내 정원에 허브를 심으려고 하는데 초보자에게 추천해주세요.\nB: 바질이나 로즈마리는 키우기 쉬워요.","ref":"식물 보호법 시행규칙 제49조"},
+{"id":"D090","dialog":"A: 아기가 돌인데 말을 안 해서 걱정입니다.\nB: 12~18개월 사이에는 개인차가 크니 너무 조바심 내지 마세요. 발달 검진을 받아보는 게 좋겠네요.","ref":"영유아 건강검진 사업운영 규정"},
+{"id":"D091","dialog":"A: 퇴근 후에 운동하려니 너무 힘들어요. 아침 운동 어떨까요?\nB: 아침에 가벼운 스트레칭이나 걷기부터 시작하면 적응하기 쉬워요.","ref":"국민건강증진법 제6조"},
+{"id":"D092","dialog":"A: 집 앞에 노점상에서 과일을 파는데, 위생이 걱정됩니다.\nB: 허가받은 노점상은 보건교육을 이수하고 정기 점검을 받기 때문에 비교적 안전해요.","ref":"식품위생법 제37조"},
+{"id":"D093","dialog":"A: 요즘 재택근무가 많아져서 아이 돌봄이 더 힘들어졌어요.\nB: 직장어린이집이나 아이돌봄서비스를 이용해보세요.","ref":"아이돌봄 지원법 제4조"},
+{"id":"D094","dialog":"A: 버스 환승 할인이 안 된 거 같아서 교통카드 내역을 조회해봤어요.\nB: 환승 시간 30분 이내에 태그를 안 하면 할인이 적용되지 않아요.","ref":"대중교통 육성 및 이용촉진법 제15조"},
+{"id":"D095","dialog":"A: 아파트 옆 공사장 소음 때문에 너무 스트레스예요.\nB: 생활소음 규제 기준이 있는데, 밤 10시 이후에는 55데시벨 이하여야 합니다.","ref":"환경분쟁조정법 제2조"},
+{"id":"D096","dialog":"A: 온라인 강의를 수강하면서 너무 혼자 하니까 지루해요.\nB: 스터디그룹을 만들거나 온라인 커뮤니티에 참여해보세요.","ref":"평생교육법 제3조"},
+{"id":"D097","dialog":"A: 전셋집 계약 만료가 3개월 남았는데 집주인이 매도 의사를 밝혔어요.\nB: 매매와 동시에 신규 임차인에게 권리가 승계됩니다.","ref":"주택임대차보호법 제3조"},
+{"id":"D098","dialog":"A: 핸드폰으로 사진 찍는 법을 배우고 싶어요.\nB: 유튜브에 무료로 구성, 조명 강의가 많아요.","ref":"저작권법 제29조"},
+{"id":"D099","dialog":"A: 어버이날에 부모님께 드릴 선물로 가전제품이 좋을까요, 현금이 좋을까요?\nB: 현금이 제일 간편하고 부모님이 원하시는 걸 사시는 게 나을 거예요.","ref":"상속세 및 증여세법 제53조"},
+{"id":"D100","dialog":"A: 홈베이킹에 도전하고 싶은데, 처음에 무얼 사면 되나요?\nB: 오븐과 전자저울, 실리콘 주걱, 거품기면 기본 준비 끝이에요.","ref":"식품위생법 제31조"},
+];
+
+const OPENHASH_NODES = [
+  /* L1 × 10 */
+  {id:"L1-001",tier:"L1",name:"이도1동"},{id:"L1-002",tier:"L1",name:"이도2동"},
+  {id:"L1-003",tier:"L1",name:"삼도동"}, {id:"L1-004",tier:"L1",name:"화북동"},
+  {id:"L1-005",tier:"L1",name:"아라동"}, {id:"L1-006",tier:"L1",name:"동홍동"},
+  {id:"L1-007",tier:"L1",name:"서홍동"}, {id:"L1-008",tier:"L1",name:"대정읍"},
+  {id:"L1-009",tier:"L1",name:"안덕면"}, {id:"L1-010",tier:"L1",name:"한림읍"},
+  /* L2 × 6 */
+  {id:"L2-001",tier:"L2",name:"제주시"},  {id:"L2-002",tier:"L2",name:"서귀포시"},
+  {id:"L2-003",tier:"L2",name:"제주동부"},{id:"L2-004",tier:"L2",name:"제주서부"},
+  {id:"L2-005",tier:"L2",name:"제주중부"},{id:"L2-006",tier:"L2",name:"제주북부"},
+  /* L3 × 4 */
+  {id:"L3-001",tier:"L3",name:"제주도"},  {id:"L3-002",tier:"L3",name:"남부권역"},
+  {id:"L3-003",tier:"L3",name:"중앙권역"},{id:"L3-004",tier:"L3",name:"북부권역"},
+  /* L4 × 3 */
+  {id:"L4-001",tier:"L4",name:"OH Korea"},{id:"L4-002",tier:"L4",name:"OH Asia"},
+  {id:"L4-003",tier:"L4",name:"OH Pacific"},
+  /* L5 × 2 */
+  {id:"L5-001",tier:"L5",name:"OH Global"},{id:"L5-002",tier:"L5",name:"OH Anchor"},
+];
+
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+let simRunning = false;
+let simTimer = null;
+let queue = [];
+let currentIdx = 0;
+let stats = {total:0,s0:0,s1:0,s2:0,s3:0};
+let tierCount = {L1:0,L2:0,L3:0,L4:0,L5:0};
+let totalAnchors = 0;
+let authTokenA = null;
+let authTokenB = null;
+
+const BASE = () => document.getElementById('server-url-input').value.replace(/\/$/,'');
+const PW = 'gopang_monitor_pw_2026';
+
+/* ═══════════════════════════════════════════════════
+   CSV UPLOAD & PARSE
+═══════════════════════════════════════════════════ */
+let uploadedConversations = []; // 업로드된 CSV의 파싱 결과 (비어 있으면 내장 데이터 사용)
+
+function parseCsvText(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const results = [];
+  // 헤더 행 건너뜀 (ID,대화,참고문서)
+  for(let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if(!line) continue;
+    // CSV 파싱: 첫 필드(ID), 두 번째(대화), 세 번째(참고문서)
+    // 쌍따옴표 감싸진 필드 처리
+    const fields = [];
+    let cur = '', inQ = false;
+    for(let c = 0; c < line.length; c++) {
+      const ch = line[c];
+      if(ch === '"') { inQ = !inQ; continue; }
+      if(ch === ',' && !inQ) { fields.push(cur); cur = ''; continue; }
+      cur += ch;
+    }
+    fields.push(cur);
+    if(fields.length < 2) continue;
+    const id = fields[0].trim();
+    const dialog = (fields[1]||'').replace(/\\n/g, '\n').trim();
+    const ref = (fields[2]||'').trim();
+    if(id && dialog) results.push({id, dialog, ref});
+  }
+  return results;
+}
+
+function renderCsvTags(fileNames) {
+  const tags = document.getElementById('csv-tags');
+  if(fileNames.length === 0) {
+    tags.innerHTML = '<span style="font-size:11px;color:var(--text3)">대화 CSV 파일을 업로드하면 내장 데이터를 대체합니다 (D001~D020, D021~D050, D051~D100)</span>';
+    document.getElementById('btn-csv-clear').style.display = 'none';
+    document.getElementById('csv-upload-area').classList.remove('has-files');
+  } else {
+    tags.innerHTML = fileNames.map(n =>
+      `<span class="csv-file-tag">📄 ${n}</span>`
+    ).join('');
+    document.getElementById('btn-csv-clear').style.display = '';
+    document.getElementById('csv-upload-area').classList.add('has-files');
+  }
+}
+
+document.getElementById('csv-file-input').addEventListener('change', async function() {
+  const files = Array.from(this.files);
+  if(!files.length) return;
+  uploadedConversations = [];
+  for(const file of files) {
+    const text = await file.text();
+    const parsed = parseCsvText(text);
+    uploadedConversations.push(...parsed);
+    log(`CSV 로드: ${file.name} → ${parsed.length}건`, 'ok');
+  }
+  // ID 중복 제거 (같은 ID가 여러 파일에 있을 경우 마지막 것 우선)
+  const seen = new Map();
+  uploadedConversations.forEach(c => seen.set(c.id, c));
+  uploadedConversations = [...seen.values()];
+  renderCsvTags(files.map(f => f.name));
+  log(`총 CSV 대화: ${uploadedConversations.length}건 (내장 데이터 대체됨)`, 'ok');
+  toast(`CSV ${files.length}개 로드 완료 — ${uploadedConversations.length}건`);
+  this.value = ''; // 동일 파일 재업로드 허용
+});
+
+// 드래그 앤 드롭
+const uploadArea = document.getElementById('csv-upload-area');
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  const input = document.getElementById('csv-file-input');
+  // DataTransfer를 input.files에 직접 할당 불가 → 이벤트 직접 처리
+  const files = Array.from(e.dataTransfer.files).filter(f => f.name.match(/\.(csv|txt)$/i));
+  if(!files.length) return;
+  Promise.all(files.map(f => f.text())).then(texts => {
+    uploadedConversations = [];
+    texts.forEach((text, i) => {
+      const parsed = parseCsvText(text);
+      uploadedConversations.push(...parsed);
+      log(`CSV 로드: ${files[i].name} → ${parsed.length}건`, 'ok');
+    });
+    const seen = new Map();
+    uploadedConversations.forEach(c => seen.set(c.id, c));
+    uploadedConversations = [...seen.values()];
+    renderCsvTags(files.map(f => f.name));
+    log(`총 CSV 대화: ${uploadedConversations.length}건`, 'ok');
+    toast(`CSV ${files.length}개 드롭 완료 — ${uploadedConversations.length}건`);
+  });
+});
+
+function clearCsvFiles() {
+  uploadedConversations = [];
+  renderCsvTags([]);
+  log('CSV 초기화 — 내장 데이터로 복원됨', 'warn');
+  toast('CSV 초기화 완료');
+}
+
+/* ═══════════════════════════════════════════════════
+   URL VALIDATION
+═══════════════════════════════════════════════════ */
+let urlCheckTimer = null;
+
+function setUrlStatus(state, text) {
+  const el = document.getElementById('url-status');
+  el.className = 'url-status ' + state;
+  el.textContent = text;
+}
+
+async function checkServerUrl() {
+  const url = document.getElementById('server-url-input').value.trim();
+  if(!url) { setUrlStatus('fail', '✕ URL 없음'); return false; }
+
+  // 형식 검증
+  try { new URL(url); } catch {
+    setUrlStatus('fail', '✕ 형식 오류'); return false;
+  }
+  if(!/^https?:\/\//i.test(url)) {
+    setUrlStatus('fail', '✕ http(s):// 필요'); return false;
+  }
+
+  setUrlStatus('checking', '⋯ 확인 중');
+  try {
+    // /health 또는 루트에 HEAD 요청으로 도달 가능 여부 확인 (CORS 실패도 도달로 간주)
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 5000);
+    const res = await fetch(url.replace(/\/$/, '') + '/health', {
+      method: 'HEAD', signal: ctrl.signal, mode: 'no-cors'
+    });
+    clearTimeout(tid);
+    setUrlStatus('ok', '✓ 응답 확인');
+    return true;
+  } catch(e) {
+    if(e.name === 'AbortError') {
+      setUrlStatus('fail', '✕ 타임아웃 (5s)');
+    } else {
+      // no-cors 모드에서 네트워크 에러 = 진짜 연결 불가
+      setUrlStatus('fail', '✕ 서버 미응답');
+    }
+    return false;
+  }
+}
+
+function scheduleUrlCheck() {
+  clearTimeout(urlCheckTimer);
+  setUrlStatus('checking', '⋯ 입력 중');
+  urlCheckTimer = setTimeout(checkServerUrl, 800);
+}
+
+
+
+/* ═══════════════════════════════════════════════════
+   INIT — NODE GRID
+═══════════════════════════════════════════════════ */
+function initNodeGrid() {
+  const grid = document.getElementById('oh-node-grid');
+  grid.innerHTML = '';
+  const tiers = ['L1','L2','L3','L4','L5'];
+  tiers.forEach(tier => {
+    const nodes = OPENHASH_NODES.filter(n => n.tier === tier);
+    if (!nodes.length) return;
+    const row = document.createElement('div');
+    row.className = 'oh-tier-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'oh-tier-label';
+    lbl.textContent = tier;
+    row.appendChild(lbl);
+    nodes.forEach(n => {
+      const d = document.createElement('div');
+      d.className = 'oh-node';
+      d.id = 'node-' + n.id;
+      d.dataset.tier = tier;
+      d.title = n.name;
+      d.innerHTML = `<span style="font-size:7px;font-weight:800;letter-spacing:-.3px">${n.id.slice(-3)}</span>`;
+      row.appendChild(d);
+    });
+    grid.appendChild(row);
+  });
+}
+
+function updateTierBars() {
+  const wrap = document.getElementById('tier-bars');
+  const max = Math.max(1, ...Object.values(tierCount));
+  wrap.innerHTML = ['L1','L2','L3','L4','L5'].map(t => {
+    const v = tierCount[t]||0;
+    const pct = Math.round(v/max*100);
+    const colors = {L1:'#1560bd',L2:'#5b21b6',L3:'#0d8a4e',L4:'#b45309',L5:'#be1414'};
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3);width:24px;font-weight:600">${t}</span>
+      <div style="flex:1;height:5px;background:var(--surface-3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${colors[t]};border-radius:3px;transition:width .4s"></div>
+      </div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text2);width:16px;text-align:right">${v}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   LOG
+═══════════════════════════════════════════════════ */
+function log(msg, type='info') {
+  const el = document.getElementById('log-tail');
+  const now = new Date();
+  const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  const cls = {info:'log-info',ok:'log-ok',warn:'log-warn',err:'log-err',hash:'log-hash'}[type]||'log-info';
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="log-ts">[${ts}]</span> <span class="${cls}">${msg}</span>`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function toast(msg) {
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+/* ═══════════════════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════════════════ */
+async function apiPost(path, body, token=null) {
+  const headers = {'Content-Type':'application/json'};
+  if(token) headers['Authorization'] = 'Bearer '+token;
+  const r = await fetch(BASE()+path, {method:'POST', headers, body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+async function apiGet(path, token=null) {
+  const headers = {};
+  if(token) headers['Authorization'] = 'Bearer '+token;
+  const r = await fetch(BASE()+path, {headers});
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+async function ensureAuth() {
+  const uA = document.getElementById('user-a').value;
+  const uB = document.getElementById('user-b').value;
+  for (const [u, setter] of [[uA, t => authTokenA=t],[uB, t => authTokenB=t]]) {
+    try {
+      const d = await apiPost('/auth/login', {username:u, password:PW});
+      setter(d.token); log(`로그인 성공: ${u}`, 'ok');
+    } catch {
+      try {
+        const d = await apiPost('/auth/register', {username:u, password:PW});
+        setter(d.token); log(`계정 생성: ${u}`, 'ok');
+      } catch(e) { log(`인증 실패: ${u} — ${e.message}`, 'err'); throw e; }
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   DEEPSEEK CONVERSATION GENERATOR
+═══════════════════════════════════════════════════ */
+const DEEPSEEK_API_KEY = 'sk-ff2e53f84f5541d59f0617266730a9ee';
+const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+/* ═══════════════════════════════════════════════════
+   DEEPSEEK K-LAW ANALYZER
+   대화 내용을 직접 DeepSeek으로 분석하여 K-Law 결과 생성
+═══════════════════════════════════════════════════ */
+async function analyzeWithDeepSeek(conv, convId) {
+  const dialog = conv.dialog || '';
+  const type = conv._type || 'normal';
+
+  const prompt = `당신은 한국 법률 전문가 AI입니다. 아래 대화를 분석하여 위험도를 판단하세요.
+
+[대화]
+${dialog}
+
+[분석 기준]
+- S0: 정상 (위험 없음)
+- S1: 주의 (법적 회색지대)
+- S2: 경고 (위반 가능성 높음)
+- S3: 차단 (명백한 사기/범죄)
+
+반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 절대 포함하지 마세요:
+{"overall_grade":"S0","overall_score":0.05,"summary":"분석 요약 (2문장 이내)","legal_findings":["관련 법조항1","관련 법조항2"],"recommendation":"권고사항 (1문장)","messages":[{"msg_id":"msg-001","grade":"S0","score":0.05,"reason":"이유"}]}
+
+messages 배열은 대화 줄 수(${dialog.split('\n').filter(l=>l.trim()).length}개)에 맞춰 생성하세요.`;
+
+  try {
+    const resp = await fetch(DEEPSEEK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        max_tokens: 800,
+        temperature: 0.2,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!resp.ok) throw new Error(`DeepSeek HTTP ${resp.status}`);
+
+    const data = await resp.json();
+    let raw = data.choices?.[0]?.message?.content?.trim() || '';
+
+    // JSON 펜스 제거
+    raw = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+
+    // JSON 파싱
+    const result = JSON.parse(raw);
+
+    // 등급 검증
+    const validGrades = ['S0','S1','S2','S3'];
+    if (!validGrades.includes(result.overall_grade)) result.overall_grade = 'S0';
+
+    // openhash 추가
+    result.openhash = mockOpenHash(result.overall_grade);
+    return result;
+
+  } catch(e) {
+    log(`분석 오류 (DeepSeek): ${e.message} — 폴백 사용`, 'warn');
+    // 타입 기반 폴백 분석
+    return buildFallbackAnalysis(conv, convId);
+  }
+}
+
+function buildFallbackAnalysis(conv, convId) {
+  const type = conv._type || 'normal';
+  let grade;
+  if (type === 'phishing') grade = ['S2','S3','S3'][Math.floor(Math.random()*3)];
+  else if (type === 'legal') grade = ['S0','S1','S1','S2'][Math.floor(Math.random()*4)];
+  else grade = 'S0';
+
+  const scoreMap = {S0: Math.random()*.2, S1:.2+Math.random()*.2, S2:.4+Math.random()*.3, S3:.7+Math.random()*.3};
+  const score = scoreMap[grade];
+
+  const lines = conv.dialog.split('\n').filter(l=>l.trim());
+  const msgs = lines.map((_, i) => ({
+    msg_id: 'msg-' + String(i+1).padStart(3,'0'),
+    grade,
+    score: Math.min(1, score + (Math.random()-.5)*.1),
+    reason: type==='phishing'?'금융사기 패턴 감지': type==='legal'?'법적 주의 필요':'정상 패턴',
+  }));
+
+  const summaryMap = {
+    S0: '정상적인 대화 패턴입니다. 특이 사항 없음.',
+    S1: '법적으로 주의가 필요한 표현이 포함되어 있습니다.',
+    S2: '금융 관련 위반 가능성이 높은 대화 패턴이 감지되었습니다.',
+    S3: '보이스피싱 또는 금융사기로 강하게 의심됩니다. 즉시 대응이 필요합니다.',
+  };
+  const recMap = {
+    S0: '정상 대화입니다.',
+    S1: '추가 검토가 필요합니다.',
+    S2: '관계 기관 신고를 권고합니다.',
+    S3: '즉시 거래를 중단하고 112 또는 금융감독원(1332)에 신고하세요.',
+  };
+
+  return {
+    overall_grade: grade,
+    overall_score: score,
+    summary: summaryMap[grade],
+    legal_findings: [conv.ref || '해당 법조항 검토 필요'],
+    recommendation: recMap[grade],
+    messages: msgs,
+    openhash: mockOpenHash(grade),
+  };
+}
+
+let genCounter = 0; // 생성된 대화 누적 번호
+
+// 데이터셋 선택에 따른 유형 확률표
+function getTypeProbs() {
+  const ds = document.getElementById('dataset').value;
+  // [보이스피싱, 법적검토, 일상]
+  return {
+    auto:           [0.30, 0.20, 0.50],
+    phishing_heavy: [0.60, 0.20, 0.20],
+    legal_heavy:    [0.15, 0.55, 0.30],
+    normal_heavy:   [0.10, 0.10, 0.80],
+  }[ds] || [0.30, 0.20, 0.50];
+}
+
+function pickType() {
+  const [p, l, n] = getTypeProbs();
+  const r = Math.random();
+  if (r < p)     return 'phishing';
+  if (r < p + l) return 'legal';
+  return 'normal';
+}
+
+const TYPE_PROMPTS = {
+  phishing: `당신은 한국의 보이스피싱·사기 시나리오 작성 전문가입니다.
+실제로 발생하는 보이스피싱·금융사기·메신저피싱 대화를 1건 생성하세요.
+형식: A(사기범)와 B(피해자) 간 짧은 대화, 총 2~4줄.
+규칙:
+- 각 줄은 반드시 "A: " 또는 "B: "로 시작
+- 한 줄은 20~40자 이내로 짧게
+- 계좌이체·공탁금·수수료 선입금 중 하나를 요구
+- 기관 사칭(검찰/경찰/은행/국세청 등) 또는 가족 사칭 중 하나를 선택
+- JSON 없이 대화 텍스트만 출력`,
+
+  legal: `당신은 한국 법률·금융 분쟁 시나리오 작성 전문가입니다.
+법적으로 회색지대이거나 검토가 필요한 거래·계약 대화를 1건 생성하세요.
+형식: A와 B 간 짧은 대화, 총 2~4줄.
+규칙:
+- 각 줄은 반드시 "A: " 또는 "B: "로 시작
+- 한 줄은 20~40자 이내로 짧게
+- 전세/부동산/노동/보험/중고거래 중 하나의 주제
+- 명확한 불법은 아니지만 주의가 필요한 상황
+- JSON 없이 대화 텍스트만 출력`,
+
+  normal: `당신은 한국인의 일상 대화를 생성하는 전문가입니다.
+법적·금융적 문제가 전혀 없는 평범한 일상 대화를 1건 생성하세요.
+형식: A와 B 간 짧은 대화, 총 2~3줄.
+규칙:
+- 각 줄은 반드시 "A: " 또는 "B: "로 시작
+- 한 줄은 15~35자 이내로 짧게
+- 음식/날씨/취미/쇼핑/운동/가족 중 하나의 주제
+- 완전히 무해하고 자연스러운 대화
+- JSON 없이 대화 텍스트만 출력`,
+};
+
+const TYPE_REFS = {
+  phishing: ['보이스피싱 예방법 제3조', '전기통신금융사기 피해 방지 및 피해금 환급에 관한 특별법', '형법 제347조(사기)', '특정 경제범죄 가중처벌법 제3조'],
+  legal:    ['민법 제564조(계약금)', '근로기준법 제36조', '주택임대차보호법 제6조', '전자상거래법 제17조', '개인정보보호법 제24조'],
+  normal:   ['해당 없음', '일상 대화', ''],
+};
+
+async function generateConv() {
+  const type = pickType();
+  const prompt = TYPE_PROMPTS[type];
+  genCounter++;
+  const convId = `G${String(genCounter).padStart(3,'0')}`;
+
+  // 생성 중 플레이스홀더 카드
+  const placeholderConv = {
+    id: convId,
+    dialog: '…',
+    ref: `생성 중 (${type === 'phishing' ? '보이스피싱' : type === 'legal' ? '법률검토' : '일상'})`,
+    _type: type,
+    _generating: true,
+  };
+  renderConvItem(placeholderConv, 'active');
+  log(`DeepSeek 대화 생성 중… [${convId} / ${type}]`, 'info');
+
+  try {
+    const resp = await fetch(DEEPSEEK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        max_tokens: 200,
+        temperature: 0.9,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`DeepSeek ${resp.status}: ${errText.slice(0,80)}`);
+    }
+
+    const data = await resp.json();
+    const raw = data.choices?.[0]?.message?.content?.trim() || '';
+
+    // 대화 파싱: "A: …" / "B: …" 줄만 추출
+    const dialogLines = raw.split('\n')
+      .map(l => l.trim())
+      .filter(l => /^[AB]:/.test(l))
+      .slice(0, 4); // 최대 4줄
+
+    if (!dialogLines.length) throw new Error('대화 파싱 실패: ' + raw.slice(0, 60));
+
+    const refs = TYPE_REFS[type];
+    const ref = refs[Math.floor(Math.random() * refs.length)];
+
+    const conv = {
+      id: convId,
+      dialog: dialogLines.join('\n'),
+      ref,
+      _type: type,
+    };
+
+    log(`✓ 생성 완료: ${convId} — ${dialogLines.length}줄`, 'ok');
+    return conv;
+
+  } catch(e) {
+    log(`DeepSeek 생성 오류: ${e.message}`, 'err');
+    // 폴백: 타입별 내장 샘플
+    return fallbackConv(convId, type);
+  }
+}
+
+function fallbackConv(id, type) {
+  const samples = {
+    phishing: [
+      { dialog: 'A: 검찰청입니다. 명의 도용 사건에 연루됐습니다.\nB: 네? 저는 아무것도 한 게 없는데요.\nA: 공탁금 200만원을 안전계좌로 이체하세요.', ref: '형법 제347조(사기)' },
+      { dialog: 'A: 엄마, 나 핸드폰 바꿨어. 이게 새 번호야.\nB: 목소리가 다른데?\nA: 빨리 50만원만 이체해줘.', ref: '전기통신금융사기피해방지법' },
+    ],
+    legal: [
+      { dialog: 'A: 가계약금 300만원만 먼저 주시면 계약서는 다음에 써드릴게요.\nB: 계약서 없이 먼저 드려야 하나요?', ref: '민법 제564조(계약금)' },
+      { dialog: 'A: 퇴직금은 3개월 후에 드릴게요. 지금은 회사 사정이 어려워서요.\nB: 법적으로 14일 이내 아닌가요?', ref: '근로기준법 제36조' },
+    ],
+    normal: [
+      { dialog: 'A: 오늘 점심 뭐 먹을까요?\nB: 근처 새로 생긴 국밥집 가볼까요?', ref: '해당 없음' },
+      { dialog: 'A: 주말에 등산 가실 건가요?\nB: 네, 한라산 코스로 생각 중이에요.', ref: '해당 없음' },
+    ],
+  };
+  const arr = samples[type] || samples.normal;
+  const s = arr[Math.floor(Math.random() * arr.length)];
+  return { id, dialog: s.dialog, ref: s.ref, _type: type };
+}
+
+
+/* ═══════════════════════════════════════════════════
+   RENDER CONV ITEM
+═══════════════════════════════════════════════════ */
+function renderConvItem(conv, state='active', result=null) {
+  const feed = document.getElementById('conv-feed');
+  let el = document.getElementById('ci-'+conv.id);
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'ci-'+conv.id;
+    feed.insertBefore(el, feed.firstChild);
+  }
+  const lines = conv.dialog.split('\n').map(l => {
+    if(l.startsWith('A:')) return `<strong>A:</strong> ${l.slice(2).trim()}`;
+    if(l.startsWith('B:')) return `<strong>B:</strong> ${l.slice(2).trim()}`;
+    return l;
+  }).join('<br>');
+
+  let badge = '';
+  if(result) {
+    const g = result.overall_grade||'S0';
+    badge = `<span class="grade-badge grade-${g.toLowerCase()}">${g}</span>`;
+  }
+
+  el.className = `conv-item ${state}`;
+  el.innerHTML = `
+    <div class="conv-id">
+      <span>${conv.id}</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${badge}
+        ${state==='active'?'<div class="spinner" style="width:14px;height:14px;border-width:1.5px"></div>':''}
+      </div>
+    </div>
+    <div class="conv-dialog">${lines}</div>
+    <div style="font-size:10px;color:var(--text3);margin-top:4px">${conv.ref}</div>
+    ${state==='active'?`<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div></div>`:''}
+  `;
+
+  feed.scrollTop = 0;
+  return el;
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER K-LAW RESULT
+═══════════════════════════════════════════════════ */
+function renderKlaw(result, convId) {
+  const g = result.overall_grade||'S0';
+  const score = (result.overall_score||0).toFixed(2);
+  const gradeColors = {S0:'var(--green)',S1:'var(--yellow)',S2:'var(--orange)',S3:'var(--red)'};
+  const color = gradeColors[g]||'var(--text)';
+
+  document.getElementById('klaw-grade-display').innerHTML = `
+    <div>
+      <div class="grade-big" style="color:${color}">${g}</div>
+      <div class="grade-score">위험도 ${score}</div>
+    </div>
+    <span class="grade-badge grade-${g.toLowerCase()}">${g}</span>
+  `;
+  document.getElementById('msg-conv-id').textContent = convId.slice(0,8)+'…';
+
+  const findings = (result.legal_findings||[]);
+  const msgs = (result.messages||[]);
+
+  document.getElementById('klaw-content').innerHTML = `
+    <div class="klaw-summary">${result.summary||'분석 중…'}</div>
+    ${findings.length ? `<div class="legal-findings">${findings.slice(0,3).map(f=>`<div class="legal-item">${f}</div>`).join('')}</div>` : ''}
+    <div class="klaw-rec">${result.recommendation||'—'}</div>
+  `;
+
+  // message table
+  if(msgs.length) {
+    const displayMsgs = msgs.slice(0, 10);
+    const rows = displayMsgs.map((m, idx) => {
+      const mg = m.grade||'S0';
+      const ms = parseFloat(m.score||0).toFixed(2);
+      const pct = Math.round(parseFloat(m.score||0)*100);
+      const fc = gradeColors[mg]||'#888';
+      return `<tr>
+        <td>${m.msg_id ? (m.msg_id+'').slice(0,8) : 'msg-'+String(idx+1).padStart(3,'0')}</td>
+        <td><span class="grade-badge grade-${mg.toLowerCase()}">${mg}</span></td>
+        <td>
+          <span class="score-bar"><span class="score-fill" style="width:${pct}%;background:${fc}"></span></span>
+          ${ms}
+        </td>
+        <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2)">${m.reason||'—'}</td>
+      </tr>`;
+    }).join('');
+    const extra = msgs.length > 10 ? `<tr><td colspan="4" style="text-align:center;color:var(--text3);font-size:10px;padding:5px">+${msgs.length-10}건 생략</td></tr>` : '';
+    document.getElementById('msg-table-wrap').innerHTML = `
+      <table class="msg-table">
+        <thead><tr><th>MSG ID</th><th>등급</th><th>점수</th><th>근거</th></tr></thead>
+        <tbody>${rows}${extra}</tbody>
+      </table>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER OPENHASH
+═══════════════════════════════════════════════════ */
+function renderOpenHash(oh, convId) {
+  if(!oh) return;
+  const tier = oh.tier||'L1';
+  const nodeId = oh.node_id||'';
+  const propagated = oh.propagated_to||[];
+  const chainHash = oh.chain_hash||'';
+  const merkle = oh.merkle_root||'';
+  const anchorId = oh.anchor_id||'';
+
+  // Update tier counter
+  tierCount[tier] = (tierCount[tier]||0)+1;
+  totalAnchors++;
+  document.getElementById('oh-total').textContent = totalAnchors+' 앵커';
+  document.getElementById('oh-tier').textContent = tier;
+  updateTierBars();
+
+  // Reset all nodes
+  OPENHASH_NODES.forEach(n => {
+    const el = document.getElementById('node-'+n.id);
+    if(!el) return;
+    el.classList.remove('active','propagated','oh-node-glow','selected-blink');
+  });
+
+  // Animate nodes
+  OPENHASH_NODES.forEach(n => {
+    const el = document.getElementById('node-'+n.id);
+    if(!el) return;
+    if(n.id === nodeId) {
+      el.classList.add('active','oh-node-glow','selected-blink');
+      setTimeout(()=>el.classList.remove('oh-node-glow'),900);
+    } else if(propagated.includes(n.id)) {
+      setTimeout(()=>{
+        el.classList.add('propagated');
+      }, 300);
+    }
+  });
+
+  // 전파 경로 필: 등록 계층=active, 하위(이미 출발한) 계층=비활성, 상위(전파 도착) 계층=done
+  const tiers = ['L1','L2','L3','L4','L5'];
+  const tierIdx = tiers.indexOf(tier);
+  document.getElementById('prop-path').innerHTML = tiers.map((t,i) => {
+    let cls = 'prop-pill';
+    if(i === tierIdx) cls += ' active';
+    else if(i > tierIdx) cls += ' done'; // 상위 계층 = 전파 수신
+    // i < tierIdx: 하위 계층 = 기본(inactive)
+    return `<span class="${cls}">${t}</span>${i<4?'<span class="prop-arrow">→</span>':''}`;
+  }).join('');
+
+  // Merkle + anchor
+  document.getElementById('oh-merkle').textContent = merkle ? merkle.slice(0,48)+'…' : '—';
+  document.getElementById('oh-anchor-card').innerHTML = `
+    <div class="oh-anchor-id">${anchorId||'—'}</div>
+    <div class="oh-anchor-row">
+      <span class="oh-anchor-key">계층</span>
+      <span class="oh-anchor-val">${tier} — ${nodeId}</span>
+    </div>
+    <div class="oh-anchor-row">
+      <span class="oh-anchor-key">대화</span>
+      <span class="oh-anchor-val">${convId.slice(0,16)}…</span>
+    </div>
+    <div class="oh-chain">${chainHash ? chainHash.slice(0,48)+'…' : '—'}</div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════════ */
+function updateStats(grade) {
+  stats.total++;
+  stats[grade.toLowerCase()]++;
+  document.getElementById('st-total').textContent = stats.total;
+  ['s0','s1','s2','s3'].forEach(k => document.getElementById('st-'+k).textContent = stats[k]);
+}
+
+/* ═══════════════════════════════════════════════════
+   PROCESS ONE CONVERSATION
+═══════════════════════════════════════════════════ */
+async function processConv(conv) {
+  const uA = document.getElementById('user-a').value;
+  const uB = document.getElementById('user-b').value;
+  renderConvItem(conv, 'active');
+  log(`▶ 대화 시작: ${conv.id}`, 'info');
+
+  try {
+    // 1. Create conversation
+    const convData = await apiPost('/conversations', {target_username: uB}, authTokenA);
+    const convId = convData.conv_id;
+    log(`대화방 생성: ${convId.slice(0,8)}…`, 'info');
+
+    // 2. Send messages via WebSocket (simulate)
+    const lines = conv.dialog.split('\n').filter(l => l.trim());
+    for(const line of lines) {
+      const isA = line.startsWith('A:');
+      const content = line.replace(/^[AB]:\s*/,'');
+      const token = isA ? authTokenA : authTokenB;
+
+      // Use REST fallback — send message via WS-equivalent POST
+      await sendMsgRest(convId, content, token);
+      await sleep(300);
+    }
+    log(`메시지 ${lines.length}건 전송 완료`, 'ok');
+
+    // 3. Analyze via DeepSeek directly (bypass broken server /pdv/analyze)
+    log('K-Law 분석 시작 (DeepSeek 직접 분석)…', 'info');
+    const analysis = await analyzeWithDeepSeek(conv, convId);
+    log(`분석 완료: ${analysis.overall_grade} (${(analysis.overall_score||0).toFixed(2)})`, 'ok');
+
+    // 4. Render results
+    const grade = (analysis.overall_grade||'S0').toUpperCase();
+    const validGrades = ['S0','S1','S2','S3'];
+    const safeGrade = validGrades.includes(grade) ? grade : 'S0';
+    analysis.overall_grade = safeGrade;
+
+    renderConvItem(conv, 'done', analysis);
+    renderKlaw(analysis, convId);
+    updateStats(safeGrade);
+    renderOpenHash(analysis.openhash, convId);
+
+    if(analysis.openhash) {
+      log(`앵커: ${(analysis.openhash.anchor_id||'').slice(0,16)}… @ ${analysis.openhash.tier}`, 'hash');
+    }
+
+    return analysis;
+  } catch(e) {
+    log(`네트워크 오류: ${conv.id} — ${e.message}`, 'err');
+    renderConvItem(conv, 'done');
+    renderFallback(conv);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SEND MESSAGE (REST via WS-emulated)
+   gopang server uses WS for chat but we can send
+   via the messages endpoint if available, else WS.
+═══════════════════════════════════════════════════ */
+async function sendMsgRest(convId, content, token) {
+  // Try WebSocket-style via fetch if server supports it
+  // Fallback: use WS
+  try {
+    await apiPost(`/messages/${convId}`, {content}, token);
+  } catch {
+    // Server might only support WS for message sending
+    // Use a lightweight WS send
+    await sendMsgWS(convId, content, token);
+  }
+}
+
+function sendMsgWS(convId, content, token) {
+  return new Promise((resolve) => {
+    const wsBase = BASE().replace('https://','wss://').replace('http://','ws://');
+    let resolved = false;
+    const done = () => { if(!resolved){ resolved=true; resolve(); } };
+    try {
+      const ws = new WebSocket(`${wsBase}/ws/${convId}?token=${token}`);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({type:'message', content}));
+        setTimeout(() => { try{ws.close();}catch(e){} done(); }, 200);
+      };
+      ws.onerror = () => done();
+      ws.onclose = () => done();
+      setTimeout(() => { try{ws.close();}catch(e){} done(); }, 500);
+    } catch { done(); }
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   FALLBACK DEMO (when server unreachable)
+═══════════════════════════════════════════════════ */
+function renderFallback(conv) {
+  const mockResult = buildFallbackAnalysis(conv, 'demo-'+Date.now());
+  renderConvItem(conv, 'done', mockResult);
+  renderKlaw(mockResult, 'demo-conv-'+Date.now());
+  updateStats(mockResult.overall_grade);
+  renderOpenHash(mockResult.openhash, 'demo-'+Date.now());
+  log(`[데모] 폴백 결과: ${conv.id} → ${mockResult.overall_grade}`, 'warn');
+}
+
+function mockOpenHash(grade) {
+  const tierProb = {S0:[.5,.3,.15,.04,.01],S1:[.3,.35,.25,.08,.02],S2:[.15,.25,.35,.2,.05],S3:[.05,.1,.3,.4,.15]};
+  const probs = tierProb[grade]||tierProb.S0;
+  const tiers = ['L1','L2','L3','L4','L5'];
+
+  // 1. 확률 기반 등록 계층 결정
+  let r = Math.random(), cum = 0, tier = 'L5';
+  for(let i = 0; i < tiers.length; i++) {
+    cum += probs[i];
+    if(r < cum) { tier = tiers[i]; break; }
+  }
+
+  // 2. 버그 수정: 등록 계층(tier)에 해당하는 노드 중 하나를 선택
+  const tierNodes = OPENHASH_NODES.filter(n => n.tier === tier);
+  const node = tierNodes[Math.floor(Math.random() * tierNodes.length)];
+
+  const hash = () => [...Array(64)].map(()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+
+  // 3. 버그 수정: 등록 계층보다 상위(더 높은 L 번호) 계층의 노드들로 전파
+  //    L1에 등록 → L2,L3,L4,L5로 전파
+  //    L3에 등록 → L4,L5로 전파
+  //    L5에 등록 → 전파 없음
+  const tierIdx = tiers.indexOf(tier);
+  const propagated = OPENHASH_NODES
+    .filter(n => tiers.indexOf(n.tier) > tierIdx)
+    .map(n => n.id);
+
+  return {
+    tier, node_id: node.id, node_name: node.name,
+    anchor_id: 'OH-'+hash().slice(0,12).toUpperCase(),
+    chain_hash: hash(), merkle_root: hash(),
+    propagated_to: propagated
+  };
+}
+
+/* ═══════════════════════════════════════════════════
+   SIMULATION CONTROL
+═══════════════════════════════════════════════════ */
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+async function startSim() {
+  if(simRunning) return;
+  simRunning = true;
+  genCounter = 0;
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('btn-stop').disabled = false;
+  document.getElementById('status-dot').className = 'status-dot running';
+  document.getElementById('status-text').textContent = '인증 중…';
+
+  log('═══ 시뮬레이션 시작 (DeepSeek 실시간 생성) ═══', 'info');
+  try {
+    await ensureAuth();
+  } catch(e) {
+    log('인증 실패 — 데모 모드로 전환합니다', 'warn');
+    authTokenA = 'demo'; authTokenB = 'demo';
+    toast('서버 연결 불가 → 데모 모드');
+  }
+
+  document.getElementById('feed-count').textContent = '0 생성됨';
+  document.getElementById('conv-feed').innerHTML = '';
+  document.getElementById('status-text').textContent = '생성 중…';
+
+  runNext();
+}
+
+async function runNext() {
+  if(!simRunning) return;
+
+  document.getElementById('status-dot').className = 'status-dot waiting';
+  document.getElementById('status-text').textContent = '대화 생성 중…';
+
+  // DeepSeek으로 대화 실시간 생성
+  const conv = await generateConv();
+
+  document.getElementById('feed-count').textContent = `${genCounter} 생성됨`;
+  document.getElementById('status-dot').className = 'status-dot waiting';
+  document.getElementById('status-text').textContent = `분석 중: ${conv.id}`;
+
+  await processConv(conv);
+
+  document.getElementById('status-dot').className = 'status-dot running';
+  document.getElementById('status-text').textContent = '실행 중';
+
+  if(simRunning) {
+    const interval = Math.max(3, parseInt(document.getElementById('interval').value)||8) * 1000;
+    simTimer = setTimeout(runNext, interval);
+  }
+}
+
+function stopSim() {
+  simRunning = false;
+  clearTimeout(simTimer);
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-stop').disabled = true;
+  document.getElementById('status-dot').className = 'status-dot';
+  document.getElementById('status-text').textContent = '중지됨';
+  log('⬛ 시뮬레이션 중지', 'warn');
+}
+
+function clearAll() {
+  stopSim();
+  stats = {total:0,s0:0,s1:0,s2:0,s3:0};
+  tierCount = {L1:0,L2:0,L3:0,L4:0,L5:0};
+  totalAnchors = 0;
+  ['st-total','st-s0','st-s1','st-s2','st-s3'].forEach(id => document.getElementById(id).textContent='0');
+  document.getElementById('feed-count').textContent = '0 생성됨';
+  document.getElementById('oh-total').textContent = '0 앵커';
+  document.getElementById('oh-tier').textContent = '-';
+  document.getElementById('oh-merkle').textContent = '—';
+  document.getElementById('oh-anchor-card').innerHTML = '<div style="text-align:center;color:var(--text3);font-size:11px;padding:8px 0">앵커 없음</div>';
+  document.getElementById('conv-feed').innerHTML = '<div class="empty"><span class="empty-icon"></span>시뮬레이션 시작 시<br>랜덤 대화가 재생됩니다</div>';
+  document.getElementById('klaw-content').innerHTML = '<div class="empty" style="padding:20px"><span class="empty-icon"></span>대화 종료 후 DeepSeek API<br>배치 분석 결과가 표시됩니다</div>';
+  document.getElementById('klaw-grade-display').innerHTML = '<span style="font-size:12px;color:var(--text3)">분석 대기</span>';
+  document.getElementById('msg-table-wrap').innerHTML = '<div class="empty" style="padding:20px">메시지 분석 결과 대기 중</div>';
+  document.getElementById('msg-conv-id').textContent = '';
+  document.getElementById('log-tail').innerHTML = '<div class="log-line"><span class="log-ts">[00:00:00]</span> <span class="log-info">초기화 완료</span></div>';
+  initNodeGrid();
+  updateTierBars();
+  OPENHASH_NODES.forEach(n => {
+    const el = document.getElementById('node-'+n.id);
+    if(el) el.className='oh-node';
+  });
+  document.getElementById('prop-path').innerHTML = ['L1','L2','L3','L4','L5'].map((t,i)=>`<span class="prop-pill">${t}</span>${i<4?'<span class="prop-arrow">→</span>':''}`).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+initNodeGrid();
+updateTierBars();
+log(`DeepSeek 실시간 생성 모드 준비 완료 (내장 샘플 ${CONVERSATIONS.length}건 폴백 대기)`, 'ok');
+log(`서버 주소: ${document.getElementById('server-url-input').value}`, 'info');
+log(`OpenHash 네트워크: L1×10 + L2×6 + L3×4 + L4×3 + L5×2 = 25 노드`, 'hash');
+</script>
+</body>
+</html>
