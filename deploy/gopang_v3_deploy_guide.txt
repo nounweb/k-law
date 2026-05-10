@@ -1,0 +1,171 @@
+================================================================================
+Gopang × OpenHash 시뮬레이션 — v3 배포 가이드
+작성일: 2026-05-10
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 변경 파일 목록
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  gopang_server.py  → v3.0.0 (서버 — 전면 교체)
+  gopang_demo.html  → v3.0.0 (클라이언트 — 전면 교체)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. 서버 배포 명령 (ubuntu@144.24.90.233)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  # 로컬에서 서버로 복사
+  scp gopang_server.py ubuntu@144.24.90.233:/opt/gopang/gopang_server.py
+  scp gopang_demo.html ubuntu@144.24.90.233:/opt/gopang/gopang_demo.html
+
+  # 서버에서 재시작
+  ssh ubuntu@144.24.90.233
+  sudo systemctl restart gopang
+  sudo systemctl status gopang
+
+  # DB 마이그레이션 확인 (자동 실행됨)
+  # init_db()가 서버 시작 시 신규 테이블 3개를 자동 생성:
+  #   pdv_records, openhash_anchors (기존 테이블 유지)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. 서버 변경 사항 요약 (gopang_server.py v2 → v3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ① OpenHash 시뮬레이션 모듈 (신규)
+  ─────────────────────────────────
+  • OPENHASH_NODE_DEFS: 20개 노드 정의 (L1×10 + L2×4 + L3×3 + L4×2 + L5×1)
+  • _oh_nodes: 인메모리 노드 저장소 (Python dict, 서버 재시작 시 초기화)
+  • _merkle_root(): SHA-256 반복 결합 Merkle 루트 계산
+  • _update_node_merkle(): 노드 엔트리 추가 시 Merkle 루트 갱신
+  • plsm_select_tier(): PLSM — grade별 확률표로 등록 계층 결정
+    - S0 → L1(50%) L2(30%) L3(15%) L4(4%)  L5(1%)
+    - S1 → L1(30%) L2(35%) L3(25%) L4(8%)  L5(2%)
+    - S2 → L1(15%) L2(25%) L3(35%) L4(20%) L5(5%)
+    - S3 → L1(5%)  L2(10%) L3(30%) L4(40%) L5(15%)
+  • _propagate_up(): 등록 계층 → L5까지 체인 해시 전파
+  • anchor_openhash(): Telegram 앵커 완전 교체
+
+  ② PDV 서랍 분류 (신규)
+  ─────────────────────────
+  • pdv_classify_drawer(): 대화 전문 키워드 → 6개 서랍 분류
+    - FINANCIAL / MEDICAL / EDUCATION / ADMIN / TRANSPORT / GENERAL
+  
+  ③ DB 신규 테이블 (2개)
+  ─────────────────────────
+  • pdv_records: Phase 6 스펙(KL-M-02) PDV 전체 기록
+    - S0: content_enc=NULL (간소), retention_days=90
+    - S1~S3: content_enc=원문, retention_days=1825 (5년)
+  • openhash_anchors: OpenHash 영구 앵커 로그 (인메모리 보완용)
+
+  ④ analyze_conversation() 수정
+  ──────────────────────────────
+  [이전] anchor_telegram() 호출
+  [이후]
+    Step 1. K-Law 배치 분석 (기존 유지)
+    Step 2. PDV Records 저장 (신규)
+      - pdv_classify_drawer()로 서랍 결정
+      - S0/S1~S3 분기 저장
+    Step 3. anchor_openhash() 호출 (신규 — Telegram 교체)
+      - PLSM 계층 결정 → 노드 선택 → 체인 해시 계산
+      - 상위 계층 전파 → anchor_id 생성
+    응답에 "pdv" 및 "openhash" 필드 추가
+
+  ⑤ 신규 엔드포인트 (3개)
+  ─────────────────────────
+  • GET  /openhash/status          — 20개 노드 현황
+  • GET  /openhash/verify/{conv_id} — 앵커 검증
+  • GET  /openhash/pdv/{conv_id}   — PDV 레코드 조회
+
+  ⑥ 변경하지 않은 부분
+  ──────────────────────
+  • Fast-Path 로컬 키워드 스캔 (WebSocket, S3 차단)
+  • run_batch_analysis() — DeepSeek API 배치 분석
+  • 인증 (/auth/login, /auth/register)
+  • 대화방, 메시지 API
+  • pdv_log 테이블 (기존 호환 유지)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. 클라이언트 변경 사항 요약 (gopang_demo.html v2 → v3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ① 헤더 배지 추가: "🔗 OpenHash SIM"
+
+  ② 디버그 패널 탭: 4개 → 5개
+     [이전] Fast-Path | 배치 분석 | PDV 로그 | 원시 JSON
+     [이후] Fast-Path | 배치분석  | PDV      | 🔗 Hash  | JSON
+
+  ③ 신규 상태 변수
+     • lastOpenHash   — 최근 OpenHash 등록 결과
+     • lastPdvRecord  — 최근 PDV 레코드
+     • lastOhStatus   — 최근 OpenHash 네트워크 현황
+
+  ④ exitConv() 변경
+     • 기존: POST /pdv/analyze → 배치 분석 탭 전환
+     • 변경: POST /pdv/analyze → GET /openhash/status
+            → OpenHash 탭 자동 전환
+            → OpenHash 미니 배너 표시
+
+  ⑤ 신규 UI 컴포넌트
+     • oh-mini-banner: 채팅창 상단에 앵커 ID 간략 표시
+     • OpenHash 탭 패널:
+       - Anchor ID / 등록 계층 / 체인 해시 / Merkle 루트
+       - 전파 경로 시각화 (pill + 화살표)
+       - 20노드 그리드 현황 (등록 경로 강조)
+     • PDV 탭 패널:
+       - PDV 레코드 카드 (서랍/등급/보존기간/만료일/해시)
+       - 보존 기간 chip (90일 초록 / 5년 보라)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. 대화 종료 시 전체 처리 흐름 (v3 확정)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [클라이언트] ⏹ 대화 종료 클릭
+      │  ws.close() → "K-Law 분석 중..." 표시
+      ▼
+  POST /pdv/analyze/{conv_id}
+      │
+      ├─ Step 1. 메시지 로드 (DB)
+      │
+      ├─ Step 2. K-Law 배치 분석 (DeepSeek API)
+      │          ← 5~30초, 지배적 처리 시간
+      │
+      ├─ Step 3. PDV Records 저장 (SQLite, <50ms)
+      │          - drawer 분류 (6개 서랍)
+      │          - S0: 간소 기록, 90일 보존
+      │          - S1~S3: 전체 기록, 5년 보존
+      │
+      ├─ Step 4. OpenHash 등록 (인메모리, <10ms)
+      │          - PLSM: grade → 계층 확률 결정
+      │          - 체인 해시 = SHA-256(Merkle_루트 + content_hash)
+      │          - 노드 엔트리 추가 + Merkle 루트 갱신
+      │          - 상위 계층(L1→L2→L3→L4→L5) 전파
+      │          - anchor_id 생성
+      │          - openhash_anchors 테이블 영구 저장
+      │
+      └─ Step 5. 응답 반환
+                 { K-Law 결과 + pdv{} + openhash{} }
+      │
+      ▼
+  [클라이언트] 결과 처리
+      - lastBatch / lastPdvRecord / lastOpenHash 저장
+      - GET /openhash/status (20노드 현황 갱신)
+      - K-Law 결과 배너 표시
+      - OpenHash 미니 배너 표시 (채팅창 상단)
+      - 디버그 패널 → OpenHash 탭 자동 전환
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. 주의사항
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  • _oh_nodes (인메모리) 는 서버 재시작 시 초기화됨
+    → openhash_anchors 테이블에 영구 기록은 유지됨
+    → /openhash/verify/{conv_id}는 DB 조회로 동작 (재시작 무관)
+    → /openhash/status의 entry_count는 재시작 후 0으로 리셋됨
+
+  • 실제 배포 전환 시:
+    anchor_openhash() 함수 내부만 HTTP/gRPC 원격 호출로 교체
+    API 인터페이스 변경 없음 (응답 형식 동일)
+
+================================================================================
+[문서 끝] gopang_v3_deploy_guide.txt | 2026-05-10
+================================================================================
