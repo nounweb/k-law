@@ -3,2543 +3,714 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>고팡 (Gopang) — K-Law AI 비서</title>
-<!-- Telegram Web App SDK -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>고팡(Gopang) 데모</title>
 <style>
-/* ══════════════════════════════════════════════
-   리셋 & 변수 — 정부 디자인 지침 기반 팔레트
-   (고대비·저채도·명도 중심)
-══════════════════════════════════════════════ */
-:root {
-  /* 배경 계층 */
-  --bg-0: #f4f6f8;   /* 페이지 배경 */
-  --bg-1: #ffffff;   /* 카드·패널 */
-  --bg-2: #edf0f3;   /* 구분선 배경 */
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2230;
+    --border: #2a2f3d;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #3b7ddd;
+    --accent2: #5b9cf6;
+    --s0: #22c55e;
+    --s1: #facc15;
+    --s2: #f97316;
+    --s3: #ef4444;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    --font-ui: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
-  /* 타이포그래피 */
-  --ink-1: #1a2332;  /* 주 텍스트 */
-  --ink-2: #4a5568;  /* 보조 텍스트 */
-  --ink-3: #8a97a8;  /* 힌트·레이블 */
+  /* ── 헤더 ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent2); }
+  .badge {
+    font-size: 10px; font-weight: 600; letter-spacing: 1px;
+    background: var(--accent); color: #fff;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .user-pill {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 13px; color: var(--accent2);
+  }
+  .server-status {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--s3); transition: background .3s;
+  }
+  .server-status.ok { background: var(--s0); }
 
-  /* 브랜드 — 공공기관형 딥그린 */
-  --pri:     #0e6b52;   /* 주요 액션 */
-  --pri-lt:  #e6f4f0;   /* 배지·배경 */
-  --pri-mid: #1a9472;   /* 호버 */
+  /* ── 레이아웃 ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr 340px;
+    flex: 1;
+    overflow: hidden;
+  }
 
-  /* 경고 등급 */
-  --cr: #b45309;   --cr-bg: #fffbeb;
-  --cv: #c2410c;   --cv-bg: #fff7ed;
-  --lb: #b91c1c;   --lb-bg: #fef2f2;
-  --cc: #6b21a8;   --cc-bg: #f5f3ff;
+  /* ── 사이드바 ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-section {
+    padding: 12px 14px 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .conv-list { flex: 1; overflow-y: auto; padding: 4px 8px; }
+  .conv-item {
+    padding: 9px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 13px; color: var(--muted);
+    transition: all .15s;
+  }
+  .conv-item:hover { background: var(--surface2); color: var(--text); }
+  .conv-item.active { background: var(--accent); color: #fff; }
+  .sidebar-actions { padding: 12px; border-top: 1px solid var(--border); }
+  .btn {
+    display: block; width: 100%;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 12px; border-radius: 6px;
+    font-size: 12px; cursor: pointer; text-align: center;
+    transition: all .15s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
 
-  /* 폰 shell */
-  --shell:   #1c2333;
-  --shell-2: #242d40;
-  --shell-b: rgba(255,255,255,.08);
+  /* ── 채팅 영역 ── */
+  .chat-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .chat-header .ws-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--s3); flex-shrink: 0;
+  }
+  .chat-header .ws-dot.connected { background: var(--s0); }
+  .messages {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .msg-row { display: flex; gap: 8px; align-items: flex-start; }
+  .msg-row.mine { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    flex-shrink: 0;
+  }
+  .msg-body { max-width: 70%; }
+  .msg-name { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .msg-row.mine .msg-name { text-align: right; }
+  .msg-bubble {
+    padding: 8px 12px; border-radius: 12px;
+    font-size: 14px; line-height: 1.5;
+    background: var(--surface2); border: 1px solid var(--border);
+    word-break: break-word;
+  }
+  .msg-row.mine .msg-bubble { background: var(--accent); border-color: var(--accent); }
+  .msg-grade {
+    margin-top: 4px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; color: var(--muted);
+  }
+  .msg-row.mine .msg-grade { justify-content: flex-end; }
+  .grade-badge {
+    font-size: 10px; font-weight: 700; font-family: var(--font-mono);
+    padding: 1px 6px; border-radius: 4px;
+    cursor: pointer;
+  }
+  .grade-s0 { background: rgba(34,197,94,.15); color: var(--s0); }
+  .grade-s1 { background: rgba(250,204,21,.15); color: var(--s1); }
+  .grade-s2 { background: rgba(249,115,22,.15); color: var(--s2); }
+  .grade-s3 { background: rgba(239,68,68,.15); color: var(--s3); }
 
-  /* 타이포 */
-  --sans: 'Noto Sans KR', sans-serif;
-  --mono: 'DM Mono', monospace;
+  /* 시스템 메시지 */
+  .sys-msg {
+    text-align: center; font-size: 11px; color: var(--muted);
+    padding: 4px 0;
+  }
+  .alert-msg {
+    background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25);
+    border-radius: 8px; padding: 10px 14px; font-size: 12px;
+  }
+  .alert-msg.s2 { background: rgba(249,115,22,.08); border-color: rgba(249,115,22,.25); }
 
-  /* 폰 크기 */
-  --pw: 360px;
-  --ph: 720px;
-  --pr: 44px;
-}
+  /* 입력 영역 */
+  .input-area {
+    padding: 12px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .input-area textarea {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; color: var(--text);
+    font-family: var(--font-ui); font-size: 14px; resize: none;
+    max-height: 120px; min-height: 42px; line-height: 1.4;
+    transition: border-color .15s;
+  }
+  .input-area textarea:focus { outline: none; border-color: var(--accent); }
+  .input-area textarea::placeholder { color: var(--muted); }
+  .send-btn {
+    background: var(--accent); border: none; border-radius: 8px;
+    color: #fff; padding: 10px 16px; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: background .15s;
+    white-space: nowrap;
+  }
+  .send-btn:hover { background: var(--accent2); }
+  .send-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+  /* ── 디버그 패널 ── */
+  .debug-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .debug-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    color: var(--muted); text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .debug-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .debug-tab {
+    flex: 1; padding: 8px; text-align: center;
+    font-size: 11px; color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all .15s;
+  }
+  .debug-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .debug-content {
+    flex: 1; overflow-y: auto; padding: 12px;
+    font-family: var(--font-mono); font-size: 11px; line-height: 1.6;
+  }
+  .debug-empty { color: var(--muted); font-style: italic; font-family: var(--font-ui); }
+  .debug-json { color: #a8b4c8; white-space: pre-wrap; word-break: break-all; }
+  .json-key { color: #7dd3fc; }
+  .json-str { color: #86efac; }
+  .json-num { color: #fbbf24; }
+  .json-bool { color: #c084fc; }
 
-body {
-  font-family: var(--sans);
-  background: var(--bg-0);
-  color: var(--ink-1);
-  min-height: 100vh;
-  line-height: 1.6;
-}
+  /* PDV 로그 */
+  .pdv-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 8px;
+    font-size: 11px;
+  }
+  .pdv-item .pdv-grade { font-weight: 700; }
+  .pdv-item .pdv-hash { color: var(--muted); word-break: break-all; }
+  .pdv-item .pdv-anchor { color: var(--accent2); }
 
-/* ══════════════════════════════════════════════
-   글로벌 헤더
-══════════════════════════════════════════════ */
-.g-header {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  height: 52px;
-  background: var(--bg-1);
-  border-bottom: 1px solid #d1d9e0;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px;
-}
-.g-logo {
-  display: flex; align-items: center; gap: 10px;
-  text-decoration: none;
-}
-.g-logo-mark {
-  display: flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 6px;
-  background: var(--pri); color: #fff;
-  font-size: 14px; line-height: 1;
-}
-.g-logo-name {
-  font-size: 15px; font-weight: 700;
-  color: var(--ink-1); letter-spacing: -.3px;
-}
-.g-logo-ver {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--pri);
-  background: var(--pri-lt);
-  padding: 2px 7px; border-radius: 3px;
-  letter-spacing: .3px;
-}
-.g-status {
-  display: flex; align-items: center; gap: 7px;
-  font-family: var(--mono); font-size: 11px;
-  color: var(--ink-3);
-}
-.g-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #cbd5e0; transition: background .3s;
-}
-.g-dot.ok  { background: var(--pri); box-shadow: 0 0 0 2px var(--pri-lt); }
-.g-dot.err { background: var(--lb); }
+  /* ── 인증 화면 ── */
+  #auth-screen {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .auth-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 32px; width: 340px;
+  }
+  .auth-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .auth-title span { color: var(--accent2); }
+  .auth-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+  .auth-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+  .auth-tab {
+    flex: 1; padding: 8px; text-align: center;
+    border-radius: 6px; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    background: var(--surface2); color: var(--muted);
+    border: 1px solid var(--border); transition: all .15s;
+  }
+  .auth-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; font-weight: 600; letter-spacing: .5px; }
+  .field input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 9px 12px; color: var(--text);
+    font-size: 14px; font-family: var(--font-ui);
+    transition: border-color .15s;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .auth-btn {
+    width: 100%; background: var(--accent); border: none;
+    border-radius: 6px; color: #fff; padding: 11px;
+    font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px;
+    transition: background .15s;
+  }
+  .auth-btn:hover { background: var(--accent2); }
+  .auth-error { color: var(--s3); font-size: 12px; margin-top: 10px; text-align: center; }
 
-/* ══════════════════════════════════════════════
-   페이지 레이아웃
-══════════════════════════════════════════════ */
-.page {
-  padding-top: 52px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-bottom: 48px;
-}
+  /* ── 모달 ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    display: flex; align-items: center; justify-content: center; z-index: 200;
+  }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px; width: 320px;
+  }
+  .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+  .modal-close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; }
 
-/* ══════════════════════════════════════════════
-   스마트폰 Shell
-══════════════════════════════════════════════ */
-.phone-guide {
-  font-size: 13px; color: var(--ink-2);
-  text-align: center;
-  padding: 10px 20px 16px;
-  line-height: 1.6;
-}
-.phone-guide strong { color: var(--pri); font-weight: 700; }
-.phone-guide .guide-em { color: var(--pri); font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
-
-.phone-wrap {
-  margin-top: 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
-.phone {
-  width: var(--pw);
-  height: var(--ph);
-  background: var(--shell);
-  border-radius: var(--pr);
-  border: 2px solid var(--shell-b);
-  box-shadow:
-    0 0 0 6px rgba(28,35,51,.95),
-    0 0 0 7px rgba(255,255,255,.06),
-    0 24px 80px rgba(0,0,0,.28),
-    0  8px 24px rgba(0,0,0,.16);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-/* ── 다이나믹 아일랜드 (pill notch) ── */
-.phone-island {
-  position: absolute; top: 10px; left: 50%;
-  transform: translateX(-50%);
-  width: 100px; height: 28px;
-  background: #0a0e18;
-  border-radius: 20px;
-  z-index: 30;
-  pointer-events: none;
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px;
-}
-.island-cam {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: #1c2333;
-  border: 1px solid rgba(255,255,255,.08);
-}
-.island-sensor {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: rgba(255,255,255,.06);
-}
-
-/* ── 상태바 ── */
-.phone-bar {
-  height: 44px;
-  padding: 0 20px;
-  padding-top: 12px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.bar-time {
-  font-family: var(--mono); font-size: 13px; font-weight: 500;
-  color: rgba(255,255,255,.9);
-  letter-spacing: .3px;
-}
-.bar-icons {
-  display: flex; align-items: center; gap: 5px;
-}
-/* SVG 기반 시스템 아이콘 */
-.bar-icons svg {
-  width: 15px; height: 15px;
-  fill: rgba(255,255,255,.85);
-}
-
-/* ── AI 비서 버튼 바 ── */
-.phone-topbar {
-  height: 48px;
-  padding: 0 16px;
-  display: flex; align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  background: var(--shell-2);
-  flex-shrink: 0;
-  gap: 10px;
-}
-
-.btn-ai {
-  display: flex; align-items: center; gap: 7px;
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.7);
-  font-family: var(--sans); font-size: 12px; font-weight: 500;
-  cursor: pointer;
-  transition: all .18s ease;
-  white-space: nowrap;
-}
-.btn-ai:hover {
-  border-color: rgba(255,255,255,.3);
-  background: rgba(255,255,255,.1);
-  color: rgba(255,255,255,.95);
-}
-.btn-ai.active {
-  background: var(--pri);
-  border-color: var(--pri);
-  color: #fff;
-  box-shadow: 0 0 0 2px rgba(14,107,82,.3);
-}
-.ai-led {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(255,255,255,.3);
-  flex-shrink: 0;
-  transition: all .18s;
-}
-.btn-ai.active .ai-led {
-  background: #6ee7b7;
-  box-shadow: 0 0 6px #6ee7b7;
-  animation: ledBlink 2s ease-in-out infinite;
-}
-@keyframes ledBlink {
-  0%,100% { opacity: .6; }
-  50%      { opacity: 1; }
-}
-
-
-/* ── 첨부 버튼 ── */
-.btn-attach {
-  width: 36px; height: 36px; border-radius: 50%; border: none;
-  background: rgba(255,255,255,.08);
-  color: rgba(255,255,255,.6);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0;
-  transition: all .15s;
-}
-.btn-attach:hover:not(:disabled) {
-  background: rgba(255,255,255,.15);
-  color: rgba(255,255,255,.9);
-}
-.btn-attach:disabled { opacity: .25; cursor: not-allowed; }
-.btn-attach svg { pointer-events: none; }
-
-/* 첨부 파일 미리보기 칩 영역 */
-.attach-bar {
-  display: none;
-  flex-wrap: wrap; gap: 5px;
-  padding: 6px 12px 0;
-}
-.attach-bar.visible { display: flex; }
-.attach-chip {
-  display: flex; align-items: center; gap: 5px;
-  padding: 4px 8px 4px 10px;
-  background: rgba(14,107,82,.2);
-  border: 1px solid rgba(14,107,82,.4);
-  border-radius: 12px;
-  font-size: 11px; color: rgba(255,255,255,.85);
-  max-width: 200px;
-  animation: msgIn .15s ease;
-}
-.attach-chip-name {
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  flex: 1;
-}
-.attach-chip-size {
-  font-family: var(--mono); font-size: 9px;
-  color: rgba(255,255,255,.4); flex-shrink: 0;
-}
-.attach-chip-del {
-  width: 14px; height: 14px; border-radius: 50%;
-  background: rgba(255,255,255,.15);
-  border: none; cursor: pointer; color: rgba(255,255,255,.7);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; flex-shrink: 0; line-height: 1;
-  transition: background .1s;
-}
-.attach-chip-del:hover { background: rgba(239,68,68,.4); color: #fff; }
-
-/* ── 메시지 영역 ── */
-.phone-msgs {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 12px;
-  display: flex; flex-direction: column;
-  gap: 8px;
-  scroll-behavior: smooth;
-  background: #111826;
-}
-.phone-msgs::-webkit-scrollbar { width: 0; }
-
-/* 메시지 버블 */
-.msg { display: flex; gap: 7px; max-width: 90%; animation: msgIn .2s ease; }
-.msg.user { align-self: flex-end; flex-direction: row-reverse; }
-.msg.bot  { align-self: flex-start; }
-@keyframes msgIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-.msg-av {
-  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 13px;
-}
-.msg.user .msg-av { background: rgba(14,107,82,.3); }
-.msg.bot  .msg-av { background: rgba(255,255,255,.07); }
-.msg-body { display: flex; flex-direction: column; gap: 2px; }
-.msg-bub {
-  padding: 8px 12px;
-  font-size: 13px; line-height: 1.6;
-  white-space: pre-wrap; word-break: break-word;
-}
-.msg.user .msg-bub {
-  background: var(--pri);
-  color: #fff;
-  border-radius: 14px 3px 14px 14px;
-}
-.msg.bot .msg-bub {
-  background: #1e2a3e;
-  color: rgba(255,255,255,.88);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: 3px 14px 14px 14px;
-}
-.msg-time {
-  font-family: var(--mono); font-size: 9px;
-  color: rgba(255,255,255,.25); padding: 0 2px;
-}
-.msg.user .msg-time { text-align: right; }
-
-/* 경고 블록 */
-.warn {
-  padding: 9px 12px; margin-bottom: 6px;
-  border-radius: 6px; border-left: 3px solid;
-  font-size: 12px; line-height: 1.6;
-}
-.warn.cr { background: rgba(180,83,9,.12);   border-color: #d97706; color: #fbbf24; }
-.warn.cv { background: rgba(194,65,12,.12);   border-color: #ea580c; color: #fb923c; }
-.warn.lb { background: rgba(185,28,28,.12);   border-color: #dc2626; color: #f87171; }
-.warn.cc { background: rgba(107,33,168,.15);  border-color: #9333ea; color: #c084fc; }
-
-/* ── 리포트 헤더 (경고 블록 상단) ── */
-.report-header {
-  border-bottom: 1px solid rgba(255,255,255,.1);
-  margin-bottom: 7px; padding-bottom: 7px;
-}
-.report-title {
-  font-size: 12px; font-weight: 900;
-  letter-spacing: -.2px; line-height: 1.3;
-  margin-bottom: 3px;
-}
-.report-subtitle {
-  font-family: var(--mono); font-size: 9px;
-  opacity: .6; letter-spacing: .3px;
-}
-.report-grade {
-  display: inline-flex; align-items: center; gap: 4px;
-  margin-top: 5px;
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  padding: 2px 8px; border-radius: 4px;
-  border: 1px solid currentColor;
-  opacity: .9;
-}
-/* 면책 고지 */
-.report-disclaimer {
-  margin-top: 8px; padding: 6px 8px;
-  background: rgba(0,0,0,.2);
-  border-radius: 5px;
-  font-size: 9.5px; line-height: 1.55;
-  opacity: .65;
-  font-style: italic;
-}
-
-.warn-title { font-weight: 700; margin-bottom: 4px; font-size: 12.5px; }
-.warn-row { display: flex; gap: 5px; margin-top: 3px; }
-.warn-row span:first-child { flex-shrink: 0; }
-
-/* 타이핑 */
-.typing-bub {
-  display: flex; gap: 4px; align-items: center; padding: 4px 2px;
-}
-.typing-bub span {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: rgba(255,255,255,.3);
-  animation: tdot .9s ease-in-out infinite;
-}
-.typing-bub span:nth-child(2) { animation-delay: .15s; }
-.typing-bub span:nth-child(3) { animation-delay: .30s; }
-@keyframes tdot {
-  0%,80%,100% { transform: translateY(0); opacity: .3; }
-  40%          { transform: translateY(-4px); opacity: .9; }
-}
-
-/* 시스템 메시지 */
-.sys-line {
-  align-self: center;
-  font-family: var(--mono); font-size: 10px;
-  color: rgba(255,255,255,.3);
-  padding: 3px 12px;
-  background: rgba(255,255,255,.04);
-  border-radius: 20px;
-  animation: msgIn .2s ease;
-}
-
-
-/* ── K-Law 판결문 작성 Progress ── */
-.klaw-progress {
-  align-self: flex-start;
-  width: 92%;
-  background: #1a2640;
-  border: 1px solid rgba(110,231,183,.2);
-  border-radius: 12px;
-  padding: 12px 14px;
-  animation: msgIn .2s ease;
-}
-.klaw-progress-title {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--g-mid); letter-spacing: 1px;
-  margin-bottom: 8px; font-weight: 700;
-}
-.klaw-progress-bar-wrap {
-  background: rgba(255,255,255,.07);
-  border-radius: 4px; height: 6px;
-  margin-bottom: 8px; overflow: hidden;
-}
-.klaw-progress-bar {
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, var(--pri), var(--g-mid));
-  width: 0%;
-  transition: width .6s cubic-bezier(.4,0,.2,1);
-}
-.klaw-progress-step {
-  font-size: 11px; color: rgba(255,255,255,.6);
-  display: flex; align-items: center; gap: 6px;
-  min-height: 18px;
-}
-.klaw-progress-step .step-icon { font-size: 12px; flex-shrink: 0; }
-.klaw-progress-pct {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--g-mid); margin-left: auto; flex-shrink: 0;
-}
-
-/* ── 판결문 다운로드/이메일 액션 버튼 ── */
-.verdict-actions {
-  display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap;
-}
-.btn-verdict {
-  display: flex; align-items: center; gap: 5px;
-  padding: 6px 12px; border-radius: 8px;
-  font-family: var(--sans); font-size: 11px; font-weight: 700;
-  cursor: pointer; border: none; transition: all .15s;
-  white-space: nowrap;
-}
-.btn-verdict-dl {
-  background: var(--pri); color: #fff;
-}
-.btn-verdict-dl:hover { background: var(--pri-mid); }
-.btn-verdict-email {
-  background: rgba(110,231,183,.1);
-  border: 1px solid rgba(110,231,183,.3);
-  color: var(--g-light);
-}
-.btn-verdict-email:hover { background: rgba(110,231,183,.18); }
-
-/* ── 이메일 입력 인라인 폼 ── */
-.email-form {
-  display: none; margin-top: 8px; gap: 6px;
-  align-items: center;
-}
-.email-form.show { display: flex; }
-.email-inp {
-  flex: 1; background: rgba(255,255,255,.07);
-  border: 1px solid rgba(110,231,183,.25);
-  border-radius: 6px; padding: 6px 10px;
-  font-family: var(--mono); font-size: 11px;
-  color: rgba(255,255,255,.9); outline: none;
-  transition: border .15s;
-}
-.email-inp:focus { border-color: rgba(110,231,183,.5); }
-.email-inp::placeholder { color: rgba(255,255,255,.25); }
-.btn-email-send {
-  padding: 6px 12px; border-radius: 6px; border: none;
-  background: var(--pri); color: #fff;
-  font-size: 11px; font-weight: 700; cursor: pointer;
-  transition: background .15s; white-space: nowrap;
-}
-.btn-email-send:hover { background: var(--pri-mid); }
-
-
-/* ── K-Law 버튼 ── */
-.btn-klaw {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 20px;
-  border: 1px solid rgba(100,160,255,.3);
-  background: rgba(100,160,255,.07);
-  color: rgba(180,210,255,.8);
-  font-family: var(--sans); font-size: 12px; font-weight: 500;
-  cursor: pointer; transition: all .18s; white-space: nowrap;
-}
-.btn-klaw:hover {
-  border-color: rgba(100,160,255,.5);
-  background: rgba(100,160,255,.14);
-  color: #c8e0ff;
-}
-.btn-klaw.active {
-  background: #1a4a8a;
-  border-color: #4a90d9;
-  color: #fff;
-  box-shadow: 0 0 0 2px rgba(74,144,217,.3);
-}
-.btn-klaw.active .klaw-led {
-  background: #7eb3ff;
-  box-shadow: 0 0 6px #7eb3ff;
-  animation: ledBlink 2s ease-in-out infinite;
-}
-.klaw-led {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(100,160,255,.4); flex-shrink: 0;
-  transition: all .18s;
-}
-
-/* ── K-Law Phase 배지 (버블 상단) ── */
-.klaw-phase-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-family: var(--mono); font-size: 9px; font-weight: 700;
-  padding: 2px 8px; border-radius: 10px; margin-bottom: 6px;
-  letter-spacing: .5px;
-}
-.badge-intake    { background: rgba(74,144,217,.2);  color: #7eb3ff; border: 1px solid rgba(74,144,217,.3); }
-.badge-analysis  { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
-.badge-simulate  { background: rgba(14,107,82,.2);   color: #6ee7b7; border: 1px solid rgba(14,107,82,.3); }
-.badge-done      { background: rgba(107,33,168,.2);  color: #c084fc; border: 1px solid rgba(107,33,168,.3); }
-
-/* ── 사건 구조화 카드 ── */
-.case-card {
-  background: #131f35; border: 1px solid rgba(74,144,217,.25);
-  border-radius: 10px; overflow: hidden; margin-bottom: 2px;
-}
-.case-card-header {
-  background: #1a3560; padding: 7px 12px;
-  font-size: 11px; font-weight: 700; color: #7eb3ff;
-  display: flex; align-items: center; gap: 6px;
-}
-.case-card-body {
-  padding: 9px 12px; font-size: 12px; color: rgba(255,255,255,.8);
-  line-height: 1.65; white-space: pre-wrap;
-}
-
-/* ── K-Law Progress (스마트폰 버블형) ── */
-.klaw-sim-progress {
-  align-self: flex-start; width: 94%;
-  background: #0d1a2e;
-  border: 1px solid rgba(74,144,217,.3);
-  border-radius: 12px; overflow: visible;
-  animation: msgIn .2s ease;
-}
-.kp-header {
-  background: #0d2247; padding: 9px 13px;
-  display: flex; align-items: center; gap: 8px;
-}
-.kp-header-title {
-  font-size: 11px; font-weight: 700; color: #7eb3ff;
-  flex: 1; letter-spacing: .3px;
-}
-.kp-pct { font-family: var(--mono); font-size: 11px; color: #7eb3ff; }
-.kp-pbar-track {
-  height: 4px; background: rgba(255,255,255,.06);
-}
-.kp-pbar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #1a4a8a, #4a90d9);
-  width: 0%; transition: width .55s cubic-bezier(.4,0,.2,1);
-}
-/* Phase 탭 */
-.kp-phases {
-  display: flex; border-bottom: 1px solid rgba(255,255,255,.07);
-  padding: 0 4px;
-}
-.kp-phase {
-  flex: 1; padding: 5px 2px; text-align: center;
-  font-family: var(--mono); font-size: 9px;
-  color: rgba(255,255,255,.25); letter-spacing: .5px;
-  border-bottom: 2px solid transparent;
-  transition: all .2s;
-}
-.kp-phase.active { color: #7eb3ff; border-bottom-color: #7eb3ff; }
-.kp-phase.done   { color: rgba(110,231,183,.6); }
-/* Step 로그 */
-.kp-log {
-  padding: 8px 12px;
-  font-family: var(--mono); font-size: 10px;
-  line-height: 1.85;
-}
-.kp-log::-webkit-scrollbar { width: 2px; }
-.kp-log-row {
-  display: flex; align-items: flex-start; gap: 6px;
-  padding: 1px 0;
-  animation: msgIn .15s ease;
-}
-.kp-log-row.pending { color: rgba(255,255,255,.25); }
-.kp-log-row.active  { color: #7eb3ff; font-weight: 700; }
-.kp-log-row.done    { color: rgba(110,231,183,.7); }
-.kp-log-icon { flex-shrink: 0; width: 14px; text-align: center; }
-
-/* ── 입력 영역 ── */
-.phone-input {
-  flex-shrink: 0;
-  padding: 10px 12px 14px;
-  background: var(--shell-2);
-  border-top: 1px solid rgba(255,255,255,.06);
-  display: flex; gap: 8px; align-items: flex-end;
-}
-.inp-field {
-  flex: 1;
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 18px;
-  padding: 8px 14px;
-  font-family: var(--sans); font-size: 13px;
-  color: rgba(255,255,255,.9);
-  outline: none; resize: none;
-  min-height: 36px; max-height: 90px;
-  transition: border .15s; line-height: 1.5;
-}
-.inp-field:focus { border-color: rgba(14,107,82,.6); }
-.inp-field::placeholder { color: rgba(255,255,255,.2); }
-.inp-field:disabled { opacity: .35; cursor: not-allowed; }
-
-.btn-send {
-  width: 36px; height: 36px; border-radius: 50%; border: none;
-  background: var(--pri); color: #fff;
-  font-size: 14px; cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
-}
-.btn-send:hover:not(:disabled) {
-  background: var(--pri-mid);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(14,107,82,.35);
-}
-.btn-send:disabled { opacity: .3; cursor: not-allowed; transform: none; }
-
-/* ══════════════════════════════════════════════
-   모달 — 정부형 카드 스타일
-══════════════════════════════════════════════ */
-.modal-bg {
-  position: fixed; inset: 0; z-index: 500;
-  background: rgba(26,35,50,.55);
-  backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity .2s;
-}
-.modal-bg.open { opacity: 1; pointer-events: all; }
-.modal-card {
-  background: var(--bg-1);
-  border: 1px solid #d1d9e0;
-  border-radius: 12px;
-  padding: 36px 32px 28px;
-  width: 400px; max-width: 92vw;
-  box-shadow: 0 16px 48px rgba(0,0,0,.14);
-  transform: translateY(12px); transition: transform .2s;
-}
-.modal-bg.open .modal-card { transform: translateY(0); }
-
-.modal-emblem {
-  width: 44px; height: 44px; border-radius: 10px;
-  background: var(--pri-lt);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; margin-bottom: 18px;
-}
-.modal-card h2 {
-  font-size: 18px; font-weight: 700;
-  color: var(--ink-1); margin-bottom: 8px;
-}
-.modal-card p {
-  font-size: 13px; color: var(--ink-2);
-  line-height: 1.75; margin-bottom: 20px;
-}
-.modal-label {
-  font-size: 11px; font-weight: 700;
-  color: var(--ink-3); letter-spacing: 1px;
-  text-transform: uppercase; margin-bottom: 6px;
-}
-.modal-inp {
-  width: 100%;
-  background: var(--bg-0);
-  border: 1px solid #c9d2dc;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-family: var(--mono); font-size: 13px;
-  color: var(--ink-1); outline: none;
-  transition: border .15s; margin-bottom: 14px;
-}
-.modal-inp:focus { border-color: var(--pri); box-shadow: 0 0 0 3px rgba(14,107,82,.1); }
-.modal-inp::placeholder { color: var(--ink-3); }
-
-.modal-actions { display: flex; flex-direction: column; gap: 8px; }
-.btn-modal-primary {
-  width: 100%; padding: 11px;
-  border-radius: 6px; border: none; cursor: pointer;
-  background: var(--pri); color: #fff;
-  font-family: var(--sans); font-size: 14px; font-weight: 700;
-  transition: background .15s;
-}
-.btn-modal-primary:hover { background: var(--pri-mid); }
-.modal-skip {
-  text-align: center; font-size: 12px; color: var(--ink-3);
-}
-.modal-skip a {
-  color: var(--pri); text-decoration: underline; cursor: pointer;
-}
-.modal-notice {
-  margin-top: 16px; padding: 10px 12px;
-  background: var(--pri-lt);
-  border-radius: 6px;
-  font-size: 11px; color: var(--pri);
-  line-height: 1.6;
-}
-
-/* ── LLM 선택 ── */
-.llm-grid {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 7px;
-  margin-bottom: 14px;
-}
-.llm-card {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 9px 6px 8px;
-  border-radius: 8px;
-  border: 1.5px solid #d1d9e0;
-  background: var(--bg-0);
-  cursor: pointer; transition: all .15s;
-  position: relative;
-}
-.llm-card:hover { border-color: var(--pri); background: var(--pri-lt); }
-.llm-card.selected {
-  border-color: var(--pri);
-  background: var(--pri-lt);
-  box-shadow: 0 0 0 2px rgba(14,107,82,.15);
-}
-.llm-card.selected::after {
-  content: '✓';
-  position: absolute; top: 4px; right: 6px;
-  font-size: 9px; font-weight: 700; color: var(--pri);
-}
-.llm-ico  { font-size: 18px; line-height: 1; }
-.llm-name { font-size: 11px; font-weight: 700; color: var(--ink-1); }
-.llm-model{ font-size: 9px; color: var(--ink-3); text-align: center; line-height: 1.3; }
-.llm-def  { font-size: 8px; color: var(--pri);
-  border: 1px solid var(--pri); border-radius: 3px; padding: 1px 5px; }
-.llm-endpoint {
-  font-family: var(--mono); font-size: 10px; color: var(--pri);
-  background: var(--pri-lt); border-radius: 4px;
-  padding: 5px 10px; margin-bottom: 10px; line-height: 1.5;
-}
-.llm-custom-row {
-  display: none; flex-direction: column; gap: 4px; margin-bottom: 10px;
-}
-.llm-custom-row.show { display: flex; }
-.llm-custom-label {
-  font-size: 10px; font-weight: 700; color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: .8px;
-}
-/* 헤더 LLM 뱃지 */
-.g-llm-badge {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--pri); background: var(--pri-lt);
-  border: 1px solid rgba(14,107,82,.25);
-  border-radius: 4px; padding: 2px 8px;
-  cursor: pointer; transition: all .15s;
-}
-.g-llm-badge:hover { background: rgba(14,107,82,.15); }
-.prompt-status {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--ink-3);
-  display: flex; align-items: center; gap: 5px;
-}
-.prompt-ok   { color: var(--pri); }
-.prompt-warn { color: var(--cr); }
-
-/* ══════════════════════════════════════════════
-   반응형
-══════════════════════════════════════════════ */
-@media (max-width: 420px) {
-  :root { --pw: 100vw; --ph: calc(100vh - 52px); --pr: 0px; }
-  .phone { border-radius: 0; border: none; box-shadow: none; }
-  .phone-guide {
-  font-size: 13px; color: var(--ink-2);
-  text-align: center;
-  padding: 10px 20px 16px;
-  line-height: 1.6;
-}
-.phone-guide strong { color: var(--pri); font-weight: 700; }
-
-.phone-wrap { margin-top: 0; }
-}
+  /* 스크롤바 */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
 </head>
 <body>
 
-<!-- ── 모달 ───────────────────────────────────────────────────── -->
-<div class="modal-bg" id="modalBg">
-  <div class="modal-card">
-    <div class="modal-emblem">🐚</div>
-    <h2>K-Law 시작</h2>
-    <p>사용할 LLM을 선택하고 API Key를 입력하세요.</p>
-
-    <!-- LLM 선택 카드 -->
-    <div class="llm-grid" id="llmGrid">
-      <div class="llm-card selected" data-llm="deepseek" data-ep="api.deepseek.com/v1" onclick="pickLlm(this)">
-        <span class="llm-ico">🔷</span>
-        <span class="llm-name">DeepSeek</span>
-        <span class="llm-model">deepseek-chat</span>
-        <span class="llm-def">DEFAULT</span>
-      </div>
-      <div class="llm-card" data-llm="claude" data-ep="api.anthropic.com/v1" onclick="pickLlm(this)">
-        <span class="llm-ico">🟣</span>
-        <span class="llm-name">Claude</span>
-        <span class="llm-model">sonnet-4-6</span>
-      </div>
-      <div class="llm-card" data-llm="gemini" data-ep="generativelanguage.googleapis.com" onclick="pickLlm(this)">
-        <span class="llm-ico">💎</span>
-        <span class="llm-name">Gemini</span>
-        <span class="llm-model">2.0 Flash</span>
-      </div>
-      <div class="llm-card" data-llm="openai" data-ep="api.openai.com/v1" onclick="pickLlm(this)">
-        <span class="llm-ico">🟢</span>
-        <span class="llm-name">OpenAI</span>
-        <span class="llm-model">gpt-4o</span>
-      </div>
-      <div class="llm-card" data-llm="grok" data-ep="api.x.ai/v1" onclick="pickLlm(this)">
-        <span class="llm-ico">𝕏</span>
-        <span class="llm-name">Grok</span>
-        <span class="llm-model">grok-3-beta</span>
-      </div>
-      <div class="llm-card" data-llm="openrouter" data-ep="openrouter.ai/api/v1" onclick="pickLlm(this)">
-        <span class="llm-ico">🌐</span>
-        <span class="llm-name">OpenRouter</span>
-        <span class="llm-model">커스텀</span>
-      </div>
+<!-- ── 인증 화면 ── -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-title">고<span>팡</span></div>
+    <div class="auth-sub">AI 법학 비서 채팅 플랫폼 — 데모</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuth('login')">로그인</div>
+      <div class="auth-tab" onclick="switchAuth('register')">회원가입</div>
     </div>
-
-    <!-- 엔드포인트 표시 -->
-    <div class="llm-endpoint" id="llmEndpoint">엔드포인트: api.deepseek.com/v1</div>
-
-    <!-- OpenRouter 커스텀 모델 입력 -->
-    <div class="llm-custom-row" id="llmCustomRow">
-      <div class="llm-custom-label">모델명 (Model ID)</div>
-      <input class="modal-inp" id="llmCustomModel" type="text"
-        placeholder="예: meta-llama/llama-3.3-70b-instruct" autocomplete="off"
-        style="margin-bottom:0">
-    </div>
-
-    <div class="modal-label" style="margin-top:4px">API Key</div>
-    <input class="modal-inp" id="modalKey" type="password"
-      placeholder="sk-..." autocomplete="off">
-
-    <div class="modal-actions">
-      <button class="btn-modal-primary" onclick="initWithKey()">시작하기 →</button>
-      <div class="modal-skip">
-        API Key 없이 체험하려면 <a onclick="initWithoutKey()">건너뛰기</a>
-      </div>
-    </div>
-    <div class="modal-notice">
-      🔒 Key는 브라우저 메모리에만 저장되며 서버로 전송되지 않습니다.
-    </div>
+    <div class="field"><label>사용자명</label><input id="auth-username" placeholder="username" autocomplete="off"></div>
+    <div class="field"><label>비밀번호</label><input id="auth-password" type="password" placeholder="password"></div>
+    <button class="auth-btn" onclick="doAuth()">시작하기</button>
+    <div id="auth-error" class="auth-error"></div>
   </div>
 </div>
 
-<!-- ── 글로벌 헤더 ──────────────────────────────────────────── -->
-<header class="g-header">
-  <a class="g-logo" href="#">
-    <div class="g-logo-mark">🐚</div>
-    <span class="g-logo-name">고팡</span>
-    <span class="g-logo-ver">K-Law Gopang v1.0</span>
-  </a>
-  <div class="g-status">
-    <span class="prompt-status" id="promptStatus">⏳ K-Law Prompt 로딩 중…</span>
-    <span class="prompt-status" id="pdvStatus" style="color:rgba(110,231,183,.4);cursor:pointer" title="PDV 기록 현황">🔒 PDV</span>
-    <span class="g-llm-badge" id="gLlmBadge" onclick="openModal()">DeepSeek v4 Pro ▾</span>
-    <div class="g-dot" id="gDot"></div>
-    <span id="gStatusTxt">대기 중</span>
+<!-- ── 메인 UI ── -->
+<header>
+  <div class="logo">고<span>팡</span></div>
+  <div class="badge">DEMO</div>
+  <div class="header-right">
+    <div class="user-pill" id="header-username">—</div>
+    <div class="server-status" id="server-dot" title="서버 상태"></div>
   </div>
 </header>
 
-<!-- ── 페이지 ─────────────────────────────────────────────────── -->
-<div class="page">
-  <div class="phone-wrap">
-    <div class="phone-guide">
-      스마트폰 화면 상단의 <strong>AI 비서</strong>를 선택하면,
-      사용자의 <strong class="guide-em">전속 AI 비서</strong>와 대화할 수 있으며,
-      AI 비서는 귀하의 대화나 문서 등에서 법적 위험을 감지하면 즉시 알려드립니다.
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <div class="sidebar">
+    <div class="sidebar-section">대화</div>
+    <div class="conv-list" id="conv-list">
+      <div class="sys-msg" style="padding:16px 0;font-size:12px;">대화방이 없습니다</div>
     </div>
-    <div class="phone" id="phone">
+    <div class="sidebar-actions">
+      <button class="btn btn-primary" onclick="showNewConv()">+ 새 대화</button>
+      <button class="btn" style="margin-top:6px" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
 
-      <!-- 다이나믹 아일랜드 -->
-      <div class="phone-island">
-        <div class="island-cam"></div>
-        <div class="island-sensor"></div>
-        <div class="island-cam"></div>
-      </div>
+  <!-- 채팅 -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="ws-dot" id="ws-dot"></div>
+      <span id="chat-title">대화방을 선택하세요</span>
+    </div>
+    <div class="messages" id="messages">
+      <div class="sys-msg">고팡 데모에 오신 것을 환영합니다.<br>좌측에서 대화를 시작하세요.</div>
+    </div>
+    <div class="input-area">
+      <textarea id="msg-input" placeholder="메시지 입력 (Shift+Enter: 줄바꿈, Enter: 전송)" rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>전송</button>
+    </div>
+  </div>
 
-      <!-- 상태바: 시간 + 아이콘 -->
-      <div class="phone-bar">
-        <span class="bar-time" id="barTime">9:41</span>
-        <div class="bar-icons">
-          <!-- 안테나 (신호 바) -->
-          <svg viewBox="0 0 16 12" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0"  y="8" width="3" height="4" rx="1"/>
-            <rect x="4"  y="5" width="3" height="7" rx="1"/>
-            <rect x="8"  y="2" width="3" height="10" rx="1"/>
-            <rect x="12" y="0" width="3" height="12" rx="1"/>
-          </svg>
-          <!-- WiFi -->
-          <svg viewBox="0 0 16 12" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 9a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/>
-            <path d="M3.5 5.5a6.5 6.5 0 019 0" stroke-width="1.5" stroke="rgba(255,255,255,.85)" fill="none" stroke-linecap="round"/>
-            <path d="M1 3a10 10 0 0114 0" stroke-width="1.5" stroke="rgba(255,255,255,.85)" fill="none" stroke-linecap="round"/>
-          </svg>
-          <!-- 배터리 -->
-          <svg viewBox="0 0 20 12" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="1" width="17" height="10" rx="2.5" stroke="rgba(255,255,255,.85)" stroke-width="1.3" fill="none"/>
-            <rect x="17.5" y="4" width="2" height="4" rx="1" fill="rgba(255,255,255,.6)"/>
-            <rect x="1.5" y="2.5" width="12" height="7" rx="1.5" fill="rgba(255,255,255,.85)"/>
-          </svg>
-        </div>
-      </div>
+  <!-- 디버그 패널 -->
+  <div class="debug-panel">
+    <div class="debug-header">
+      🔍 디버그
+    </div>
+    <div class="debug-tabs">
+      <div class="debug-tab active" onclick="switchDebug('pipeline')">파이프라인</div>
+      <div class="debug-tab" onclick="switchDebug('pdv')">PDV 로그</div>
+      <div class="debug-tab" onclick="switchDebug('raw')">원시 JSON</div>
+    </div>
+    <div class="debug-content" id="debug-content">
+      <div class="debug-empty">메시지를 전송하면 분석 결과가 여기 표시됩니다.</div>
+    </div>
+  </div>
 
-      <!-- 버튼 바: AI 비서 + K-Law -->
-      <div class="phone-topbar">
-        <button class="btn-ai" id="btnAi" onclick="toggleAi()">
-          <span id="btnAiLabel">AI 비서</span>
-          <span class="ai-led" id="aiLed"></span>
-        </button>
-        <button class="btn-klaw" id="btnKlaw" onclick="toggleKlaw()">
-          <span>⚖</span>
-          <span id="btnKlawLabel">K-Law</span>
-          <span class="klaw-led" id="klawLed"></span>
-        </button>
-      </div>
+</div>
 
-      <!-- 메시지 영역 -->
-      <div class="phone-msgs" id="msgs"></div>
-
-      <!-- 첨부 파일 미리보기 -->
-      <div class="attach-bar" id="attachBar"></div>
-
-      <!-- 입력 영역 -->
-      <div class="phone-input">
-        <!-- 숨김 파일 input -->
-        <input type="file" id="fileInput" style="display:none"
-          accept=".txt,.md,.pdf,.docx,.doc,.xlsx,.xls,.csv,.json,.html,.htm"
-          multiple onchange="onFileChange(event)">
-
-        <!-- 첨부 버튼 -->
-        <button class="btn-attach" id="btnAttach" disabled
-          onclick="document.getElementById('fileInput').click()"
-          title="문서 첨부 (txt·pdf·docx·xlsx·csv 등)">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.5 7.5l-6 6a4 4 0 01-5.657-5.657l6.364-6.364a2.5 2.5 0 013.535 3.535L5.379 11.38a1 1 0 01-1.414-1.414L10.5 3.5"
-              stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-
-        <textarea class="inp-field" id="inp"
-          placeholder=""
-          rows="1" disabled
-          onkeydown="handleKey(event)"
-          oninput="autoResize(this)"></textarea>
-        <button class="btn-send" id="btnSend" disabled onclick="sendMsg()">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 12V2M7 2L3 6M7 2l4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-
-    </div><!-- /phone -->
-  </div><!-- /phone-wrap -->
-</div><!-- /page -->
+<!-- 새 대화 모달 -->
+<div class="modal-overlay" id="new-conv-modal" style="display:none">
+  <div class="modal-box">
+    <span class="modal-close" onclick="closeModal()">✕</span>
+    <div class="modal-title">새 대화 시작</div>
+    <div class="field"><label>상대방 사용자명</label><input id="new-conv-target" placeholder="username" autocomplete="off"></div>
+    <button class="auth-btn" onclick="createConv()">대화 시작</button>
+    <div id="conv-error" class="auth-error"></div>
+  </div>
+</div>
 
 <script>
-/* ─── 상태 ──────────────────────────────────────── */
-let API_KEY   = '';
-let history_  = [];
-let isLoad    = false;
-let aiOn      = false;
+// ── 상태 ──
+const API  = `http://144.24.90.233:8000`;
+const WS   = `ws://144.24.90.233:8000`;
 
-/* ─── LLM 설정 테이블 ───────────────────────────── */
-const LLM_CFG = {
-  deepseek: {
-    label: 'DeepSeek v4 Pro',
-    defaultKey: 'sk-ff2e53f84f5541d59f0617266730a9ee',
-    url:   'https://api.deepseek.com/v1/chat/completions',
-    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
-    body:  (sys,msgs,mdl) => ({model:'deepseek-chat',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
-    pick:  d => d.choices[0].message.content,
-    hint:  'sk-...',
-  },
-  claude: {
-    label: 'Claude Sonnet 4.6',
-    url:   'https://api.anthropic.com/v1/messages',
-    headers: k => ({'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'}),
-    body:  (sys,msgs,mdl) => ({model:'claude-sonnet-4-6',max_tokens:1400,temperature:0.1,system:sys,messages:msgs}),
-    pick:  d => d.content[0].text,
-    hint:  'sk-ant-...',
-  },
-  gemini: {
-    label: 'Gemini 2.0 Flash',
-    url:   k => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${k}`,
-    headers: _k => ({'Content-Type':'application/json'}),
-    body:  (sys,msgs,mdl) => ({
-      system_instruction:{parts:[{text:sys}]},
-      contents:msgs.map(m=>({role:m.role==='assistant'?'model':m.role,parts:[{text:m.content}]})),
-      generationConfig:{temperature:0.1,maxOutputTokens:1400},
-    }),
-    pick:  d => d.candidates[0].content.parts[0].text,
-    hint:  'AIza...',
-  },
-  openai: {
-    label: 'GPT-4o',
-    url:   'https://api.openai.com/v1/chat/completions',
-    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
-    body:  (sys,msgs,mdl) => ({model:'gpt-4o',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
-    pick:  d => d.choices[0].message.content,
-    hint:  'sk-...',
-  },
-  grok: {
-    label: 'Grok 3 Beta',
-    url:   'https://api.x.ai/v1/chat/completions',
-    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
-    body:  (sys,msgs,mdl) => ({model:'grok-3-beta',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
-    pick:  d => d.choices[0].message.content,
-    hint:  'xai-...',
-  },
-  openrouter: {
-    label: 'OpenRouter',
-    url:   'https://openrouter.ai/api/v1/chat/completions',
-    headers: k => ({'Content-Type':'application/json','Authorization':`Bearer ${k}`}),
-    body:  (sys,msgs,mdl) => ({model:mdl||'meta-llama/llama-3.3-70b-instruct',messages:[{role:'system',content:sys},...msgs],temperature:0.1,max_tokens:1400}),
-    pick:  d => d.choices[0].message.content,
-    hint:  'sk-or-...',
-  },
-};
-let curLlm    = 'deepseek';
-let curModel  = '';   // OpenRouter 커스텀
+let token  = localStorage.getItem('gopang_token') || '';
+let myUser = JSON.parse(localStorage.getItem('gopang_user') || 'null');
+let ws     = null;
+let currentConv = null;
+let debugMode   = 'pipeline';
+let lastPacket  = null;
+let pdvLog      = [];
+let authMode    = 'login';
 
-/* ═══════════════════════════════════════════════════════
-   Telegram TWA + PDV (Private Data Vault)
-   논문 §3.1.3 해시 체인 모델 구현
-   ═══════════════════════════════════════════════════════ */
-
-// PDV 상태
-let pdvHeight = 0;
-let pdvPrevHash = '0'.repeat(64);
-
-// Telegram 환경 감지
-const IS_TWA = !!(window.Telegram?.WebApp?.initData);
-
-/* ── SHA-256 (Web Crypto API) ── */
-async function sha256hex(str) {
-  const buf = await crypto.subtle.digest(
-    'SHA-256', new TextEncoder().encode(str)
-  );
-  return Array.from(new Uint8Array(buf))
-    .map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
-/* ── PDV 해시 계산 (논문 §3.1.3) ──
-   h_i = SHA-256(h_{i-1} ∥ data_i ∥ height_i)        */
-async function pdvComputeHash(userMsg, aiReply, riskLevel) {
-  const data = JSON.stringify({
-    ts: Date.now(), height: pdvHeight,
-    u: userMsg.slice(0, 300),
-    a: aiReply.slice(0, 300),
-    r: riskLevel
-  });
-  const hash = await sha256hex(pdvPrevHash + data + pdvHeight);
-  return hash;
-}
-
-/* ── PDV 저장 (대화 완료 후 호출) ── */
-async function pdvRecord(userMsg, aiReply, riskLevel) {
-  const hash = await pdvComputeHash(userMsg, aiReply, riskLevel);
-  const entry = {
-    height: pdvHeight,
-    hash,
-    ts: Date.now(),
-    risk: riskLevel,
-    prev: pdvPrevHash
+// ── 유틸 ──
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
   };
-
-  // Telegram CloudStorage (TWA 환경)
-  if (IS_TWA && window.Telegram.WebApp.CloudStorage) {
-    const cs = window.Telegram.WebApp.CloudStorage;
-    cs.setItem('pdv_' + pdvHeight, JSON.stringify(entry));
-    cs.setItem('pdv_latest', JSON.stringify(entry));
-  }
-
-  // fallback: localStorage (브라우저 환경)
-  try {
-    const chain = JSON.parse(localStorage.getItem('pdv_chain') || '[]');
-    chain.push({ height: pdvHeight, hash, ts: Date.now(), risk: riskLevel });
-    if (chain.length > 500) chain.splice(0, chain.length - 500);
-    localStorage.setItem('pdv_chain', JSON.stringify(chain));
-    localStorage.setItem('pdv_latest', JSON.stringify(entry));
-  } catch(e) {}
-
-  // OpenHash L1 앵커링 (서버)
-  pdvAnchor(hash, pdvHeight, riskLevel).catch(() => {});
-
-  // 상태 갱신
-  pdvPrevHash = hash;
-  pdvHeight++;
-  return hash;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.detail || JSON.stringify(data));
+  return data;
 }
 
-/* ── OpenHash L1 앵커링 ── */
-async function pdvAnchor(hash, height, risk) {
-  const userId = IS_TWA
-    ? (window.Telegram.WebApp.initDataUnsafe?.user?.id || 'anon')
-    : 'browser';
-  try {
-    await fetch('https://openhash.kr/law/pdv/anchor', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, height, hash, risk,
-                             ts: Date.now() })
-    });
-  } catch(e) {
-    // 오프라인 시 큐에 저장
-    const q = JSON.parse(localStorage.getItem('pdv_queue') || '[]');
-    q.push({ hash, height, risk, ts: Date.now() });
-    localStorage.setItem('pdv_queue', JSON.stringify(q));
-  }
+function gradeClass(g) { return `grade-${g.toLowerCase()}`; }
+function gradeColor(g) {
+  return { S0: '#22c55e', S1: '#facc15', S2: '#f97316', S3: '#ef4444' }[g] || '#6b7280';
 }
 
-/* ── PDV 상태 초기화 (기존 체인 로드) ── */
-async function pdvInit() {
-  // localStorage에서 이전 상태 복원
-  try {
-    const latest = JSON.parse(localStorage.getItem('pdv_latest') || 'null');
-    if (latest) {
-      pdvHeight   = latest.height + 1;
-      pdvPrevHash = latest.hash;
-    }
-  } catch(e) {}
-
-  // TWA: CloudStorage에서 복원 (localStorage보다 우선)
-  if (IS_TWA && window.Telegram.WebApp.CloudStorage) {
-    window.Telegram.WebApp.CloudStorage.getItem('pdv_latest', (err, val) => {
-      if (val) {
-        try {
-          const latest = JSON.parse(val);
-          pdvHeight   = latest.height + 1;
-          pdvPrevHash = latest.hash;
-        } catch(e) {}
-      }
-    });
-  }
+function syntaxHL(obj) {
+  return JSON.stringify(obj, null, 2)
+    .replace(/("[\w\u3131-\uD79D]+")\s*:/g, '<span class="json-key">$1</span>:')
+    .replace(/:\s*(".*?")/g, ': <span class="json-str">$1</span>')
+    .replace(/:\s*(\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
+    .replace(/:\s*(true|false|null)/g, ': <span class="json-bool">$1</span>');
 }
 
-/* ── 오프라인 큐 재전송 ── */
-async function pdvFlushQueue() {
-  const q = JSON.parse(localStorage.getItem('pdv_queue') || '[]');
-  if (!q.length) return;
-  for (const item of q) {
-    try {
-      await pdvAnchor(item.hash, item.height, item.risk);
-    } catch(e) { return; } // 실패 시 중단
-  }
-  localStorage.removeItem('pdv_queue');
-}
+function scrollBottom(el) { el.scrollTop = el.scrollHeight; }
 
-let attachedFiles = [];  // { name, size, type, text } 배열
-
-/* ─── Fast-Path ─────────────────────────────────── */
-const FP = [
-  { code:'FP-01', level:'CR', esc:'CV',
-    kw:['빌려줄게','빌려줘','빌려달라','나중에 줄게','나중에 갚을게','이자','담보','보증','차용','빚','채무','갚을게','꿔줄게','원금','이율','변제','상환'],
-    pat:[/(\d+)(만원|억|천만원).*(빌|꿔|빚|채)/,/(빌|꿔).+(\d+)(만원|억|천만원)/,/나중에.*(갚|줄|드릴)/],
-    escKw:[/이자/,/이율/,/월 \d+%/,/연 \d+%/],
-    desc:'금전 대여·차용 — 구두 약속은 분쟁 시 입증 곤란',
-    law:'민법 제598조, 이자제한법 제2조',
-    axiom:'공리 I, 공리 C', action:'차용증 작성 권장' },
-  { code:'FP-02', level:'CR', esc:'CV',
-    kw:['전세','월세','보증금','계약금','중개','임대','임차','세입자','집주인','건물주','방 빼','퇴거','명도','권리금'],
-    pat:[/보증금.*(올려|내려|반환|돌려)/,/계약금.*(포기|몰수|돌려)/,/(\d+)(만원|억).*(전세|월세|보증)/],
-    escKw:[/계약서 없이/,/구두로/,/말로만/],
-    desc:'부동산 임대차 — 계약 조건 서면화 필요',
-    law:'주택임대차보호법, 상가건물임대차보호법',
-    axiom:'공리 I, 공리 H §1.6', action:'임대차 계약서 및 확정일자 취득 권장' },
-  { code:'FP-03', level:'CR', esc:'CR',
-    kw:['계약서 필요없어','계약서 없이','계약서 안 써도','말로 하자','말로만 하자','구두로 하자','그냥 믿어','믿으면 되잖아','우리 사이에'],
-    pat:[/(계약서|서류|문서).*(필요없|안 써도|없어도)/,/말로.*(하자|하면 돼)/],
-    escKw:[],
-    desc:'계약서 회피 — 분쟁 발생 시 입증 불가',
-    law:'민법 제105조', axiom:'공리 I', action:'서면 작성 및 쌍방 서명 권장' },
-  { code:'FP-04', level:'CV', esc:'LB',
-    kw:['최저임금','야근','퇴직금','해고','권고사직','월급','급여','임금','주 52시간','연장근무','4대보험','근로계약','산재'],
-    pat:[/월급.*(안 줘|못 받|체불)/,/(해고|잘렸).*(부당|억울)/,/퇴직금.*(안 줘|못 받)/],
-    escKw:[/부당해고/,/임금체불/,/퇴직금 안 줘/,/퇴직금 못 받/],
-    desc:'노동·고용 법령 위반 소지',
-    law:'근로기준법, 최저임금법',
-    axiom:'공리 D §3', action:'근로계약서 작성 및 노동청 상담' },
-  { code:'FP-05', level:'LB', esc:'CC',
-    kw:['주민번호','개인정보','몰래','사진 찍','동영상 찍','몰카','불법촬영','위치 추적','GPS','감시','미행'],
-    pat:[/(몰래|허락없이).*(찍|촬영|사진|동영상)/,/(주소|집|위치).*(알려줘|알아내)/],
-    escKw:[/몰래 찍/,/불법촬영/,/몰카/],
-    desc:'개인정보 침해·불법촬영 소지',
-    law:'개인정보보호법 제71조, 성폭력처벌법 제14조',
-    axiom:'공리 F, 공리 H §1', action:'정보주체 동의 필수, 법률 전문가 상담' },
-  { code:'FP-06', level:'LB', esc:'CC',
-    kw:['안 하면 두고봐','가만 안 둬','후회할걸','신고해버릴','고소해버릴','죽여버릴','망하게 해줄','협박','강요','보복'],
-    pat:[/(안 하면|거부하면).*(두고봐|후회|가만)/,/(죽여|죽인다|죽어버려)/],
-    escKw:[/죽여/,/죽인다/,/없애버릴/],
-    desc:'협박·강요 — 형사처벌 가능',
-    law:'형법 제283조, 제324조',
-    axiom:'공리 H §1, 공리 F', action:'해당 메시지 전송 자제, 피해 시 경찰 신고' },
-  { code:'FP-07', level:'LB', esc:'CC',
-    kw:['가져다 써','몰래 가져','빼돌려','횡령','배임','사기','증거 없애','증거 인멸','서류 위조','도장 위조'],
-    pat:[/(몰래|허락없이).*(가져|써|사용)/,/(증거|서류).*(없애|인멸|위조)/],
-    escKw:[/증거 인멸/,/위조/,/사기/,/횡령/],
-    desc:'재산범죄·증거인멸 소지',
-    law:'형법 제355조, 제347조, 제155조',
-    axiom:'공리 H §1, 공리 F', action:'행위 즉시 중단, 법률 전문가 상담' },
-  { code:'FP-08', level:'CC', esc:'CC',
-    kw:['불 질러','불 질러버려','태워버려','폭탄','폭발물','때려','폭행','살인','상해'],
-    pat:[/(불|방화).*(질러|지르|태워)/,/(폭탄|폭발물).*(만들|터뜨)/],
-    escKw:[],
-    desc:'방화·폭력 — 형사처벌 가능성 높음',
-    law:'형법 제164조, 제175조, 제250조',
-    axiom:'공리 H §1, 공리 D §1', action:'⛔ 전송 금지. 즉시 법률 전문가 상담' },
-];
-const SEV  = {NONE:0,CR:1,CV:2,LB:3,CC:4};
-const EMOJ = {NONE:'✅',CR:'🟡',CV:'🟠',LB:'🔴',CC:'🚫'};
-
-function fpScan(text) {
-  const tl = text.toLowerCase(), hits = [];
-  for (const r of FP) {
-    let matched = r.kw.filter(k => tl.includes(k.toLowerCase()));
-    r.pat.forEach(p => { if(p.test(text)) matched.push('패턴'); });
-    if (!matched.length) continue;
-    let lv = r.level;
-    if (r.esc !== r.level) for (const e of r.escKw) if (e.test(text)) { lv = r.esc; break; }
-    hits.push({...r, matched, lv});
-  }
-  return hits;
-}
-function highest(hits) {
-  if (!hits.length) return 'NONE';
-  return hits.reduce((a,b) => SEV[a.lv] >= SEV[b.lv] ? a : b).lv;
-}
-
-/* ─── System Prompt — 동적 로드 ─────────────────── */
-const SYS_PROMPT_URL =
-  'https://raw.githubusercontent.com/team-jupeter/openhash/main/docs/klaw_ai_secretary_system_prompt_v1_0.md';
-
-// Fallback: 네트워크 오류 시 사용할 최소 프롬프트
-const FALLBACK_SYS = `당신은 고팡(Gopang) 플랫폼의 친절한 AI 비서입니다.
-사용자의 일상적인 질문, 정보 요청, 서면 작성, 법률 정보 안내 등을 도와줍니다.
-법적 위험이 감지되면 간단히 주의를 안내하되, 판결문 작성이나 법리 분석은 수행하지 않습니다.
-판결 시뮬레이션이 필요하면 스마트폰 상단의 ⚖ K-Law 버튼을 사용하도록 안내하십시오.
-한국어로 응답. 친절하고 간결하게.`;
-
-let SYS = FALLBACK_SYS;  // 로드 완료 전 fallback 유지
-
-async function loadSystemPrompt() {
-  const indicator = document.getElementById('promptStatus');
-  try {
-    if (indicator) indicator.textContent = 'System Prompt 로딩 중…';
-    const res = await fetch(SYS_PROMPT_URL, { cache: 'no-cache' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    if (!text || text.length < 500) throw new Error('응답이 너무 짧음: ' + text.length + 'chars');
-    SYS = text;
-    console.log('[K-Law] System prompt loaded:', SYS.length, 'chars');
-    if (indicator) {
-      indicator.textContent = 'K-Law v1.0 로드 완료 (' + Math.round(SYS.length/1024) + 'KB)';
-      indicator.className = 'prompt-ok';
-    }
-  } catch (e) {
-    console.warn('[K-Law] Prompt fetch 실패, fallback 사용:', e.message);
-    SYS = FALLBACK_SYS;
-    if (indicator) { indicator.textContent = 'Fallback 모드'; indicator.className = 'prompt-warn'; }
-  }
-}
-
-
-/* ─── 파일 첨부 처리 ────────────────────────────── */
-const READABLE = ['text/plain','text/markdown','text/csv','text/html',
-                  'application/json','application/xml'];
-
-async function readFileText(file) {
-  // PDF·DOCX는 텍스트 추출 불가 → 파일명+타입만 전달
-  if (READABLE.includes(file.type) || /\.(txt|md|csv|json|html|htm)$/i.test(file.name)) {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload  = e => res(e.target.result);
-      r.onerror = () => rej(new Error('읽기 실패'));
-      r.readAsText(file, 'utf-8');
-    });
-  }
-  // PDF / DOCX / XLSX: base64로 읽어 API에 전달 (지원 모델에서만 파싱)
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload  = e => res(e.target.result);  // data:... base64
-    r.onerror = () => rej(new Error('읽기 실패'));
-    r.readAsDataURL(file);
+// ── 인증 ──
+function switchAuth(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (mode === 'login' ? 0 : 1) === i);
   });
 }
 
-function fmtSize(bytes) {
-  if (bytes < 1024)       return bytes + 'B';
-  if (bytes < 1024*1024)  return (bytes/1024).toFixed(1) + 'KB';
-  return (bytes/1024/1024).toFixed(1) + 'MB';
-}
-
-async function onFileChange(e) {
-  const files = Array.from(e.target.files);
-  e.target.value = '';  // 동일 파일 재선택 허용
-  if (!files.length) return;
-
-  for (const file of files) {
-    if (file.size > 10 * 1024 * 1024) {
-      alert(`${file.name}: 10MB 이하 파일만 첨부 가능합니다.`);
-      continue;
-    }
-    let text = '';
-    try { text = await readFileText(file); }
-    catch(err) { text = `[읽기 오류: ${err.message}]`; }
-
-    const id = Date.now() + '_' + Math.random().toString(36).slice(2);
-    attachedFiles.push({ id, name: file.name, size: file.size, type: file.type, text });
-    addAttachChip(id, file.name, file.size);
-  }
-  updateAttachBar();
-}
-
-function addAttachChip(id, name, size) {
-  const bar  = document.getElementById('attachBar');
-  const chip = document.createElement('div');
-  chip.className = 'attach-chip';
-  chip.id = 'chip_' + id;
-  chip.innerHTML = `
-    <span>📎</span>
-    <span class="attach-chip-name" title="${esc(name)}">${esc(name)}</span>
-    <span class="attach-chip-size">${fmtSize(size)}</span>
-    <button class="attach-chip-del" onclick="removeAttach('${id}')" title="제거">✕</button>`;
-  bar.appendChild(chip);
-}
-
-function removeAttach(id) {
-  attachedFiles = attachedFiles.filter(f => f.id !== id);
-  const chip = document.getElementById('chip_' + id);
-  if (chip) chip.remove();
-  updateAttachBar();
-}
-
-function updateAttachBar() {
-  const bar = document.getElementById('attachBar');
-  bar.classList.toggle('visible', attachedFiles.length > 0);
-}
-
-function buildAttachContext(files) {
-  // files 인자를 받아 타이밍 버그 방지 (sentFiles 스냅샷 사용)
-  const list = files || attachedFiles;
-  if (!list.length) return '';
-  return '\n\n[첨부 문서]\n' + list.map(f => {
-    const isBase64 = f.text && f.text.startsWith('data:');
-    const preview  = isBase64
-      ? `[바이너리 파일 — 파일명: ${f.name}, 유형: ${f.type}]`
-      : (f.text || '').slice(0, 8000) + ((f.text||'').length > 8000 ? '\n...(이하 생략)' : '');
-    return `--- ${f.name} (${fmtSize(f.size)}) ---\n${preview}`;
-  }).join('\n\n');
-}
-
-
-/* ─── K-Law 판결문 작성 감지 ───────────────────── */
-function isVerdictRequest(text) {
-  // ★ K-Law 버튼이 활성화된 상태에서만 판결 모드 허용
-  // 일반 AI 비서 모드에서는 키워드와 무관하게 false
-  if (!klawOn) return false;
-  return /(판결문|판결|가상 판결|K-Law 판결|시뮬레이션|모의 판결|판결을 작성|판결 작성|판결문을 작성|판결서)/.test(text);
-}
-
-/* ─── K-Law STEP 진행 단계 정의 ────────────────── */
-const KLAW_STEPS = [
-  { pct:  5, icon: '📋', label: 'STEP 0 — 사건 이력 및 당사자 구조 분석' },
-  { pct: 12, icon: '🔍', label: 'STEP 0-α — 직관적 타당성 예비 점검' },
-  { pct: 20, icon: '📚', label: 'STEP A-0 — 판례 법리 군 구성 (전원합의체 검색)' },
-  { pct: 28, icon: '🔤', label: 'STEP A-0-S — 핵심 단어·문구 의미 해석 (공리 S)' },
-  { pct: 36, icon: '⚖️', label: 'STEP A-1 — 역방향 추론 (공리 B)' },
-  { pct: 44, icon: '🗂️', label: 'STEP A-2 — 법률관계 확정 + 특별법 감지 게이트' },
-  { pct: 52, icon: '🔗', label: 'STEP A-3 — 인과 분해 6층위 (공리 E)' },
-  { pct: 60, icon: '📝', label: 'STEP A-4 — 대립 명제 정교화 + 숨은 명제 탐지' },
-  { pct: 68, icon: '💡', label: 'STEP B — 가치 형량 및 판결문 생성' },
-  { pct: 76, icon: '🔄', label: 'STEP B-5-A — 역방향 판결 초안 (공리 B)' },
-  { pct: 84, icon: '🌐', label: 'STEP B-5-B — 국제 비교 법원칙 검증 (공리 F)' },
-  { pct: 91, icon: '✅', label: 'STEP C-α — 판결문 수정 완결 게이트웨이' },
-  { pct: 97, icon: '📄', label: 'STEP C — 최종 판결문 생성 중…' },
-  { pct:100, icon: '🏛️', label: 'K-Law 판결문 작성 완료' },
-];
-
-/* ── Progress Bar 렌더링 ── */
-function createProgressEl() {
-  const el = document.createElement('div');
-  el.className = 'klaw-progress';
-  el.id = 'klawProgress';
-  el.innerHTML = `
-    <div class="klaw-progress-title">🏛 K-Law 판결 방법론 v13.2 — 판결문 작성 중</div>
-    <div class="klaw-progress-bar-wrap">
-      <div class="klaw-progress-bar" id="klawBar"></div>
-    </div>
-    <div class="klaw-progress-step">
-      <span class="step-icon" id="klawStepIcon">⏳</span>
-      <span id="klawStepLabel">초기화 중…</span>
-      <span class="klaw-progress-pct" id="klawPct">0%</span>
-    </div>`;
-  return el;
-}
-
-async function runProgress(el) {
-  const bar   = el.querySelector('#klawBar');
-  const icon  = el.querySelector('#klawStepIcon');
-  const label = el.querySelector('#klawStepLabel');
-  const pct   = el.querySelector('#klawPct');
-  for (const step of KLAW_STEPS) {
-    bar.style.width   = step.pct + '%';
-    icon.textContent  = step.icon;
-    label.textContent = step.label;
-    pct.textContent   = step.pct + '%';
-    await new Promise(r => setTimeout(r, 420 + Math.random() * 280));
-  }
-}
-
-/* ─── 다운로드 (txt / md) ──────────────────────── */
-let lastVerdictText = '';
-
-function downloadVerdict(fmt) {
-  if (!lastVerdictText) return;
-  const fname = 'K-Law_판결문_' + new Date().toISOString().slice(0,10);
-  const mime  = fmt === 'md' ? 'text/markdown' : 'text/plain';
-  const blob  = new Blob([lastVerdictText], { type: mime + ';charset=utf-8' });
-  const url   = URL.createObjectURL(blob);
-  const a     = document.createElement('a');
-  a.href = url; a.download = fname + '.' + fmt;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-/* ─── 이메일 폼 토글 ───────────────────────────── */
-function toggleEmailForm(btnId) {
-  const form = document.getElementById('emailForm_' + btnId);
-  if (form) form.classList.toggle('show');
-}
-
-/* ─── 이메일 전송 (mailto fallback) ───────────── */
-function sendVerdictEmail(btnId) {
-  const inp   = document.getElementById('emailInp_' + btnId);
-  const addr  = inp ? inp.value.trim() : '';
-  if (!addr || !addr.includes('@')) { alert('올바른 이메일 주소를 입력하세요.'); return; }
-  if (!lastVerdictText) return;
-  const subject = encodeURIComponent('K-Law 판결 시뮬레이션 리포트');
-  const body    = encodeURIComponent(lastVerdictText.slice(0, 1800) + '\n\n(전문은 첨부 문서를 참조하세요)');
-  window.open(`mailto:${addr}?subject=${subject}&body=${body}`);
-}
-
-/* ─── 판결문 액션 버튼 버블 렌더 ──────────────── */
-function addVerdictActions(verdictText) {
-  lastVerdictText = verdictText;
-  const id    = Date.now();
-  const msgs  = document.getElementById('msgs');
-  const el    = document.createElement('div');
-  el.className = 'msg bot';
-  el.innerHTML = `
-    <div class="msg-av">📄</div>
-    <div class="msg-body">
-      <div class="msg-bub" style="padding:10px 12px">
-        <div style="font-size:12px;font-weight:700;color:var(--g-mid);margin-bottom:8px">
-          🏛 K-Law 판결문 준비 완료
-        </div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:10px">
-          판결문을 다운로드하거나 이메일로 수신하세요.
-        </div>
-        <div class="verdict-actions">
-          <button class="btn-verdict btn-verdict-dl" onclick="downloadVerdict('md')">
-            ⬇ Markdown 다운로드
-          </button>
-          <button class="btn-verdict btn-verdict-dl" style="background:#1e5fa8" onclick="downloadVerdict('txt')">
-            ⬇ TXT 다운로드
-          </button>
-          <button class="btn-verdict btn-verdict-email" onclick="toggleEmailForm('${id}')">
-            ✉ 이메일 전송
-          </button>
-        </div>
-        <div class="email-form" id="emailForm_${id}">
-          <input class="email-inp" id="emailInp_${id}"
-            type="email" placeholder="수신 이메일 주소 입력">
-          <button class="btn-email-send" onclick="sendVerdictEmail('${id}')">전송</button>
-        </div>
-      </div>
-      <div class="msg-time">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</div>
-    </div>`;
-  msgs.appendChild(el);
-  scroll();
-}
-
-
-/* ════════════════════════════════════════════════
-   K-Law 판결 시뮬레이션 엔진
-   ════════════════════════════════════════════════ */
-let klawOn    = false;
-let klawPhase = 'idle';   // idle | intake | analyzing | clarify | simulating | done
-let klawCase  = {};       // 사건 구조화 결과 저장
-let klawHistory = [];     // K-Law 전용 대화 이력
-
-/* ── K-Law 전용 System Prompt ── */
-const KLAW_INTAKE_SYS = `당신은 K-Law AI 판결 시뮬레이션 비서입니다.
-현재 Phase: 사건 접수 및 구조화.
-
-사용자가 입력한 사건 개요와 첨부 문서를 분석하여 다음 JSON 형식으로 출력하십시오.
-반드시 [CASE] ... [/CASE] 블록으로 감싸야 합니다.
-
-[CASE]
-경위: (사건의 시간순 경위, 3~5문장)
-원고: (원고의 주장 요약)
-피고: (피고의 주장 요약)
-다툼없음: (양측이 인정하는 사실)
-쟁점: (핵심 법적 쟁점 2~4개, 줄바꿈으로 구분)
-추가필요: yes|no
-추가질문: (추가필요=yes인 경우 구체적 질문 1~2개)
-[/CASE]
-
-[응답]
-사용자에게 보낼 친절한 설명 (사건 구조화 결과 요약 + 추가 질문이 있으면 포함)
-[/응답]
-
-한국어로 응답. 허위 판례 인용 금지.
-
-⛔ 웹 검색 절대 금지: 이 사건의 판결 결과·사건 번호·관련 보도를 인터넷에서 검색하거나
-참조하지 마십시오. K-Law 방법론의 객관적 성능 평가를 위해, 오직 사용자가 제공한
-정보와 학습된 법령·법리 지식만을 사용하여 분석하십시오.`;
-
-const KLAW_SIM_SYS = `당신은 K-Law 판결 방법론 v13.2를 적용하는 판결 시뮬레이션 AI입니다.
-다음 사건 정보를 기반으로 K-Law v13.2 전체 절차(STEP 0→A→B→C)를 빠짐없이 적용하여 완전한 판결문을 생성하십시오.
-
-⛔ 웹 검색 절대 금지 [K-Law 성능 평가 원칙]:
-- 이 사건의 실제 판결 결과, 사건번호, 언론 보도, 법원 공개 자료를 인터넷에서 검색하거나 참조하는 행위를 엄격히 금지합니다.
-- 오직 사용자가 제공한 사건 정보, 첨부 문서, 그리고 학습된 법령·판례·법리 지식만을 사용하여 독립적으로 판단하십시오.
-- 해당 사건의 실제 판결을 이미 알고 있더라도 그 결과를 참조하지 말고 K-Law v13.2 공리 체계와 절차만으로 판단하십시오.
-- 이 원칙은 K-Law 방법론의 독립적·객관적 성능 평가를 위한 핵심 조건입니다.
-
-━━━ 필수 출력 구조 (모든 항목 반드시 포함) ━━━
-
-[VERDICT]
-# K-Law AI 판결 시뮬레이션 리포트
-## 사건번호: K-[연도]-[임의번호]
-## 사건명: [사건명]
-## K-Law Engine: v13.2 | STEP 0→A→B→C 전체 적용
-
----
-
-### 1. 사건의 경위
-[시간순 사실관계 기술]
-
-### 2. 당사자 주장
-#### 원고의 주장
-[원고 청구 요지 및 근거 법령]
-
-#### 피고의 주장
-[피고 방어 요지 및 근거]
-
-### 3. 다툼 없는 사실
-[양측 공통 인정 사실 목록]
-
-### 4. 핵심 쟁점
-[쟁점 1, 2 … 번호별 명시]
-
----
-
-### 5. K-Law v13.2 법리 분석
-
-#### 5-1. 원고 측 최강 법리 (공리 B — 역방향 추론)
-[원고 승소를 뒷받침하는 가장 강력한 법리 논거 3개 이상]
-- 법리 1: [근거 법령·판례 명시]
-- 법리 2: [근거 법령·판례 명시]
-- 법리 3: [근거 법령·판례 명시]
-※ 인용 판례는 실제 존재하는 판례만 인용. 불확실하면 법리 원칙만 기술.
-
-#### 5-2. 피고 측 최강 법리 (공리 B — 역방향 검증)
-[피고 승소를 뒷받침하는 가장 강력한 법리 논거 3개 이상]
-- 법리 1: [근거 법령·판례 명시]
-- 법리 2: [근거 법령·판례 명시]
-- 법리 3: [근거 법령·판례 명시]
-※ 이 항목은 피고가 실제로 승소할 수 있는 가장 강한 논거를 구성하는 것임.
-
-#### 5-3. 법리 충돌 지점 및 해소 (공리 H — 해석 우선순위)
-[원고·피고 법리의 충돌 지점을 명시하고 공리 H 우선순위에 따라 해소]
-
-#### 5-4. STEP A — 법률관계 확정
-- 적용 법령: [관련 법령 조항]
-- 특별법 감지 게이트: [특별법·일반법 관계]
-- 핵심 단어 의미 해석 (공리 S): [쟁점 용어 해석]
-- 인과 분해 6층위 (공리 E): [①기초채권 ②이익귀속 ③제3자역할 ④사후행태 ⑤의무근원 ⑥처분연계]
-
-#### 5-5. STEP B — 가치 형량 및 판단
-[공리 D 가치 위계 적용, 각 쟁점별 판단 이유 상세 기술]
-
-**쟁점 1 판단:**
-[판단 이유 + 채택한 법리]
-
-**쟁점 2 판단 (해당 시):**
-[판단 이유 + 채택한 법리]
-
-#### 5-6. 역방향 판결 초안 (STEP B-5-A)
-> 만약 반대 결론이라면?
-[반대 결론을 지지하는 최강 단일 법리 + 그 논거가 최종 결론을 뒤집지 못하는 이유]
-
-#### 5-7. 최종 채택 법리 요약
-[K-Law가 최종적으로 채택한 핵심 법리를 3줄 이내로 요약]
-
----
-
-### 6. 주문
-[인용/기각/일부인용 등 주문 형식으로 기술]
-※ 파기환송 시 "승/패" 표현 금지
-
-### 7. 확신도
-- 법리 확신도: X/10
-- 사실관계 확신도: Y/10
-- 종합 확신도: min(X,Y)/10
-- 확신도 근거: [감점·가산 요인 명시]
-
----
-
-⚠️ 면책 고지: 본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
-어떠한 법적 효력도 가지지 않습니다. 구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
-[/VERDICT]
-
-한국어로 응답. 모든 항목을 반드시 포함할 것. 미완성 판결문 출력 금지.`;
-
-/* ── K-Law Phase 라벨 정의 ── */
-const KP_STEPS = [
-  // Phase 0
-  { phase:'0', pct:4,  icon:'📋', label:'STEP 0 — 사건 이력 및 당사자 구조 분석' },
-  { phase:'0', pct:9,  icon:'🔍', label:'STEP 0-α — 직관적 타당성 예비 점검' },
-  { phase:'0', pct:14, icon:'🗂', label:'STEP 0-β — 이전 판결 격리 선언' },
-  // Phase A
-  { phase:'A', pct:20, icon:'📚', label:'STEP A-0 — 판례 법리 군 구성 (전원합의체)' },
-  { phase:'A', pct:27, icon:'🔤', label:'STEP A-0-S — 핵심 단어 의미 해석 (공리 S)' },
-  { phase:'A', pct:34, icon:'⚖️', label:'STEP A-1 — 역방향 추론 (공리 B)' },
-  { phase:'A', pct:41, icon:'🗂', label:'STEP A-2 — 법률관계 확정 + 특별법 게이트' },
-  { phase:'A', pct:48, icon:'🔗', label:'STEP A-3 — 인과 분해 6층위 (공리 E)' },
-  { phase:'A', pct:55, icon:'📝', label:'STEP A-4 — 대립 명제 정교화 + 숨은 명제' },
-  { phase:'A', pct:60, icon:'💡', label:'STEP A-5 — 충돌 지점 식별 (공리 H)' },
-  // Phase B
-  { phase:'B', pct:66, icon:'⚙️', label:'STEP B — 가치 형량 및 판결문 생성' },
-  { phase:'B', pct:73, icon:'🔄', label:'STEP B-5-A — 역방향 판결 초안' },
-  { phase:'B', pct:80, icon:'🌐', label:'STEP B-5-B — 국제 비교 법원칙 검증' },
-  { phase:'B', pct:86, icon:'📊', label:'STEP B-5-C — 통합 비교 분석' },
-  // Phase C
-  { phase:'C', pct:91, icon:'✅', label:'STEP C-α — 판결문 수정 완결 게이트웨이' },
-  { phase:'C', pct:96, icon:'🔒', label:'STEP C-2 — 판례 인용 5단계 검증' },
-  { phase:'C', pct:100,icon:'🏛', label:'K-Law 판결문 작성 완료' },
-];
-
-/* ── Progress 엘리먼트 생성 ── */
-function createKlawProgress() {
-  const el = document.createElement('div');
-  el.className = 'klaw-sim-progress'; el.id = 'klawSimProg';
-  el.innerHTML = `
-    <div class="kp-header">
-      <span class="kp-header-title">🏛 K-Law 판결 방법론 v13.2</span>
-      <span class="kp-pct" id="kpPct">0%</span>
-    </div>
-    <div class="kp-pbar-track"><div class="kp-pbar-fill" id="kpBar"></div></div>
-    <div class="kp-phases">
-      <div class="kp-phase" id="kptab0">STEP 0</div>
-      <div class="kp-phase" id="kptabA">STEP A</div>
-      <div class="kp-phase" id="kptabB">STEP B</div>
-      <div class="kp-phase" id="kptabC">STEP C</div>
-    </div>
-    <div class="kp-log" id="kpLog"></div>`;
-  return el;
-}
-
-async function runKlawProgress(el) {
-  const bar  = el.querySelector('#kpBar');
-  const pct  = el.querySelector('#kpPct');
-  const log  = el.querySelector('#kpLog');
-  const tabs = { '0':'kptab0','A':'kptabA','B':'kptabB','C':'kptabC' };
-  let curPhase = '';
-
-  for (const step of KP_STEPS) {
-    // Phase 탭 전환
-    if (step.phase !== curPhase) {
-      if (curPhase) el.querySelector('#' + tabs[curPhase])?.classList.replace('active','done');
-      curPhase = step.phase;
-      el.querySelector('#' + tabs[curPhase])?.classList.add('active');
-    }
-    // 이전 active → done
-    log.querySelectorAll('.kp-log-row.active').forEach(r => r.classList.replace('active','done'));
-    // 새 row 추가
-    const row = document.createElement('div');
-    row.className = 'kp-log-row active';
-    row.innerHTML = `<span class="kp-log-icon">${step.icon}</span><span>${step.label}</span>`;
-    log.appendChild(row);
-    // 전체 표시
-    // bar 갱신
-    bar.style.width = step.pct + '%';
-    pct.textContent = step.pct + '%';
-    await new Promise(r => setTimeout(r, 380 + Math.random() * 250));
-  }
-  // 마지막 탭 done
-  el.querySelector('#' + tabs[curPhase])?.classList.replace('active','done');
-}
-
-/* ── 사건 구조화 카드 렌더 ── */
-function renderCaseCard(icon, title, content, cls) {
-  if (!content || content.trim() === '-') return '';
-  return `<div class="case-card">
-    <div class="case-card-header">${icon} ${title}</div>
-    <div class="case-card-body">${esc(content)}</div>
-  </div>`;
-}
-
-function addCaseStructure(caseObj) {
-  const msgs = document.getElementById('msgs');
-  const el   = document.createElement('div');
-  el.className = 'msg bot';
-  const cards = [
-    renderCaseCard('📅','사건의 경위', caseObj.경위),
-    renderCaseCard('👤','원고의 주장', caseObj.원고),
-    renderCaseCard('🏢','피고의 주장', caseObj.피고),
-    renderCaseCard('✅','다툼 없는 사실', caseObj.다툼없음),
-    renderCaseCard('⚔️','핵심 쟁점', caseObj.쟁점),
-  ].filter(Boolean).join('');
-  el.innerHTML = `
-    <div class="msg-av">⚖️</div>
-    <div class="msg-body">
-      <div class="klaw-phase-badge badge-analysis">🔍 사건 구조화 완료</div>
-      ${cards}
-      <div class="msg-time">${now()}</div>
-    </div>`;
-  msgs.appendChild(el); scroll();
-}
-
-/* ── CASE 블록 파싱 ── */
-function parseCaseBlock(raw) {
-  const m = raw.match(/\[CASE\]([\s\S]*?)\[\/CASE\]/);
-  if (!m) return null;
-  const b = m[1];
-  const g = (key) => {
-    const r = b.match(new RegExp(key + ':\s*([^\n]+(?:\n(?![A-Za-z가-힣]+:)[^\n]*)*)'));
-    return r ? r[1].trim() : '';
-  };
-  return {
-    경위: g('경위'), 원고: g('원고'), 피고: g('피고'),
-    다툼없음: g('다툼없음'), 쟁점: g('쟁점'),
-    추가필요: g('추가필요').toLowerCase().includes('yes'),
-    추가질문: g('추가질문'),
-  };
-}
-
-/* ── VERDICT 블록 파싱 ── */
-function parseVerdictBlock(raw) {
-  const m = raw.match(/\[VERDICT\]([\s\S]*?)\[\/VERDICT\]/);
-  return m ? m[1].trim() : raw.trim();
-}
-
-/* ── PDF 다운로드 (window.print) ── */
-function downloadVerdictPdf(text) {
-  // [VERDICT] 태그 제거
-  const clean = text.replace(/\[VERDICT\]|\[\/VERDICT\]/g, '').trim();
-
-  // 마크다운 → HTML 변환 (단계적으로 처리)
-  let html = clean
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')  // XSS 방지
-    .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^### (.+)$/gm,  '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm,   '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm,    '<h1 class="main-title">$1</h1>')
-    .replace(/^---$/gm,       '<hr>')
-    .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/^- (.+)$/gm,    '<li>$1</li>')
-    .replace(/\n\n+/g,        '</p><p>')
-    .replace(/\n/g,           '<br>');
-
-  const now = new Date().toLocaleString('ko-KR');
-
-  const fullHtml = [
-    '<!DOCTYPE html>',
-    '<html lang="ko"><head>',
-    '<meta charset="UTF-8">',
-    '<title>K-Law 판결 시뮬레이션 리포트</title>',
-    '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">',
-    '<style>',
-    '* { box-sizing: border-box; margin: 0; padding: 0; }',
-    'body { font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;',
-    '  max-width: 780px; margin: 0 auto; padding: 40px 36px;',
-    '  color: #1a2332; line-height: 1.85; font-size: 13px; }',
-    '.cover { border-bottom: 3px solid #0e6b52; padding-bottom: 18px; margin-bottom: 28px; }',
-    '.cover-title { font-size: 20px; font-weight: 700; color: #0e6b52; margin-bottom: 6px; }',
-    '.cover-meta { font-size: 11px; color: #6b7280; font-family: monospace; }',
-    'h1.main-title { display: none; }',
-    'h2 { font-size: 15px; font-weight: 700; color: #0e6b52;',
-    '  margin: 28px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #d1fae5; }',
-    'h3 { font-size: 13.5px; font-weight: 700; color: #1a4a8a; margin: 20px 0 8px; }',
-    'h4 { font-size: 12.5px; font-weight: 700; color: #374151; margin: 14px 0 6px; }',
-    'hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }',
-    'p { margin-bottom: 8px; }',
-    'ul { margin: 6px 0 10px 20px; } li { margin-bottom: 4px; }',
-    'blockquote { border-left: 3px solid #4a90d9; margin: 10px 0;',
-    '  padding: 8px 14px; background: #eff6ff; color: #1e40af; border-radius: 0 6px 6px 0; }',
-    'strong { font-weight: 700; }',
-    '.disclaimer { margin-top: 40px; padding: 14px 16px; background: #fff7ed;',
-    '  border-left: 4px solid #f59e0b; border-radius: 0 6px 6px 0;',
-    '  font-size: 11.5px; color: #78350f; line-height: 1.7; }',
-    '@media print {',
-    '  body { padding: 0; }',
-    '  .disclaimer { page-break-inside: avoid; }',
-    '  h2, h3 { page-break-after: avoid; }',
-    '}',
-    '</style></head><body>',
-    '<div class="cover">',
-    '<div class="cover-title">&#x1F3DB; K-Law AI 판결 시뮬레이션 리포트</div>',
-    '<div class="cover-meta">K-Law Gopang v1.0 &nbsp;|&nbsp; 판결 방법론 v13.2 &nbsp;|&nbsp; 생성일시: ' + now + '</div>',
-    '</div>',
-    '<div>' + html + '</div>',
-    '<div class="disclaimer">',
-    '<strong>&#x26A0;&#xFE0F; 면책 고지</strong><br>',
-    '본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,',
-    '어떠한 법적 효력도 가지지 않습니다.',
-    '구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.',
-    '</div>',
-    '</body></html>'
-  ].join('\n');
-
-  const win = window.open('', '_blank');
-  if (!win) { alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.'); return; }
-  win.document.open();
-  win.document.write(fullHtml);
-  win.document.close();
-  setTimeout(function() { win.print(); }, 900);
-}
-/* ── K-Law 모드 토글 ── */
-function toggleKlaw() {
-  const btn  = document.getElementById('btnKlaw');
-  const msgs = document.getElementById('msgs');
-  const inp  = document.getElementById('inp');
-  const send = document.getElementById('btnSend');
-
-  if (klawOn) {
-    // 비활성화
-    klawOn = false; klawPhase = 'idle';
-    btn.classList.remove('active');
-    document.getElementById('btnKlawLabel').textContent = 'K-Law';
-    msgs.appendChild(addSys('K-Law 판결 시뮬레이션 모드가 종료되었습니다'));
-    if (!aiOn) { inp.disabled = true; send.disabled = true; }
-    scroll(); return;
-  }
-
-  // 활성화
-  klawOn = true; klawPhase = 'intake';
-  klawCase = {}; klawHistory = [];
-  btn.classList.add('active');
-  document.getElementById('btnKlawLabel').textContent = 'K-Law ON';
-
-  // AI 비서도 같이 활성화
-  if (!aiOn) {
-    aiOn = true;
-    document.getElementById('btnAi').classList.add('active');
-    document.getElementById('btnAiLabel').textContent = 'AI 비서 ON';
-    inp.disabled = false; inp.placeholder = '메시지 입력';
-    send.disabled = false;
-    document.getElementById('btnAttach').disabled = false;
-  }
-
-  msgs.appendChild(addSys('⚖ K-Law 판결 시뮬레이션 모드 시작'));
-
-  // PDV 이력 요약 주입
-  const pdvSummary = history_.length > 0
-    ? '\n\n[PDV 기록 — 기존 대화 이력]\n'
-      + history_.slice(-6).map(m => m.role + ': ' + m.content.slice(0,120)).join('\n')
-    : '';
-
-  setTimeout(() => {
-    const el = document.createElement('div');
-    el.className = 'msg bot';
-    el.innerHTML = `
-      <div class="msg-av">⚖️</div>
-      <div class="msg-body">
-        <div class="klaw-phase-badge badge-intake">📋 Phase 1 — 사건 접수</div>
-        <div class="msg-bub" style="border-color:rgba(74,144,217,.25)">
-          <strong>K-Law 판결 시뮬레이션을 시작합니다.</strong><br><br>
-          ${pdvSummary ? '📂 기존 대화 이력(PDV)을 확인했습니다.<br><br>' : ''}
-          사건의 개요를 입력해 주세요.<br>
-          관련 문서(계약서, 판결문, 진술서 등)를 📎 첨부하시면 더욱 정확한 분석이 가능합니다.
-        </div>
-        <div class="msg-time">${now()}</div>
-      </div>`;
-    msgs.appendChild(el);
-    scroll();
-    inp.placeholder = '사건 개요를 입력하세요…';
-    inp.focus();
-  }, 300);
-}
-
-/* ── K-Law 전용 메시지 처리 ── */
-async function handleKlawMsg(text, sentFiles) {
-  const msgs = document.getElementById('msgs');
-
-  /* Phase 1: 사건 접수 → 구조화 */
-  if (klawPhase === 'intake' || klawPhase === 'clarify') {
-    klawPhase = 'analyzing';
-
-    // Progress: PDV 검색 + 분석
-    const steps = [
-      { icon:'🗄', label:'PDV 기록 검색 중…', ms:500 },
-      { icon:'📄', label:'첨부 문서 분석 중…', ms: sentFiles.length ? 700 : 200 },
-      { icon:'🔍', label:'사건 구조화 중…', ms:600 },
-      { icon:'⚖️', label:'법적 쟁점 추출 중…', ms:500 },
-    ];
-    const progEl = document.createElement('div');
-    progEl.className = 'klaw-sim-progress';
-    progEl.innerHTML = `
-      <div class="kp-header">
-        <span class="kp-header-title">📋 사건 분석 중</span>
-        <span class="kp-pct" id="anaStep">0/${steps.length}</span>
-      </div>
-      <div class="kp-pbar-track"><div class="kp-pbar-fill" id="anaBar"></div></div>
-      <div class="kp-log" id="anaLog"></div>`;
-    msgs.appendChild(progEl); scroll();
-
-    for (let i = 0; i < steps.length; i++) {
-      const s = steps[i];
-      progEl.querySelector('#anaLog').innerHTML +=
-        `<div class="kp-log-row active"><span class="kp-log-icon">${s.icon}</span><span>${s.label}</span></div>`;
-      progEl.querySelector('#anaBar').style.width = ((i+1)/steps.length*100) + '%';
-      progEl.querySelector('#anaStep').textContent = (i+1) + '/' + steps.length;
-      // 전체 표시 — 스크롤 불필요
-      await new Promise(r => setTimeout(r, s.ms));
-    }
-
-    // LLM 호출 — 사건 구조화
-    const attach = buildAttachContext(sentFiles);
-    const userContent = `[사건 개요]\n${text}${attach}`;
-    klawHistory.push({ role:'user', content: userContent });
-
-    let raw = '';
-    try {
-      const url  = typeof LLM_CFG[curLlm].url === 'function' ? LLM_CFG[curLlm].url(API_KEY) : LLM_CFG[curLlm].url;
-      const hdrs = LLM_CFG[curLlm].headers(API_KEY);
-      const body = LLM_CFG[curLlm].body(KLAW_INTAKE_SYS, klawHistory, curModel);
-      const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
-      raw = LLM_CFG[curLlm].pick(await res.json());
-    } catch(e) { raw = '[CASE]\n경위: 분석 중 오류 발생\n추가필요: no\n[/CASE]\n[응답]\n사건 분석 중 오류가 발생했습니다: ' + e.message + '\n[/응답]'; }
-
-    klawHistory.push({ role:'assistant', content: raw });
-    progEl.remove();
-
-    const caseObj = parseCaseBlock(raw);
-    if (caseObj) {
-      klawCase = caseObj;
-      addCaseStructure(caseObj);
-      const rm = raw.match(/\[응답\]([\s\S]*?)\[\/응답\]/);
-      const reply = rm ? rm[1].trim() : '';
-
-      if (caseObj.추가필요 && caseObj.추가질문) {
-        // 추가 정보 요청
-        klawPhase = 'clarify';
-        const el = document.createElement('div');
-        el.className = 'msg bot';
-        el.innerHTML = `<div class="msg-av">⚖️</div>
-          <div class="msg-body">
-            <div class="klaw-phase-badge badge-analysis">❓ 추가 정보 요청</div>
-            <div class="msg-bub" style="border-color:rgba(245,158,11,.3)">${esc(caseObj.추가질문)}</div>
-            <div class="msg-time">${now()}</div>
-          </div>`;
-        msgs.appendChild(el);
-      } else {
-        // 바로 시뮬레이션
-        klawPhase = 'simulating';
-        if (reply) {
-          const el = document.createElement('div');
-          el.className = 'msg bot';
-          el.innerHTML = `<div class="msg-av">⚖️</div>
-            <div class="msg-body">
-              <div class="klaw-phase-badge badge-analysis">✅ 사건 분석 완료</div>
-              <div class="msg-bub">${esc(reply)}</div>
-              <div class="msg-time">${now()}</div>
-            </div>`;
-          msgs.appendChild(el);
-        }
-        await runKlawSimulation();
-      }
-    }
-    scroll();
-    return;
-  }
-
-  /* Phase 2: 추가 정보 입력 후 시뮬레이션 */
-  if (klawPhase === 'simulating') {
-    const el = document.createElement('div');
-    el.className = 'msg bot';
-    el.innerHTML = `<div class="msg-av">⚖️</div>
-      <div class="msg-body">
-        <div class="msg-bub">감사합니다. 추가 정보를 반영하여 판결 시뮬레이션을 시작합니다.</div>
-        <div class="msg-time">${now()}</div>
-      </div>`;
-    msgs.appendChild(el);
-    klawCase.추가정보 = text;
-    await runKlawSimulation();
-  }
-}
-
-/* ── K-Law 판결 시뮬레이션 실행 ── */
-async function runKlawSimulation() {
-  const msgs = document.getElementById('msgs');
-
-  // Phase 배지 메시지
-  const phaseEl = document.createElement('div');
-  phaseEl.className = 'msg bot';
-  phaseEl.innerHTML = `<div class="msg-av">⚖️</div>
-    <div class="msg-body">
-      <div class="klaw-phase-badge badge-simulate">🏛 Phase 3 — K-Law v13.2 판결 시뮬레이션</div>
-      <div class="msg-bub" style="border-color:rgba(14,107,82,.3)">
-        K-Law 판결 방법론 v13.2를 적용합니다.<br>
-        STEP 0 → A → B → C 순서로 진행됩니다.
-      </div>
-      <div class="msg-time">${now()}</div>
-    </div>`;
-  msgs.appendChild(phaseEl); scroll();
-
-  // Progress Bar
-  const progEl = createKlawProgress();
-  msgs.appendChild(progEl); scroll();
-
-  // LLM 호출 + Progress 병렬 실행
-  const caseStr = JSON.stringify(klawCase, null, 2);
-  const simPrompt = `다음 사건 정보를 K-Law v13.2로 판결하십시오:\n\n${caseStr}`;
-  klawHistory.push({ role:'user', content: simPrompt });
-
-  let verdictRaw = '';
-  const [_, rawResult] = await Promise.all([
-    runKlawProgress(progEl),
-    (async () => {
-      try {
-        const url  = typeof LLM_CFG[curLlm].url === 'function' ? LLM_CFG[curLlm].url(API_KEY) : LLM_CFG[curLlm].url;
-        const hdrs = LLM_CFG[curLlm].headers(API_KEY);
-        // 판결문 생성 시 max_tokens를 8000으로 오버라이드
-        const baseBody = LLM_CFG[curLlm].body(KLAW_SIM_SYS + '\n\n' + (SYS || ''), klawHistory, curModel);
-        const body = { ...baseBody, max_tokens: 8000, temperature: 0.15 };
-        const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
-        return LLM_CFG[curLlm].pick(await res.json());
-      } catch(e) { return '[VERDICT]\n판결 시뮬레이션 중 오류: ' + e.message + '\n[/VERDICT]'; }
-    })()
-  ]);
-  verdictRaw = rawResult;
-  klawHistory.push({ role:'assistant', content: verdictRaw });
-
-  progEl.remove();
-
-  const verdictText = parseVerdictBlock(verdictRaw);
-  lastVerdictText   = verdictText;
-  klawPhase         = 'done';
-
-  // 판결문 버블
-  const vEl = document.createElement('div');
-  vEl.className = 'msg bot';
-  vEl.innerHTML = `<div class="msg-av">🏛</div>
-    <div class="msg-body">
-      <div class="klaw-phase-badge badge-done">✅ K-Law 판결 시뮬레이션 완료</div>
-      <div class="msg-bub" style="font-size:11.5px;max-height:280px;overflow-y:auto;border-color:rgba(107,33,168,.3)">
-        ${esc(verdictText).replace(/\n/g,'<br>').replace(/##+ /g,'<strong>').replace(/<strong>/g,'<br><strong>')}
-      </div>
-      <div class="msg-time">${now()}</div>
-    </div>`;
-  msgs.appendChild(vEl);
-
-  // 다운로드/이메일 액션
-  addVerdictActions(verdictText);
-
-  // PDF 버튼도 추가
-  const pdfId = Date.now() + '_pdf';
-  const pdfEl = document.createElement('div');
-  pdfEl.className = 'msg bot';
-  pdfEl.innerHTML = `<div class="msg-av">📄</div>
-    <div class="msg-body">
-      <div class="msg-bub" style="padding:10px 12px">
-        <div style="font-size:11px;font-weight:700;color:var(--g-mid);margin-bottom:8px">📥 PDF로 저장</div>
-        <div class="verdict-actions">
-          <button class="btn-verdict" style="background:#7c3aed;color:#fff"
-            onclick="downloadVerdictPdf(lastVerdictText)">
-            🖨 PDF 인쇄/저장
-          </button>
-        </div>
-      </div>
-      <div class="msg-time">${now()}</div>
-    </div>`;
-  msgs.appendChild(pdfEl);
-  scroll();
-}
-
-/* ─── API 호출 (범용) ───────────────────────────── */
-async function callLLM(userMsg, fpSum, sentFiles) {
-  const cfg  = LLM_CFG[curLlm];
-  const msgs = [
-    ...history_,
-    { role:'user', content: (() => {
-        const attach = buildAttachContext(sentFiles);  // ★ sentFiles 스냅샷 전달
-        const base   = fpSum
-          ? `[사용자 메시지]\n${userMsg}\n\n[Fast-Path 사전 탐지]\n${fpSum}\n위 결과를 참고하여 분석해 주세요.`
-          : userMsg;
-        return base + attach;
-      })() }
-  ];
-  const url  = typeof cfg.url === 'function' ? cfg.url(API_KEY) : cfg.url;
-  const hdrs = cfg.headers(API_KEY);
-  // K-Law 버튼 OFF 상태: 일반 대화 시스템 프롬프트만 사용
-  // K-Law 버튼 ON 상태: K-Law 전체 방법론 프롬프트 사용
-  const activeSys = klawOn ? SYS : FALLBACK_SYS;
-  const body = cfg.body(activeSys, msgs, curModel);
-  const res  = await fetch(url, { method:'POST', headers:hdrs, body:JSON.stringify(body) });
-  if (!res.ok) {
-    const et = await res.text().catch(()=>'');
-    throw new Error(`${cfg.label} API ${res.status}: ${et.slice(0,100)}`);
-  }
-  return cfg.pick(await res.json());
-}
-
-function parseRes(raw, fpHits) {
-  const im = raw.match(/\[IDDM\]([\s\S]*?)\[\/IDDM\]/);
-  const rm = raw.match(/\[응답\]([\s\S]*?)\[\/응답\]/);
-  let lv='NONE', cf=0, sum='', law='', ax='', act='';
-  if (im) {
-    const b = im[1];
-    const g = (re) => { const m=b.match(re); return m?m[1].trim():''; };
-    lv  = g(/등급:\s*([A-Z]+)/) || 'NONE';
-    cf  = Math.min(10, parseInt(g(/확신도:\s*(\d+)/)) || 0);
-    sum = g(/요약:\s*(.+)/);
-    law = g(/법령:\s*(.+)/);
-    ax  = g(/공리:\s*(.+)/);
-    act = g(/조치:\s*(.+)/);
-  }
-  if (fpHits.length) {
-    const fh = highest(fpHits);
-    if (SEV[fh] > SEV[lv]) { lv = fh; if(cf<5) cf=6; }
-  }
-  return { lv, cf, sum, law, ax, act, reply: rm ? rm[1].trim() : raw.trim() };
-}
-
-function fpOnlyRes(hits) {
-  if (!hits.length) return { lv:'NONE', cf:0, sum:'', law:'', ax:'', act:'',
-    reply:'메시지에 법적 위험이 탐지되지 않았습니다. ✅' };
-  const top = hits.reduce((a,b)=>SEV[a.lv]>=SEV[b.lv]?a:b);
-  const lv  = highest(hits);
-  return { lv, cf:7, sum:top.desc, law:top.law, ax:top.axiom, act:top.action,
-    reply:`⚠️ K-Law AI 판결 시뮬레이션 리포트\n[AI 사법 리스크 점검 결과]\n\n📋 ${top.desc}\n📚 ${top.law}\n⚖️ ${top.axiom}\n💡 ${top.action}\n🔒 PDV 기록 완료\n\n본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며, 어떠한 법적 효력도 가지지 않습니다.\n\n_(API Key 입력 시 전체 분석 가능합니다)_` };
-}
-
-/* ─── 렌더링 ─────────────────────────────────────── */
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function now() {
-  return new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-}
-
-function addUserMsg(text, files=[]) {
-  const el = document.createElement('div');
-  el.className = 'msg user';
-  const attachHtml = files.length ? files.map(f =>
-    `<div style="display:flex;align-items:center;gap:5px;margin-top:5px;
-      padding:4px 8px;background:rgba(255,255,255,.1);border-radius:8px;
-      font-size:10px;color:rgba(255,255,255,.7);">
-      <span>📎</span><span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
-      <span style="opacity:.5;font-family:var(--mono)">${fmtSize(f.size)}</span>
-    </div>`
-  ).join('') : '';
-  el.innerHTML = `<div class="msg-av">🙋</div>
-    <div class="msg-body">
-      <div class="msg-bub">${esc(text)}${attachHtml}</div>
-      <div class="msg-time">${now()}</div>
-    </div>`;
-  return el;
-}
-
-
-/* ─── 등급별 리포트 타이틀 ──────────────────────── */
-function reportTitle(lv) {
-  // NONE·CR·CV → 정상/주의 계열
-  // LB·CC      → 위험/심각 계열
-  if (lv === 'LB' || lv === 'CC') {
-    return {
-      main: 'K-Law AI 판결 시뮬레이션 리포트',
-      sub:  'AI 판결 시뮬레이션 및 분쟁 예측',
-    };
-  }
-  return {
-    main: 'K-Law AI 판결 시뮬레이션 리포트',
-    sub:  'AI 사법 리스크 점검 결과',
-  };
-}
-
-const GRADE_LABEL = {
-  CR: '계약 위험 (Contract Risk)',
-  CV: '법령 위반 (Contract Violation)',
-  LB: '법적 경계 (Legal Boundary)',
-  CC: '형사 우려 (Criminal Concern)',
-};
-
-function addBotMsg(lv, cf, sum, law, ax, act, reply) {
-  const el = document.createElement('div');
-  el.className = 'msg bot';
-  let warn = '';
-  if (lv !== 'NONE' && cf >= 4) {
-    const cls   = lv.toLowerCase();
-    const title = reportTitle(lv);
-    const grade = GRADE_LABEL[lv] || lv;
-    const engine = curLlm === 'deepseek' ? 'DeepSeek v4 Pro'
-                 : curLlm === 'claude'   ? 'Claude Sonnet 4.6'
-                 : curLlm === 'gemini'   ? 'Gemini 2.0 Flash'
-                 : curLlm === 'openai'   ? 'GPT-4o'
-                 : curLlm === 'grok'     ? 'Grok 3 Beta'
-                 : 'OpenRouter';
-    warn = `<div class="warn ${cls}">
-      <div class="report-header">
-        <div class="report-title">${title.main}</div>
-        <div class="report-subtitle">K-Law Engine (${engine}) 기반 분석</div>
-        <div class="report-subtitle" style="margin-top:2px">${title.sub}</div>
-        <div class="report-grade">${EMOJ[lv]} ${grade}</div>
-      </div>
-      ${sum ? `<div class="warn-row"><span>📋</span><span>${esc(sum)}</span></div>` : ''}
-      ${law ? `<div class="warn-row"><span>📚</span><span>${esc(law)}</span></div>` : ''}
-      ${ax  ? `<div class="warn-row"><span>⚖️</span><span>${esc(ax)}</span></div>` : ''}
-      ${act ? `<div class="warn-row"><span>💡</span><span>${esc(act)}</span></div>` : ''}
-      <div class="warn-row"><span>🔒</span><span>PDV 기록 완료 (위변조 불가)</span></div>
-      <div class="report-disclaimer">
-        본 시뮬레이션은 K-Law Gopang v1.0 알고리즘에 의거한 가상 분석 결과이며,
-        어떠한 법적 효력도 가지지 않습니다.
-        구체적인 법률 판단은 반드시 법률 전문가와 상의하십시오.
-      </div>
-    </div>`;
-  }
-  el.innerHTML = `<div class="msg-av">🐚</div>
-    <div class="msg-body">
-      ${warn}
-      <div class="msg-bub">${esc(reply).replace(/\n/g,'<br>')}</div>
-      <div class="msg-time">${now()}${cf>0?'&nbsp;·&nbsp;확신도 '+cf+'/10':''}</div>
-    </div>`;
-  return el;
-}
-
-function addTyping() {
-  const el = document.createElement('div');
-  el.className = 'msg bot'; el.id = 'typing';
-  el.innerHTML = `<div class="msg-av">🐚</div>
-    <div class="msg-body">
-      <div class="msg-bub"><div class="typing-bub">
-        <span></span><span></span><span></span>
-      </div></div>
-    </div>`;
-  return el;
-}
-
-function addSys(text) {
-  const el = document.createElement('div');
-  el.className = 'sys-line';
-  el.textContent = text;
-  return el;
-}
-
-function scroll() {
-  const m = document.getElementById('msgs');
-  setTimeout(() => { m.scrollTop = m.scrollHeight; }, 30);
-}
-
-/* ─── AI 비서 토글 ──────────────────────────────── */
-function toggleAi() {
-  aiOn = !aiOn;
-  const btn   = document.getElementById('btnAi');
-  const label = document.getElementById('btnAiLabel');
-  const inp   = document.getElementById('inp');
-  const send  = document.getElementById('btnSend');
-  const msgs  = document.getElementById('msgs');
-
-  if (aiOn) {
-    btn.classList.add('active');
-    label.textContent = 'AI 비서 ON';
-    inp.disabled  = false;
-    inp.placeholder = '메시지 입력';
-    send.disabled = false;
-    document.getElementById('btnAttach').disabled = false;
-    msgs.appendChild(addSys('K-Law AI 비서가 활성화되었습니다'));
-    setTimeout(() => {
-      msgs.appendChild(addBotMsg('NONE',0,'','','','',
-        '귀하의 AI 비서입니다.'));
-      scroll();
-    }, 250);
-    inp.focus();
-  } else {
-    btn.classList.remove('active');
-    label.textContent = 'AI 비서';
-    inp.disabled  = true;
-    inp.placeholder = '';
-    send.disabled = true;
-    document.getElementById('btnAttach').disabled = true;
-    msgs.appendChild(addSys('AI 비서가 일시 중지되었습니다'));
-    scroll();
-  }
-}
-
-/* ─── 전송 ──────────────────────────────────────── */
-async function sendMsg(preText) {
-  if (!aiOn) { toggleAi(); return; }
-  const inp  = document.getElementById('inp');
-  const text = preText || inp.value.trim();
-  if (!text || isLoad) return;
-
-  inp.value = ''; inp.style.height = 'auto';
-  isLoad = true;
-  document.getElementById('btnSend').disabled = true;
-  inp.disabled = true;
-
-  // 첨부 파일 목록 스냅샷 (전송 후 초기화)
-  const sentFiles = [...attachedFiles];
-  attachedFiles = [];
-  document.getElementById('attachBar').innerHTML = '';
-  updateAttachBar();
-
-  const msgs = document.getElementById('msgs');
-  msgs.appendChild(addUserMsg(text, sentFiles));
-
-  // 판결문 모드: K-Law 버튼 활성화 + 명시적 판결 요청 키워드 동시 충족 시에만
-  // 파일 첨부 단독으로는 판결 모드 진입하지 않음
-  const verdictMode = klawOn && isVerdictRequest(text);
-  let progressEl = null;
-  let progressDone = false;
-  let tp = null;
-
-  if (verdictMode) {
-    progressEl = createProgressEl();
-    msgs.appendChild(progressEl);
-    scroll();
-    // Progress 애니메이션과 LLM 호출 병렬 실행
-    runProgress(progressEl).then(() => { progressDone = true; });
-  } else {
-    tp = addTyping();
-    msgs.appendChild(tp);
-  }
-  scroll();
-
-  // K-Law 모드 분기
-  if (klawOn && klawPhase !== 'idle' && klawPhase !== 'done') {
-    if (progressEl) { progEl_ref = progressEl; }
-    if (tp) tp.remove(); if (progressEl) progressEl.remove();
-    await handleKlawMsg(text, sentFiles);
-    isLoad = false;
-    if (aiOn) { inp.disabled = false; document.getElementById('btnSend').disabled = false; }
-    return;
-  }
-
+async function doAuth() {
+  const username = document.getElementById('auth-username').value.trim();
+  const password = document.getElementById('auth-password').value.trim();
+  if (!username || !password) { showAuthErr('사용자명과 비밀번호를 입력하세요'); return; }
   try {
-    const hits = fpScan(text);
-    const fpS  = hits.map(h=>`• ${h.code} [${h.lv}]: ${h.desc}`).join('\n');
-    let r;
-    if (API_KEY) {
-      const raw = await callLLM(text, fpS, sentFiles);
-      r = parseRes(raw, hits);
-      history_.push({role:'user', content:text});
-      history_.push({role:'assistant', content:r.reply});
-      if (history_.length > 20) history_ = history_.slice(-20);
-    } else {
-      r = fpOnlyRes(hits);
-    }
-
-    // Progress가 아직 끝나지 않았으면 완료 대기
-    if (verdictMode && !progressDone) {
-      await new Promise(res => {
-        const chk = setInterval(() => { if (progressDone) { clearInterval(chk); res(); } }, 100);
-      });
-    }
-
-    if (progressEl) progressEl.remove();
-    if (tp) tp.remove();
-
-    msgs.appendChild(addBotMsg(r.lv, r.cf, r.sum, r.law, r.ax, r.act, r.reply));
-
-    // PDV 기록 (해시 계산 + CloudStorage + L1 앵커)
-    pdvRecord(text, r.reply, r.lv).then(hash => {
-      console.log('[PDV] height:', pdvHeight-1, 'hash:', hash.slice(0,16) + '...');
-      // 헤더 PDV 뱃지 업데이트
-      const pdvEl = document.getElementById('pdvStatus');
-      if (pdvEl) {
-        pdvEl.textContent = '🔒 PDV #' + (pdvHeight-1);
-        pdvEl.title = 'height:' + (pdvHeight-1) + ' | ' + hash.slice(0,16) + '...';
-        pdvEl.style.color = 'rgba(110,231,183,.7)';
-      }
-    });
-
-    // 판결문 모드: 다운로드/이메일 액션 버튼 추가
-    if (verdictMode && r.reply && r.reply.length > 200) {
-      addVerdictActions(r.reply);
-    }
-    setStatus(true);
-  } catch(e) {
-    if (progressEl) progressEl.remove();
-    if (tp) tp.remove();
-    msgs.appendChild(addBotMsg('NONE',0,'','','','', `오류: ${e.message}`));
-    setStatus(false);
-  }
-  scroll();
-  isLoad = false;
-  if (aiOn) { inp.disabled = false; document.getElementById('btnSend').disabled = false; }
+    const path = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const data = await api('POST', path, { username, password });
+    token = data.token;
+    myUser = { id: data.user_id, username: data.username };
+    localStorage.setItem('gopang_token', token);
+    localStorage.setItem('gopang_user', JSON.stringify(myUser));
+    onLogin();
+  } catch (e) { showAuthErr(e.message); }
 }
 
-/* ─── 유틸 ─────────────────────────────────────── */
+function showAuthErr(msg) { document.getElementById('auth-error').textContent = msg; }
+
+function onLogin() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('header-username').textContent = myUser.username;
+  checkServer();
+  loadConvs();
+}
+
+function logout() {
+  token = ''; myUser = null; ws && ws.close();
+  localStorage.removeItem('gopang_token');
+  localStorage.removeItem('gopang_user');
+  location.reload();
+}
+
+// ── 서버 상태 ──
+async function checkServer() {
+  try {
+    await fetch(API + '/health');
+    document.getElementById('server-dot').classList.add('ok');
+  } catch { document.getElementById('server-dot').classList.remove('ok'); }
+  setTimeout(checkServer, 10000);
+}
+
+// ── 대화 목록 ──
+async function loadConvs() {
+  try {
+    const convs = await api('GET', '/conversations');
+    const list = document.getElementById('conv-list');
+    if (!convs.length) {
+      list.innerHTML = '<div class="sys-msg" style="padding:16px 0;font-size:12px;">대화방이 없습니다</div>';
+      return;
+    }
+    list.innerHTML = convs.map(c => `
+      <div class="conv-item" id="conv-${c.conv_id}" onclick="openConv('${c.conv_id}','${c.with}')">
+        💬 ${c.with}
+      </div>`).join('');
+  } catch (e) { console.error(e); }
+}
+
+async function openConv(convId, withUser) {
+  currentConv = convId;
+  document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(`conv-${convId}`);
+  if (el) el.classList.add('active');
+  document.getElementById('chat-title').textContent = withUser;
+  document.getElementById('send-btn').disabled = false;
+
+  // 메시지 로드
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = '';
+  try {
+    const history = await api('GET', `/messages/${convId}`);
+    history.forEach(m => appendMessage({
+      sender: m.sender_name,
+      content: m.content,
+      grade: m.phase_grade || 'S0',
+      timestamp: m.timestamp,
+      pipeline: m.phase_json ? JSON.parse(m.phase_json) : {},
+      pdv: { hash: m.hash_sha256, anchor_l0: m.anchor_l0 }
+    }));
+    scrollBottom(msgs);
+  } catch (e) { console.error(e); }
+
+  // WebSocket 연결
+  if (ws) ws.close();
+  ws = new WebSocket(`${WS}/ws/${convId}?token=${token}`);
+  ws.onopen = () => document.getElementById('ws-dot').classList.add('connected');
+  ws.onclose = () => document.getElementById('ws-dot').classList.remove('connected');
+  ws.onmessage = e => {
+    const pkt = JSON.parse(e.data);
+    if (pkt.type === 'message') {
+      appendMessage(pkt);
+      updateDebug(pkt);
+      scrollBottom(msgs);
+    } else if (pkt.type === 'alert') {
+      appendAlert(pkt);
+      scrollBottom(msgs);
+    }
+  };
+}
+
+// ── 메시지 렌더 ──
+function appendMessage(pkt) {
+  const msgs = document.getElementById('messages');
+  const isMine = pkt.sender === myUser.username;
+  const avatar = pkt.sender.charAt(0).toUpperCase();
+  const grade = pkt.grade || 'S0';
+  const elapsed = pkt.elapsed_ms ? `${pkt.elapsed_ms}ms` : '';
+  const div = document.createElement('div');
+  div.className = `msg-row${isMine ? ' mine' : ''}`;
+  div.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-body">
+      <div class="msg-name">${pkt.sender}</div>
+      <div class="msg-bubble">${escHtml(pkt.content)}</div>
+      <div class="msg-grade">
+        <span class="grade-badge ${gradeClass(grade)}" title="클릭: 파이프라인 보기"
+          onclick='showPipeline(${JSON.stringify(pkt.pipeline || {})})'>${grade}</span>
+        ${elapsed ? `<span>${elapsed}</span>` : ''}
+        ${pkt.pdv && pkt.pdv.hash ? `<span style="color:var(--accent2);cursor:pointer" title="${pkt.pdv.hash}">🔒</span>` : ''}
+      </div>
+    </div>`;
+  msgs.appendChild(div);
+}
+
+function appendAlert(pkt) {
+  const msgs = document.getElementById('messages');
+  const cls = pkt.grade === 'S3' ? '' : ' s2';
+  const div = document.createElement('div');
+  div.className = `alert-msg${cls}`;
+  div.innerHTML = `
+    <strong>${pkt.grade === 'S3' ? '🚫 차단' : '⚠️ 경고'} [${pkt.grade}]</strong><br>
+    ${escHtml(pkt.notice || '위법성이 감지되어 처리되었습니다.')}
+    ${pkt.legal_basis ? `<br><small style="color:var(--muted)">${escHtml(pkt.legal_basis)}</small>` : ''}`;
+  msgs.appendChild(div);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── 메시지 전송 ──
+function sendMessage() {
+  if (!ws || ws.readyState !== 1) { alert('WebSocket 미연결'); return; }
+  const inp = document.getElementById('msg-input');
+  const content = inp.value.trim();
+  if (!content) return;
+  ws.send(JSON.stringify({ content }));
+  inp.value = '';
+  inp.style.height = '';
+}
+
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
+
 function autoResize(el) {
   el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
-}
-function setStatus(ok) {
-  const d = document.getElementById('gDot');
-  const t = document.getElementById('gStatusTxt');
-  d.className = 'g-dot' + (ok?' ok':' err');
-  const lb = LLM_CFG[curLlm]?.label || 'LLM';
-  t.textContent = ok ? (API_KEY?`${lb} 연결됨`:'Fast-Path 모드') : '연결 오류';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-/* ─── 모달 ─────────────────────────────────────── */
-function openModal() {
-  document.getElementById('modalBg').classList.add('open');
+// ── 새 대화 ──
+function showNewConv() {
+  document.getElementById('new-conv-modal').style.display = 'flex';
+  document.getElementById('new-conv-target').focus();
 }
-function pickLlm(card) {
-  document.querySelectorAll('#llmGrid .llm-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
-  curLlm = card.dataset.llm;
-  // 엔드포인트 표시
-  document.getElementById('llmEndpoint').textContent = '엔드포인트: ' + card.dataset.ep;
-  // OpenRouter 커스텀 모델 표시/숨김
-  const customRow = document.getElementById('llmCustomRow');
-  customRow.classList.toggle('show', curLlm === 'openrouter');
-  // placeholder 힌트
-  const hint = LLM_CFG[curLlm]?.hint || 'API Key...';
-  document.getElementById('modalKey').placeholder = hint;
-  // defaultKey 자동 입력
-  const defKey = LLM_CFG[curLlm]?.defaultKey || '';
-  document.getElementById('modalKey').value = defKey;
-  if (defKey) { API_KEY = defKey; curLlm = card.dataset.llm; }
-  // 헤더 뱃지 갱신
-  document.getElementById('gLlmBadge').textContent = (LLM_CFG[curLlm]?.label || curLlm) + ' ▾';
+function closeModal() {
+  document.getElementById('new-conv-modal').style.display = 'none';
+  document.getElementById('conv-error').textContent = '';
 }
-function initWithKey() {
-  const k  = document.getElementById('modalKey').value.trim();
-  const cm = document.getElementById('llmCustomModel')?.value.trim() || '';
-  if (cm) curModel = cm;
-  if (k) API_KEY = k;
-  // 헤더 뱃지 최종 갱신
-  document.getElementById('gLlmBadge').textContent = (LLM_CFG[curLlm]?.label || curLlm) + ' ▾';
-  document.getElementById('modalBg').classList.remove('open');
-  setStatus(!!k);
-}
-function initWithoutKey() {
-  document.getElementById('modalBg').classList.remove('open');
-  setStatus(false);
-}
-
-/* ─── 시계 & 초기화 ─────────────────────────────── */
-function tick() {
-  document.getElementById('barTime').textContent =
-    new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-}
-window.addEventListener('DOMContentLoaded', async () => {
-
-  // ── Telegram TWA 초기화 ──
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.expand();                          // 전체 화면
-    tg.ready();                           // 로드 완료 신호
-
-    // 헤더에 Telegram 사용자 이름 표시
-    const user = tg.initDataUnsafe?.user;
-    if (user) {
-      const badge = document.getElementById('gLlmBadge');
-      if (badge) badge.title = user.first_name + ' (Telegram)';
-    }
-
-    // 뒤로가기 버튼
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => tg.close());
-
-    // Telegram 테마 색상 적용
-    document.documentElement.style.setProperty(
-      '--tg-bg', tg.themeParams?.bg_color || '#060a12'
-    );
+async function createConv() {
+  const target = document.getElementById('new-conv-target').value.trim();
+  if (!target) return;
+  try {
+    const data = await api('POST', '/conversations', { target_username: target });
+    closeModal();
+    await loadConvs();
+    openConv(data.conv_id, target);
+  } catch (e) {
+    document.getElementById('conv-error').textContent = e.message;
   }
+}
 
-  // ── PDV 체인 초기화 (이전 기록 복원) ──
-  await pdvInit();
+// ── 디버그 패널 ──
+function switchDebug(mode) {
+  debugMode = mode;
+  document.querySelectorAll('.debug-tab').forEach((t, i) => {
+    t.classList.toggle('active', ['pipeline','pdv','raw'][i] === mode);
+  });
+  renderDebug();
+}
 
-  // ── 오프라인 큐 재전송 ──
-  pdvFlushQueue().catch(() => {});
+function updateDebug(pkt) {
+  lastPacket = pkt;
+  if (pkt.pdv && pkt.pdv.pdv_id) pdvLog.unshift(pkt.pdv);
+  renderDebug();
+}
 
-  // ── System Prompt 로드 ──
-  await loadSystemPrompt();
-
-  // ── DeepSeek default 키 자동 적용 ──
-  const defKey = LLM_CFG['deepseek']?.defaultKey || '';
-  if (defKey) {
-    API_KEY = defKey;
-    document.getElementById('modalKey').value = defKey;
+function renderDebug() {
+  const el = document.getElementById('debug-content');
+  if (debugMode === 'raw') {
+    el.innerHTML = lastPacket
+      ? `<div class="debug-json">${syntaxHL(lastPacket)}</div>`
+      : '<div class="debug-empty">메시지를 전송하면 표시됩니다.</div>';
+    return;
   }
+  if (debugMode === 'pdv') {
+    el.innerHTML = pdvLog.length
+      ? pdvLog.map(p => `
+          <div class="pdv-item">
+            <div class="pdv-grade" style="color:${gradeColor(p.grade)}">${p.grade} — PDV 기록</div>
+            <div class="pdv-hash">SHA256: ${p.hash ? p.hash.slice(0,32) + '...' : '—'}</div>
+            <div class="pdv-anchor">L0: ${p.anchor_l0 || '—'}</div>
+          </div>`).join('')
+      : '<div class="debug-empty">PDV 기록이 없습니다.</div>';
+    return;
+  }
+  // pipeline
+  if (!lastPacket || !lastPacket.pipeline) {
+    el.innerHTML = '<div class="debug-empty">메시지를 전송하면 분석 결과가 표시됩니다.</div>';
+    return;
+  }
+  const p = lastPacket.pipeline;
+  const grade = lastPacket.grade || 'S0';
+  const score = p.phase3?.score ?? '—';
+  el.innerHTML = `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="grade-badge ${gradeClass(grade)}" style="font-size:13px;padding:3px 10px">${grade}</span>
+        <span style="color:var(--muted);font-size:11px">점수: <strong style="color:var(--text)">${score}</strong></span>
+        <span style="color:var(--muted);font-size:11px">${lastPacket.elapsed_ms || '—'}ms</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">처리 지시</div>
+      <div style="font-size:12px;color:var(--text)">${p.phase5?.action || '—'}</div>
+      ${p.phase5?.notice ? `<div style="font-size:11px;color:var(--s2);margin-top:4px">${p.phase5.notice}</div>` : ''}
+      ${p.phase5?.legal_basis ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">${p.phase5.legal_basis}</div>` : ''}
+    </div>
+    <hr style="border-color:var(--border);margin:8px 0">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 0 — 소통 객체</div>
+    <div style="font-size:12px;margin-bottom:10px">
+      유형: ${p.phase0?.sender_type || '—'}<br>
+      목적: ${p.phase0?.purpose || '—'}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 1 — 탐지 패턴</div>
+    <div style="font-size:12px;margin-bottom:10px">
+      키워드: ${(p.phase1?.keywords || []).join(', ') || '없음'}<br>
+      패턴: ${(p.phase1?.patterns || []).join(', ') || '없음'}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 2 — 법령 분류</div>
+    <div style="font-size:12px;margin-bottom:10px">
+      유형: ${p.phase2?.law_type || '—'}<br>
+      조항: ${(p.phase2?.articles || []).join(', ') || '없음'}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Phase 3~4 — 점수/등급</div>
+    <div style="font-size:12px;margin-bottom:4px">
+      점수: <strong>${score}</strong><br>
+      이유: ${p.phase3?.reason || '—'}
+    </div>
+  `;
+}
 
-  document.getElementById('modalBg').classList.add('open');
-  setStatus(false); tick();
-  setInterval(tick, 1000);
+function showPipeline(pipeline) {
+  if (!pipeline || !Object.keys(pipeline).length) return;
+  lastPacket = { ...(lastPacket || {}), pipeline };
+  switchDebug('pipeline');
+}
+
+// ── 초기화 ──
+if (token && myUser) onLogin();
+
+document.getElementById('new-conv-target').addEventListener('keydown', e => {
+  if (e.key === 'Enter') createConv();
+});
+document.getElementById('auth-username').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('auth-password').focus();
+});
+document.getElementById('auth-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doAuth();
 });
 </script>
 </body>
