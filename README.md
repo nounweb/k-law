@@ -3,9 +3,9 @@
 **Park-Do PLAS** — OpenHash 기반 AI 자율 분쟁 예방·해결 시스템
 
 > Co-developed by Professor Yong-Chul Park and Developer Young-Min Do  
-> AI City Inc. · Park-Do PLAS Research Group · Jeju, Republic of Korea  
+> AI City Inc. · K-Law Research Group · Jeju, Republic of Korea  
 > ORCID: [0009-0004-4288-8746](https://orcid.org/0009-0004-4288-8746)  
-> 버전: K-Law v13.2 · 기준일: 2026년 5월 2일
+> 버전: K-Law v13.2 · Gopang v3.0.0 · 기준일: 2026년 5월 10일
 
 ---
 
@@ -188,6 +188,91 @@ S3 긴급  (≥ 0.9)        → 즉시 차단 + 관련 기관 안내
 
 ---
 
+## Gopang 플랫폼 (v3.0.0)
+
+Gopang은 IDDM을 실시간으로 구현하는 소통 플랫폼입니다.  
+v3에서 Telegram 앵커가 **OpenHash 시뮬레이션 네트워크**로 전면 교체되었습니다.
+
+### 구성 파일
+
+| 파일 | 위치 | 설명 |
+|------|------|------|
+| `gopang_server.py` | `gopang/server/` | FastAPI 백엔드 v3.0.0 |
+| `gopang_demo.html` | `docs/` | 데모 채팅 클라이언트 v3 |
+| `gopang_monitor.html` | `docs/` | K-Law & OpenHash 실시간 모니터 |
+| `gopang_deploy.sh` | `deploy/` | systemd 자동 설치 스크립트 |
+| `gopang_v3_deploy_guide.txt` | `deploy/` | 배포 절차 및 변경사항 요약 |
+
+### v3 신규 기능
+
+**① OpenHash 시뮬레이션 네트워크**
+
+```
+20개 노드: L1×10(읍면동) + L2×4(시군구) + L3×3(광역) + L4×2(국가) + L5×1(글로벌)
+```
+
+- PLSM(확률적 계층 선택): 위험 등급별 등록 계층 확률 결정
+
+| 등급 | L1 | L2 | L3 | L4 | L5 |
+|------|----|----|----|----|-----|
+| S0 | 50% | 30% | 15% | 4% | 1% |
+| S1 | 30% | 35% | 25% | 8% | 2% |
+| S2 | 15% | 25% | 35% | 20% | 5% |
+| S3 | 5% | 10% | 30% | 40% | 15% |
+
+- Merkle Tree 루트 계산 (SHA-256 반복 결합)
+- 등록 계층 → L5까지 체인 해시 상위 전파
+
+**② PDV Records (Phase 6 스펙 KL-M-02)**
+
+- 6개 서랍 분류: `FINANCIAL / MEDICAL / EDUCATION / ADMIN / TRANSPORT / GENERAL`
+- S0: 간소 기록, 90일 보존 / S1~S3: 원문 암호화, 5년 보존
+
+**③ 신규 API 엔드포인트**
+
+```
+GET  /openhash/status           — 20개 노드 현황
+GET  /openhash/verify/{conv_id} — 앵커 검증
+GET  /openhash/pdv/{conv_id}    — PDV 레코드 조회
+```
+
+**④ 데모 클라이언트 UI**
+
+- 분석 패널 탭 5개: Fast-Path | 배치분석 | PDV | 🔗 Hash | JSON
+- OpenHash 20노드 그리드 + 전파 경로 시각화
+- PDV 레코드 카드 (서랍/등급/보존기간/만료일/해시)
+- 파일 첨부 기능 (클립 아이콘, 미리보기 바 포함)
+
+### 대화 종료 시 처리 흐름
+
+```
+⏹ 대화 종료
+    │
+    ▼
+POST /pdv/analyze/{conv_id}
+    ├─ Step 1. K-Law 배치 분석 (DeepSeek API, 5~30초)
+    ├─ Step 2. PDV Records 저장 (SQLite, <50ms)
+    ├─ Step 3. OpenHash 등록 (인메모리, <10ms)
+    └─ Step 4. 응답 반환 { K-Law + pdv{} + openhash{} }
+    │
+    ▼
+클라이언트: 배너 표시 → OpenHash 탭 자동 전환
+```
+
+### 빠른 배포
+
+```bash
+# 서버 배포 (ubuntu@서버IP)
+scp gopang/server/gopang_server.py ubuntu@<IP>:/opt/gopang/
+scp docs/gopang_demo.html ubuntu@<IP>:/opt/gopang/
+bash deploy/gopang_deploy.sh
+
+# 로그 확인
+sudo journalctl -u gopang -f
+```
+
+---
+
 ## 실험 설계
 
 ### 데이터셋: 법제처 공개 판례 1,008건
@@ -225,6 +310,8 @@ S3 긴급  (≥ 0.9)        → 즉시 차단 + 관련 기관 안내
 
 ## 🔴 실시간 검증 가능성 (Live Verifiability)
 
+본 연구의 가장 중요한 특징입니다.
+
 **심사관·독자·후속 연구자 누구나, 언제든지, 새로운 판례로 독립 검증할 수 있습니다.**
 
 대한민국 대법원은 법제처 Open API를 통해 판례를 지속적으로 공개합니다.
@@ -246,23 +333,23 @@ cd k-law
 pip install -r requirements.txt
 
 # 3. API 키 설정
-cp .env.example .env
+cp env.example .env
 # .env 파일에 OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY 입력
 
 # 4. 최신 판례 수집 (법제처 Open API)
-python data/collect_1008.py
+python data/collect_1008.py --count 100 --domains 민사,형사,행정
 
 # 5. 판결문 본문 수집
 python data/fetch_prec_texts.py
 
-# 6. 사건 요약 추출 (판결 결과 제거, gpt-4o-mini)
-python data/summary_1008.py
+# 6. 사건 요약 추출 (판결 결과 제거)
+python data/summary_batch.py --input ./cases --output ./summaries
 
 # 7. 실험군 층화 분할
 python data/split_final.py
 
 # 8. K-Law 가상 판결 생성 (Test A)
-python experiments/test_a.py
+python experiments/test_a.py --input ./summaries --output ./results
 
 # 9. Plain LLM 비교 (Test B)
 python experiments/test_b.py
@@ -276,35 +363,60 @@ python experiments/analyze.py --results ./results
 ## 저장소 구조
 
 ```
-k-law/
+k-law/                             ← https://github.com/nounweb/k-law
+│
 ├── data/                          # 데이터 수집 파이프라인
 │   ├── collect_1008.py            # 법제처 API 판례 목록 수집 (분야별 배분)
 │   ├── fetch_prec_texts.py        # 판결문 본문 XML 수집
-│   ├── summary_1008.py            # gpt-4o-mini 6항목 요약 (판결 결과 제거)
+│   ├── summary_batch.py           # gpt-4o-mini 요약 추출 (판결 결과 제거)
 │   └── split_final.py             # 실험군 층화 분할 (seed=42)
 │
+├── experiments/                   # 실험 실행 스크립트
+│   ├── test_a.py                  # K-Law vs 법원 판결 비교 (LCAM 점수·OA)
+│   ├── test_b.py                  # K-Law vs Plain LLM 3종 (ΔOA)
+│   ├── test_c.py                  # LCAM 평가자 간 κ 측정
+│   ├── test_d.py                  # 1·2심 vs K-Law vs 대법원 비교
+│   ├── test_e.py                  # AI 비서 탐지 시뮬레이션
+│   └── analyze.py                 # 통계 분석 (t검정·Cohen's d·κ)
+│
 ├── klaw/                          # K-Law 핵심 방법론
+│   ├── iddm/
+│   │   ├── IDDM_full.txt          # Phase 0~6 전문
+│   │   └── fast_path.txt          # FP-01~08 즉각 탐지 목록
+│   ├── lcam/
+│   │   └── LCAM_overview.txt      # Phase 0~8 개요 (전문은 논문 게재 후 공개)
 │   └── prompts/
 │       ├── system_prompt.txt      # 15개 공리 전문 (v13.2)
 │       ├── reverse_reasoning.txt  # Axiom B 역방향 추론 프로토콜
 │       └── plain_llm_prompt.txt   # Test B 비교용 공통 프롬프트
 │
-├── lcam/                          # LCAM 채점 방법론
-│   └── LCAM_overview.txt          # Phase 0~8 개요 (전문은 논문 게재 후 공개)
+├── deploy/                        # 배포 스크립트 및 운영 가이드  ← 추가 예정
+│   ├── gopang_deploy.sh           # systemd 자동 설치 스크립트
+│   ├── gopang_openhash_implementation_plan.txt
+│   └── gopang_v3_deploy_guide.txt # v3 배포 절차 및 변경사항 요약
 │
-├── iddm/                          # IDDM 예방방법론
-│   ├── IDDM_full.txt              # Phase 0~6 전문
-│   └── fast_path.txt              # FP-01~08 즉각 탐지 목록
+├── docs/                          # 공개 문서 및 데모 클라이언트  ← 추가 예정
+│   ├── booklet-1-intro.html ~ booklet-5-gopang.html
+│   ├── gopang_demo.html           # Gopang 데모 채팅 클라이언트 (v3)
+│   ├── gopang_monitor.html        # K-Law & OpenHash 실시간 모니터
+│   ├── openhash-gopang.html
+│   └── openhash-paper-v2-2.html
 │
-├── experiments/                   # 실험 실행 스크립트
-│   ├── test_a.py                  # K-Law vs 법원 판결 비교 (LCAM 점수·OA)
-│   ├── test_b.py                  # K-Law vs Plain LLM 3종 (ΔOA)
-│   └── analyze.py                 # 통계 분석 (t검정·Cohen's d·κ)
-│
-├── results/                       # 실험 결과 원본 데이터
+├── gopang/                        # Gopang 서버 패키지            ← 추가 예정
+│   ├── bot/                       # Telegram 봇 핸들러
+│   ├── iddm/                      # IDDM 엔진 (Fast-Path 포함)
+│   ├── models/                    # 데이터 모델
+│   ├── openclaw/                  # K-Law API 클라이언트
+│   ├── pdv/                       # PDV Vault
+│   ├── server/
+│   │   └── gopang_server.py       # FastAPI 서버 v3.0.0
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── config.py
+│   └── main.py
 │
 ├── requirements.txt               # Python 의존성
-├── .env.example                   # API 키 템플릿
+├── env.example                    # API 키 템플릿
 └── README.md                      # 본 문서
 ```
 
@@ -331,6 +443,14 @@ k-law/
 
 > K-Law 방법론은 지속적으로 버전 업데이트가 진행됩니다.  
 > 본 실험에 사용된 버전은 OSF 사전등록 시 고정됩니다.
+
+## Gopang 버전 이력
+
+| 버전 | 주요 변경 | 비고 |
+|------|-----------|------|
+| v1.0 | 초기 IDDM Fast-Path 적용 | 내부 실험 |
+| v2.0 | Telegram 앵커, PDV 로그 | 배포 |
+| **v3.0.0** | **OpenHash 시뮬레이션 네트워크 교체, PDV Records 신설** | **2026년 5월 10일** |
 
 ---
 
